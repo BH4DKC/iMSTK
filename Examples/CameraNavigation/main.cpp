@@ -7,6 +7,7 @@
 #include "imstkMath.h"
 #include "imstkTimer.h"
 #include "imstkSimulationManager.h"
+#include "imstkViewer.h"
 
 // Objects
 #include "imstkForceModelConfig.h"
@@ -66,13 +67,65 @@
 #include <string>
 #include <vtkJPEGReader.h>
 
+// Overlay
+#include <vtkNew.h>
+#include <vtkPNGReader.h>
+#include <vtkImageResize.h>
+#include <vtkImageTranslateExtent.h>
+#include <vtkImageMapper.h>
+#include <vtkActor2D.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderer.h>
+#include <vtkImageResize.h>
+#include <vtkImageTranslateExtent.h>
+
 using namespace imstk;
+
+const int overlaySize = 400;
+
+///
+///	 \brief Add a 2D overlay of target markers on a 3D scene
+///
+void add2DOverlay(vtkSmartPointer<vtkRenderer> rendererVtk, const char* fileName)
+{
+	// Read the image
+	vtkNew<vtkPNGReader> reader;
+	reader->SetFileName(fileName);
+	reader->Update();
+
+	int dim[3] = { overlaySize, overlaySize, 1 };
+
+	// Resize image
+	vtkNew<vtkImageResize> resize;
+	resize->SetInputConnection(reader->GetOutputPort());
+	resize->SetOutputDimensions(dim);
+
+	// Translate image extent (origin to its center)
+	vtkNew<vtkImageTranslateExtent> translateExtent;
+	translateExtent->SetInputConnection(resize->GetOutputPort());
+	translateExtent->SetTranslation(-dim[0] / 2, -dim[1] / 2, 0);
+
+	// Mapper
+	vtkNew<vtkImageMapper> imageMapper;
+	imageMapper->SetInputConnection(translateExtent->GetOutputPort());
+	imageMapper->SetColorWindow(255);
+	imageMapper->SetColorLevel(127);
+
+	// Actor
+	vtkNew<vtkActor2D> imageActor;
+	imageActor->SetMapper(imageMapper.GetPointer());
+	imageActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedDisplay();
+	imageActor->SetPosition(0.5, 0.5);
+
+	// Renderer
+	rendererVtk->AddActor2D(imageActor.GetPointer());
+}
 
 int main()
 {
 	std::cout << "****************\n"
-		<< "Starting Camera Navigation Application\n"
-		<< "****************\n";
+			  << "Starting Camera Navigation Application\n"
+			  << "****************\n";
 
 	// create sdk
 	auto sdk = std::make_shared<SimulationManager>();
@@ -132,7 +185,12 @@ int main()
 	planeObj->setVisualGeometry(planeGeom);
 	scene->addSceneObject(planeObj);
 
-	// Run
+	// Set the scene as current
 	sdk->setCurrentScene("Camera Navigation simulator");
+
+	// Add a 2D overlay on the 3D scene
+	add2DOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), "Resources/viewfinder.png");
+
+	// Run
 	sdk->startSimulation(true);
 }
