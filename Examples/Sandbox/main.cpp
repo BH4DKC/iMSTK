@@ -94,7 +94,6 @@ void testPbdVolume();
 void testPbdCloth();
 void testPbdCollision();
 void testLineMesh();
-void cameraNavigation();
 
 int main()
 {
@@ -105,10 +104,10 @@ int main()
 	//testMultiTextures();
 	//testMeshCCD();
 	//testPenaltyRigidCollision();
-	//testTwoFalcons();
+	//testTwoOmnis();
 	//testObjectController();
 	//testCameraController();
-	//testViewer();
+	testViewer();
 	//testReadMesh();
 	//testAnalyticalGeometry();
 	//testScenesManagement();
@@ -124,7 +123,6 @@ int main()
 	//testVectorPlotters();
 	//testPbdVolume();
 	//testPbdCloth();
-	cameraNavigation();
 	
 	/*int n;
 	std::cout << "testPbdCollision(): 1" << std::endl;
@@ -136,72 +134,6 @@ int main()
 		testLineMesh();
 
 	return 0;*/
-}
-
-void cameraNavigation()
-{
-	// create sdk
-	auto sdk = std::make_shared<SimulationManager>();
-	auto scene = sdk->createNewScene("Camera Navigation simulator");
-
-	// TOOL CONTROLLER
-
-	// Device clients 1
-	auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
-	client0->setLoopDelay(1000);
-	sdk->addDeviceClient(client0);
-
-	// Load meshes
-	std::string path2obj = "Resources/handle2.obj";
-	auto mesh = imstk::MeshReader::read(path2obj);
-	auto visualMesh = imstk::MeshReader::read(path2obj);
-
-	// construct map
-	auto C2VHandle = std::make_shared<imstk::IsometricMap>();
-	C2VHandle->setMaster(mesh);
-	C2VHandle->setSlave(visualMesh);
-	C2VHandle->compute();
-
-	// create virtual tool
-	auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client0, 0.5);
-	handle->setCollidingGeometry(mesh);
-	handle->setVisualGeometry(mesh);
-	handle->setCollidingToVisualMap(C2VHandle);
-
-	// add virtual tool to the scene
-	scene->addSceneObject(handle);
-
-	// CAMERA CONTROLLER
-
-	// Device clients 2
-	auto client1 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 2");
-	sdk->addDeviceClient(client1);
-
-	// Update Camera position
-	auto cam = scene->getCamera();
-	cam->setPosition(imstk::Vec3d(0, 0, 20));
-
-	// Set camera controller
-	cam->setupController(client1, 0.4);
-	cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
-
-	// Add a sample scene object
-	auto dragonMesh = imstk::MeshReader::read("Resources/asianDragon/asianDragon.obj");
-	auto dragonObject = std::make_shared<imstk::VisualObject>("dragonObject");
-	dragonObject->setVisualGeometry(dragonMesh);
-	scene->addSceneObject(dragonObject);
-
-	// Add plane scene object
-	auto planeGeom = std::make_shared<Plane>();
-	planeGeom->scale(40);
-	planeGeom->translate(0, -6, 0);
-	auto planeObj = std::make_shared<CollidingObject>("Plane");
-	planeObj->setVisualGeometry(planeGeom);
-	scene->addSceneObject(planeObj);
-
-	// Run
-	sdk->setCurrentScene("Camera Navigation simulator");
-	sdk->startSimulation(true);
 }
 
 void testVTKTexture()
