@@ -41,19 +41,21 @@ namespace imstk
 class Logger
 {
 public:
-	Logger(std::string name);
+	static Logger * New(std::string name);
+	void log(std::string message_input);
+	static void eventLoop(Logger * logger);
+
+private:
+	Logger();
 
 	// Mutex for performance reasons
 	std::mutex mutex;
 	std::string message;
+	bool changed = false;
 	std::string name;
 	std::string filename;
 	std::thread * thread;
 	std::condition_variable condition;
-
-	void log(std::string message_input);
-
-	static void eventLoop(Logger * logger);
 };
 
 }

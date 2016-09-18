@@ -129,9 +129,11 @@ int main()
 	file << "testing";
 	file.close();*/
 
-	Logger * logger1 = new Logger("Haptic Devices");
-
-	logger1->log("IT WORKED!!!!!!!!!!!!");
+	imstk::Logger * logger1 = imstk::Logger::New("Haptic Devices");
+	logger1->log("Test message 1");
+	logger1->log("Test message 2");
+	logger1->log("Test message 3");
+	logger1->log("Test message 4");
 
 	LOG(INFO) << "START!!!!!!!!!!!!!";
 	int n = 2;
