@@ -56,6 +56,5 @@ public:
 	static void eventLoop(Logger * logger);
 };
 
-
 }
 #endif // ifndef imstkLogUtility_h

@@ -24,26 +24,23 @@
 namespace imstk
 {
 
-
 Logger::Logger(std::string name)
 {
 	filename = name + ".txt";
-	mutex.lock();
-	std::unique_lock<std::mutex>
-	thread = new std::thread(eventLoop, this);
+	thread = new std::thread(Logger::eventLoop, this);
 }
 
 void Logger::eventLoop(Logger * logger)
 {
 	std::ofstream file(logger->filename);
-	//file.open(logger->filename);
-
+	std::unique_lock<std::mutex> ul(logger->mutex);
 
 	while (true) {
-		logger->mutex.lock();
-		logger->mutex.unlock();
+		logger->condition.wait(ul);
+		std::cout << "INSIDE_LOOP!!!!!!" << std::endl;
+		ul.unlock();
+		logger->condition.notify_one();
 
-		//logger->file << logger->message << "\n";
 		file << "test" << "\n";
 		file.flush();
 	}
@@ -52,8 +49,7 @@ void Logger::eventLoop(Logger * logger)
 void Logger::log(std::string message_input)
 {
 	this->message = message_input;
-	this->mutex.unlock();
-	this->mutex.lock();
+	this->condition.notify_one();
 }
 
 }
