@@ -29,6 +29,7 @@
 #include <map>
 #include <thread>
 #include <condition_variable>
+#include <memory>
 
 namespace imstk
 {
@@ -42,7 +43,13 @@ class Logger
 {
 public:
 	static Logger * New(std::string name);
+	
+	// Logging methods
 	void log(std::string message_input);
+	void log(std::string description, double one, double two, double three); // 3-element vector
+	void log(std::string description, double one, double two, double three, double four); // 4-element vector
+	void log(std::string level, std::string message_input);
+	
 	static void eventLoop(Logger * logger);
 
 private:
@@ -54,7 +61,7 @@ private:
 	bool changed = false;
 	std::string name;
 	std::string filename;
-	std::thread * thread;
+	std::shared_ptr<std::thread> thread;
 	std::condition_variable condition;
 };
 

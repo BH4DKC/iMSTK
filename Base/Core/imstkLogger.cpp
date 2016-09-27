@@ -51,7 +51,7 @@ Logger * Logger::New(std::string name)
 
 
 	output->filename = name + ".device_log." + year_string + day_string + month_string + "-" + hour_string + min_string + sec_string + ".log";
-	output->thread = new std::thread(Logger::eventLoop, output);
+	output->thread = std::make_shared<std::thread>(Logger::eventLoop, output);
 	return output;
 }
 
@@ -71,7 +71,7 @@ void Logger::eventLoop(Logger * logger)
 		logger->condition.wait(ul, [logger]{return logger->changed; });
 		strcpy(buffer, logger->message.c_str());
 
-		std::cout << buffer << std::endl;
+		//std::cout << buffer << std::endl;
 		logger->changed = false;
 		ul.unlock();
 		logger->condition.notify_one();
@@ -81,9 +81,11 @@ void Logger::eventLoop(Logger * logger)
 	}
 }
 
-void Logger::log(std::string message_input)
+void Logger::log(std::string level, std::string message_input)
 {
-	this->message = message_input;
+	std::string level_pad = level;
+	level_pad.resize(10, ' ');
+	this->message = level_pad + "" + message_input;
 
 	// Safely setting the change state
 	{
@@ -95,6 +97,24 @@ void Logger::log(std::string message_input)
 	std::unique_lock<std::mutex> ul(this->mutex);
 	this->condition.wait(ul, [this]{return !this->changed; });
 	ul.unlock();
+}
+
+void Logger::log(std::string message_input) {
+	log("INFO", message_input);
+}
+
+void Logger::log(std::string description, double one, double two, double three) {
+	std::string description_pad = description + ':';
+	description_pad.resize(10, ' ');
+	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
+	log("INFO", message_input);
+}
+
+void Logger::log(std::string description, double one, double two, double three, double four) {
+	std::string description_pad = description + ':';
+	description_pad.resize(10, ' ');
+	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
+	log("INFO", message_input);
 }
 
 }
