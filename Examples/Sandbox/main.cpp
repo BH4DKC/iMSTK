@@ -461,6 +461,7 @@ void testTwoFalcons()
 }
 
 void testTwoOmnis(){
+#ifdef iMSTK_USE_OPENHAPTICS
 	// SDK and Scene
 	auto sdk = std::make_shared<imstk::SimulationManager>();
 	auto scene = sdk->createNewScene("OmnisTestScene");
@@ -494,6 +495,7 @@ void testTwoOmnis(){
 	// Run
 	sdk->setCurrentScene("OmnisTestScene");
 	sdk->startSimulation(false);
+#endif
 }
 
 void testObjectController()
@@ -1208,9 +1210,9 @@ void testPbdCloth()
 
 	// c. Add connectivity data
 	std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-	for (int i = 0; i < nRows - 1; i++)
+    for (std::size_t i = 0; i < nRows - 1; i++)
 	{
-		for (int j = 0; j < nCols - 1; j++)
+        for (std::size_t j = 0; j < nCols - 1; j++)
 		{
 			imstk::SurfaceMesh::TriangleArray tri[2];
 			tri[0] = { { i*nCols + j, (i + 1)*nCols + j, i*nCols + j + 1 } };
@@ -1322,8 +1324,9 @@ void testPbdCollision()
 		int corner[4] = { 1, nRows, nRows*nCols - nCols + 1, nRows*nCols };
 		char intStr[33];
 		std::string fixed_corner;
-		for (unsigned int i = 0; i < 4; i++){
-			itoa(corner[i], intStr, 10);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            std::sprintf(intStr, "%d", corner[i]);
 			fixed_corner += std::string(intStr) + ' ';
 		}
 		vertList.resize(nRows*nCols);
@@ -1344,9 +1347,9 @@ void testPbdCollision()
 
 		// c. Add connectivity data
 		std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-		for (int i = 0; i < nRows - 1; i++)
+        for (std::size_t i = 0; i < nRows - 1; i++)
 		{
-			for (int j = 0; j < nCols - 1; j++)
+            for (std::size_t j = 0; j < nCols - 1; j++)
 			{
 				imstk::SurfaceMesh::TriangleArray tri[2];
 				tri[0] = { { i*nCols + j, i*nCols + j + 1, (i + 1)*nCols + j } };
@@ -1487,9 +1490,9 @@ void testPbdCollision()
 
 		// c. Add connectivity data
 		std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-		for (int i = 0; i < nRows - 1; i++)
+        for (std::size_t i = 0; i < nRows - 1; i++)
 		{
-			for (int j = 0; j < nCols - 1; j++)
+            for (std::size_t j = 0; j < nCols - 1; j++)
 			{
 				imstk::SurfaceMesh::TriangleArray tri[2];
 				tri[0] = { { i*nCols + j, i*nCols + j + 1, (i + 1)*nCols + j } };
@@ -1546,7 +1549,9 @@ void testPbdCollision()
 	sdk->startSimulation(true);
 }
 
-void testLineMesh(){
+void testLineMesh()
+{
+#ifdef iMSTK_USE_OPENHAPTICS
 	// SDK and Scene
 	auto sdk = std::make_shared<imstk::SimulationManager>();
 	auto scene = sdk->createNewScene("SceneTestMesh");
@@ -1657,8 +1662,9 @@ void testLineMesh(){
 		int corner[4] = { 1, nRows, nRows*nCols - nCols + 1, nRows*nCols };
 		char intStr[33];
 		std::string fixed_corner;
-		for (unsigned int i = 0; i < 4; i++){
-			itoa(corner[i], intStr, 10);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            std::sprintf(intStr, "%d", corner[i]);
 			fixed_corner += std::string(intStr) + ' ';
 		}
 		vertList.resize(nRows*nCols);
@@ -1813,4 +1819,5 @@ void testLineMesh(){
 	// Run
 	sdk->setCurrentScene("SceneTestMesh");
 	sdk->startSimulation(true);
+#endif
 }
