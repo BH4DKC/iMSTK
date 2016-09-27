@@ -79,7 +79,7 @@
 #include <vtkImageResize.h>
 #include <vtkImageTranslateExtent.h>
 
-//#define ADD_TOOL_CONTROLLER
+#define ADD_TOOL_CONTROLLER
 
 using namespace imstk;
 
@@ -145,6 +145,34 @@ void add2DOverlay(vtkSmartPointer<vtkRenderer> rendererVtk, const char* fileName
 
 	// Renderer
 	rendererVtk->AddActor2D(imageActor.GetPointer());
+}
+
+///
+/// \brief Create a plane overlaid with a texture
+///
+void createPlaneTarget(
+	std::shared_ptr<imstk::Scene>& scene, 
+	double s, 
+	Eigen::Translation3d& t,
+	Eigen::Quaterniond& r, 
+	std::string& texFileName, 
+	std::string& planeName)
+{
+
+	// Read surface mesh
+	auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
+	auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
+	surfaceMesh->addTexture(texFileName);
+	
+	// position the plane
+	surfaceMesh->scale(s);
+	surfaceMesh->translate(t.x(), t.y(), t.z());
+	surfaceMesh->rotate(r);
+
+	// Create object and add to scene
+	auto object = std::make_shared<imstk::VisualObject>(planeName);
+	object->setVisualGeometry(surfaceMesh); // change to any mesh created above
+	scene->addSceneObject(object);
 }
 
 ///
@@ -214,15 +242,19 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
 		blockObject->setVisualGeometry(blockMesh);
 		scene->addSceneObject(blockObject);
 
-		// Read surface mesh
-		auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
-		auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
-		surfaceMesh->addTexture("Resources/target.png");
+		std::string planeName("Plane " + std::to_string(i));
+		std::string textureName("Resources/target.png");
+		createPlaneTarget(scene, 1.0, Eigen::Translation3d(1, 0, 0), q, textureName, planeName);
 
-		// Create object and add to scene
-		auto object = std::make_shared<imstk::VisualObject>("meshObject");
-		object->setVisualGeometry(surfaceMesh); // change to any mesh created above
-		scene->addSceneObject(object);
+		// Read surface mesh
+		//auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
+		//auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
+		//surfaceMesh->addTexture("Resources/target.png");
+
+		//// Create object and add to scene
+		//auto object = std::make_shared<imstk::VisualObject>("meshObject");
+		//object->setVisualGeometry(surfaceMesh); // change to any mesh created above
+		//scene->addSceneObject(object);
 
 		//// TARGETS
 		//// Some constants
@@ -306,6 +338,21 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
 		//targetObject->setVisualGeometry(targetModel);
 		//scene->addSceneObject(targetObject);
 	}
+}
+
+///
+/// \brief Enable screenshot at the press of a keyboard button
+///
+void enableScreenshot()
+{
+	/*auto renWin = vtkSmartPointer<vtkRenderWindow>::New();
+	auto interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	auto style = vtkSmartPointer<ScreenCaptureInteractorStyle>::New();
+	renWin->SetInteractor(interactor);
+	vtkViewer->setVtkRenderWindow(renWin);
+	style->initialize(vtkViewer->getVtkRenderWindow());
+	vtkViewer->getVtkRenderWindowInteractor()->SetInteractorStyle(style);
+	style->SetCurrentRenderer(vtkViewer->getVtkRenderer());*/
 }
 
 int main()
