@@ -55,6 +55,8 @@ public:
 private:
 	Logger();
 
+	static std::string getCurrentTimeFormatted();
+
 	// Mutex for performance reasons
 	std::mutex mutex;
 	std::string message;

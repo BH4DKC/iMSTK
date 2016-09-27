@@ -63,8 +63,14 @@ protected:
 private:
 
     static HDCallbackCode HDCALLBACK hapticCallback(void* pData);
+	
+	// Logging variables
 	imstk::Logger * logger;
-    HHD m_handle; //!< device handle
+	int log_rate = 30;
+	int log_rate_diff = 1000/30;
+	int last_log_time = 0;
+    
+	HHD m_handle; //!< device handle
     HD_state m_state; //!< device reading state
 
 };

@@ -28,6 +28,12 @@ Logger * Logger::New(std::string name)
 {
 	Logger * output = new Logger();
 
+	output->filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
+	output->thread = std::make_shared<std::thread>(Logger::eventLoop, output);
+	return output;
+}
+
+std::string Logger::getCurrentTimeFormatted() {
 	time_t now = time(0);
 	int year = gmtime(&now)->tm_year + 1900;
 	int day = gmtime(&now)->tm_mday;
@@ -41,7 +47,7 @@ Logger * Logger::New(std::string name)
 	if (day < 10) { day_string = "0" + day_string; }
 	std::string month_string = std::to_string(month);
 	if (month < 10) { month_string = "0" + month_string; }
-	
+
 	std::string hour_string = std::to_string(hour);
 	if (hour < 10) { hour_string = "0" + hour_string; }
 	std::string min_string = std::to_string(min);
@@ -49,10 +55,7 @@ Logger * Logger::New(std::string name)
 	std::string sec_string = std::to_string(sec);
 	if (sec < 10) { sec_string = "0" + sec_string; }
 
-
-	output->filename = name + ".device_log." + year_string + day_string + month_string + "-" + hour_string + min_string + sec_string + ".log";
-	output->thread = std::make_shared<std::thread>(Logger::eventLoop, output);
-	return output;
+	return year_string + day_string + month_string + "-" + hour_string + min_string + sec_string;
 }
 
 Logger::Logger() {
@@ -77,7 +80,7 @@ void Logger::eventLoop(Logger * logger)
 		logger->condition.notify_one();
 
 		file << buffer << "\n";
-		file.flush();
+		//file.flush();
 	}
 }
 
@@ -85,7 +88,7 @@ void Logger::log(std::string level, std::string message_input)
 {
 	std::string level_pad = level;
 	level_pad.resize(10, ' ');
-	this->message = level_pad + "" + message_input;
+	this->message = getCurrentTimeFormatted() + " " + level_pad + "" + message_input;
 
 	// Safely setting the change state
 	{
@@ -105,14 +108,14 @@ void Logger::log(std::string message_input) {
 
 void Logger::log(std::string description, double one, double two, double three) {
 	std::string description_pad = description + ':';
-	description_pad.resize(10, ' ');
+	description_pad.resize(5, ' ');
 	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
 	log("INFO", message_input);
 }
 
 void Logger::log(std::string description, double one, double two, double three, double four) {
 	std::string description_pad = description + ':';
-	description_pad.resize(10, ' ');
+	description_pad.resize(8, ' ');
 	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
 	log("INFO", message_input);
 }
