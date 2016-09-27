@@ -50,6 +50,7 @@
 
 // logger
 #include "g3log/g3log.hpp"
+#include "imstkLogger.h"
 #include "imstkUtils.h"
 
 #include "imstkVirtualCouplingPBDObject.h"
@@ -122,12 +123,11 @@ int main()
 	//testTwoOmnis();
 	//testVectorPlotters();
 	//testPbdVolume();
-	//testPbdCloth();
-	
+	//testPbdCloth();	
 	/*int n;
 	std::cout << "testPbdCollision(): 1" << std::endl;
 	std::cout << "testLineMesh(): 2 " << std::endl;
-	std::cin >> n;
+	//std::cin >> n;
 	if (n == 1)
 		testPbdCollision();
 	else if (n == 2)
@@ -448,15 +448,12 @@ void testTwoFalcons()
 }
 
 void testTwoOmnis(){
+#ifdef iMSTK_USE_OPENHAPTICS
 	// SDK and Scene
 	auto sdk = std::make_shared<imstk::SimulationManager>();
 	auto scene = sdk->createNewScene("OmnisTestScene");
 
 	// Device clients
-	auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
-	sdk->addDeviceClient(client0);
-	auto client1 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 2");
-	sdk->addDeviceClient(client1);
 
 	//// Plane
 	auto planeGeom = std::make_shared<imstk::Plane>();
@@ -470,20 +467,12 @@ void testTwoOmnis(){
 	auto sphere0Geom = std::make_shared<imstk::Sphere>();
 	sphere0Geom->setPosition(imstk::Vec3d(2, 2.5, 0));
 	sphere0Geom->scale(1);
-	auto sphere0Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere0", client0, 0.05);
-	sphere0Obj->setVisualGeometry(sphere0Geom);
-	sphere0Obj->setCollidingGeometry(sphere0Geom);
-	scene->addSceneObject(sphere0Obj);
 
 
 	// Sphere1
 	auto sphere1Geom = std::make_shared<imstk::Sphere>();
 	sphere1Geom->setPosition(imstk::Vec3d(-2, 2.5, 0));
 	sphere1Geom->scale(1);
-	auto sphere1Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere1", client1, 0.05);
-	sphere1Obj->setVisualGeometry(sphere1Geom);
-	sphere1Obj->setCollidingGeometry(sphere1Geom);
-	scene->addSceneObject(sphere1Obj);
 
 	// Update Camera position
 	auto cam = scene->getCamera();
@@ -493,6 +482,7 @@ void testTwoOmnis(){
 	// Run
 	sdk->setCurrentScene("OmnisTestScene");
 	sdk->startSimulation(false);
+#endif
 }
 
 void testObjectController()
@@ -1207,9 +1197,9 @@ void testPbdCloth()
 
 	// c. Add connectivity data
 	std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-	for (int i = 0; i < nRows - 1; i++)
+    for (std::size_t i = 0; i < nRows - 1; i++)
 	{
-		for (int j = 0; j < nCols - 1; j++)
+        for (std::size_t j = 0; j < nCols - 1; j++)
 		{
 			imstk::SurfaceMesh::TriangleArray tri[2];
 			tri[0] = { { i*nCols + j, (i + 1)*nCols + j, i*nCols + j + 1 } };
@@ -1321,8 +1311,9 @@ void testPbdCollision()
 		int corner[4] = { 1, nRows, nRows*nCols - nCols + 1, nRows*nCols };
 		char intStr[33];
 		std::string fixed_corner;
-		for (unsigned int i = 0; i < 4; i++){
-			itoa(corner[i], intStr, 10);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            std::sprintf(intStr, "%d", corner[i]);
 			fixed_corner += std::string(intStr) + ' ';
 		}
 		vertList.resize(nRows*nCols);
@@ -1343,9 +1334,9 @@ void testPbdCollision()
 
 		// c. Add connectivity data
 		std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-		for (int i = 0; i < nRows - 1; i++)
+        for (std::size_t i = 0; i < nRows - 1; i++)
 		{
-			for (int j = 0; j < nCols - 1; j++)
+            for (std::size_t j = 0; j < nCols - 1; j++)
 			{
 				imstk::SurfaceMesh::TriangleArray tri[2];
 				tri[0] = { { i*nCols + j, i*nCols + j + 1, (i + 1)*nCols + j } };
@@ -1486,9 +1477,9 @@ void testPbdCollision()
 
 		// c. Add connectivity data
 		std::vector<imstk::SurfaceMesh::TriangleArray> triangles;
-		for (int i = 0; i < nRows - 1; i++)
+        for (std::size_t i = 0; i < nRows - 1; i++)
 		{
-			for (int j = 0; j < nCols - 1; j++)
+            for (std::size_t j = 0; j < nCols - 1; j++)
 			{
 				imstk::SurfaceMesh::TriangleArray tri[2];
 				tri[0] = { { i*nCols + j, i*nCols + j + 1, (i + 1)*nCols + j } };
@@ -1545,18 +1536,16 @@ void testPbdCollision()
 	sdk->startSimulation(true);
 }
 
-void testLineMesh(){
+void testLineMesh()
+{
+#ifdef iMSTK_USE_OPENHAPTICS
 	// SDK and Scene
 	auto sdk = std::make_shared<imstk::SimulationManager>();
 	auto scene = sdk->createNewScene("SceneTestMesh");
 
-	// Device clients
-	auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
-	sdk->addDeviceClient(client0);
+	LOG(INFO) << "TESTING!!!!!!!!!!";
 
-	auto blade = std::make_shared<imstk::VirtualCouplingPBDObject>("blade", client0, 0.5);
-	auto linesTool = std::make_shared<imstk::VirtualCouplingPBDObject>("linesTool", client0, 0.5);
-	auto tool = std::make_shared<imstk::VirtualCouplingPBDObject>("tool", client0, 0.5);
+	// Device clients
 
 	bool line;
 	bool clothTest;
@@ -1619,24 +1608,6 @@ void testLineMesh(){
 		mapP2V->setMaster(lineMeshPhysics);
 		mapP2V->setSlave(lineMeshVisual);
 		mapP2V->compute();
-
-		linesTool->setCollidingGeometry(lineMeshColliding);
-		linesTool->setVisualGeometry(lineMeshVisual);
-		linesTool->setPhysicsGeometry(lineMeshPhysics);
-		linesTool->setPhysicsToCollidingMap(mapP2C);
-		linesTool->setCollidingToVisualMap(mapC2V);
-		linesTool->setPhysicsToVisualMap(mapP2V);
-		linesTool->setColldingToPhysicsMap(mapC2P);
-		linesTool->init(/*Number of constraints*/1,
-			/*Constraint configuration*/"Distance 100",
-			/*Mass*/0.0,
-			/*Gravity*/"0 -9.8 0",
-			/*TimeStep*/0.002,
-			/*FixedPoint*/"0 1 2",
-			/*NumberOfIterationInConstraintSolver*/5,
-			/*Proximity*/0.1,
-			/*Contact stiffness*/0.1);
-		scene->addSceneObject(linesTool);
 	}
 	else{
 		std::string path2obj = "../ETI/resources/Tools/blade2.obj";
@@ -1664,24 +1635,6 @@ void testLineMesh(){
 		bladeMapC2P->setMaster(collidingMesh);
 		bladeMapC2P->setSlave(physicsMesh);
 		bladeMapC2P->compute();
-
-		blade->setCollidingGeometry(collidingMesh);
-		blade->setVisualGeometry(viusalMesh);
-		blade->setPhysicsGeometry(physicsMesh);
-		blade->setPhysicsToCollidingMap(bladeMapP2C);
-		blade->setCollidingToVisualMap(bladeMapC2V);
-		blade->setPhysicsToVisualMap(bladeMapP2V);
-		blade->setColldingToPhysicsMap(bladeMapC2P);
-		blade->init(/*Number of constraints*/1,
-			/*Constraint configuration*/"Distance 0.1",
-			/*Mass*/0.0,
-			/*Gravity*/"0 0 0",
-			/*TimeStep*/0.001,
-			/*FixedPoint*/"",
-			/*NumberOfIterationInConstraintSolver*/5,
-			/*Proximity*/0.1,
-			/*Contact stiffness*/0.01);
-		scene->addSceneObject(blade);
 	}
 
 	
@@ -1696,8 +1649,9 @@ void testLineMesh(){
 		int corner[4] = { 1, nRows, nRows*nCols - nCols + 1, nRows*nCols };
 		char intStr[33];
 		std::string fixed_corner;
-		for (unsigned int i = 0; i < 4; i++){
-			itoa(corner[i], intStr, 10);
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            std::sprintf(intStr, "%d", corner[i]);
 			fixed_corner += std::string(intStr) + ' ';
 		}
 		vertList.resize(nRows*nCols);
@@ -1773,16 +1727,6 @@ void testLineMesh(){
 		std::cout << "nbr of vertices in cloth mesh" << clothMeshVisual->getNumVertices() << std::endl;
 
 		// Collisions
-		auto clothTestcolGraph = scene->getCollisionGraph();
-		if (line)
-			tool = linesTool;
-		else
-			tool = blade;
-
-		auto pair1 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(tool, floor));
-		pair1->setNumberOfInterations(5);
-
-		clothTestcolGraph->addInteractionPair(pair1);
 
 		scene->getCamera()->setPosition(0, 0, 50);
 	}
@@ -1855,14 +1799,6 @@ void testLineMesh(){
 
 		// Collisions
 		auto deformableColGraph = scene->getCollisionGraph();
-		if (line)
-			tool = linesTool;
-		else
-			tool = blade;
-
-		auto pair1 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(tool, deformableObj));
-		pair1->setNumberOfInterations(10);
-		deformableColGraph->addInteractionPair(pair1);
 
 		scene->getCamera()->setPosition(0, 5, 5);
 		scene->getCamera()->setFocalPoint(surfMesh.get()->getInitialVertexPosition(20));
@@ -1870,4 +1806,5 @@ void testLineMesh(){
 	// Run
 	sdk->setCurrentScene("SceneTestMesh");
 	sdk->startSimulation(true);
+#endif
 }

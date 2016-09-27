@@ -78,8 +78,8 @@ int main()
 		initializeHumanModel(modelMesh, staticModelSurfaceMesh, model, scene);
 
 	// Device clients
-	auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
-	sdk->addDeviceClient(client0);
+	//auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
+	//sdk->addDeviceClient(client0);
 
 	bool coarseMesh = true;
 
@@ -93,7 +93,7 @@ int main()
 	auto mesh = imstk::MeshReader::read(path2obj);
 	auto visualMesh = imstk::MeshReader::read(path2obj);
 
-	auto handle = std::make_shared<imstk::VirtualCouplingPBDObject>("handle", client0, 0.5);
+	//auto handle = std::make_shared<imstk::VirtualCouplingPBDObject>("handle", client0, 0.5);
 
 	auto oneToOneHandle = std::make_shared<imstk::OneToOneMap>();
 	oneToOneHandle->setMaster(mesh);
@@ -105,22 +105,6 @@ int main()
 	C2VHandle->setSlave(visualMesh);
 	C2VHandle->compute();
 
-	handle->setCollidingGeometry(mesh);
-	handle->setVisualGeometry(visualMesh);
-	handle->setPhysicsGeometry(mesh);
-	handle->setPhysicsToCollidingMap(oneToOneHandle);
-	handle->setCollidingToVisualMap(C2VHandle);
-	handle->setPhysicsToVisualMap(oneToOneHandle);
-	handle->init(/*Number of constraints*/0,
-		/*Mass*/0.0,
-		/*Gravity*/"0 0 0",
-		/*TimeStep*/0.001,
-		/*FixedPoint*/"",
-		/*NumberOfIterationInConstraintSolver*/5,
-		/*Proximity*/0.1,
-		/*Contact stiffness*/0.01);
-	scene->addSceneObject(handle);
-
 
 	if (coarseMesh)
 		path2obj = "resources/Tools/blade2.obj";
@@ -129,7 +113,6 @@ int main()
 
 	auto mesh1 = imstk::MeshReader::read(path2obj);
 	auto viusalMesh1 = imstk::MeshReader::read(path2obj);
-	auto blade = std::make_shared<imstk::VirtualCouplingPBDObject>("blade", client0, 0.5);
 
 	auto oneToOneBlade = std::make_shared<imstk::OneToOneMap>();
 	oneToOneBlade->setMaster(mesh1);
@@ -141,21 +124,6 @@ int main()
 	C2VBlade->setSlave(viusalMesh1);
 	C2VBlade->compute();
 
-	blade->setCollidingGeometry(mesh1);
-	blade->setVisualGeometry(viusalMesh1);
-	blade->setPhysicsGeometry(mesh1);
-	blade->setPhysicsToCollidingMap(oneToOneBlade);
-	blade->setCollidingToVisualMap(C2VBlade);
-	blade->setPhysicsToVisualMap(C2VBlade);
-	blade->init(/*Number of constraints*/0,
-		/*Mass*/0.0,
-		/*Gravity*/"0 0 0",
-		/*TimeStep*/0.001,
-		/*FixedPoint*/"",
-		/*NumberOfIterationInConstraintSolver*/5,
-		/*Proximity*/0.1,
-		/*Contact stiffness*/0.01);
-	scene->addSceneObject(blade);
 
 	if (tongueTest){
 		/*auto tongueMesh = imstk::MeshReader::read("resources/Human/tongue.veg");
@@ -203,12 +171,9 @@ int main()
 		std::cout << "nbr of vertices in tongue mesh = " << surfMesh->getNumVertices() << std::endl;
 		// Collisions
 		auto deformableColGraph = scene->getCollisionGraph();
-		auto pair1 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(blade, deformableObj));
 //		auto pair2 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(handle, deformableObj));
-		pair1->setNumberOfInterations(5);
 //		pair2->setNumberOfInterations(5);
 
-		deformableColGraph->addInteractionPair(pair1);
 //		deformableColGraph->addInteractionPair(pair2);
 		scene->getCamera()->setPosition(0, 5, 25);
 		scene->getCamera()->setFocalPoint(surfMesh.get()->getInitialVertexPosition(20));
@@ -287,12 +252,9 @@ int main()
 
 		// Collisions
 		auto clothTestcolGraph = scene->getCollisionGraph();
-		auto pair1 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(blade, floor));
 //		auto pair2 = std::make_shared<PbdInteractionPair>(PbdInteractionPair(handle, floor));
-		pair1->setNumberOfInterations(5);
 //		pair2->setNumberOfInterations(5);
 
-		clothTestcolGraph->addInteractionPair(pair1);
 //		clothTestcolGraph->addInteractionPair(pair2);
 		scene->getCamera()->setPosition(0, 0, 50);
 	}
