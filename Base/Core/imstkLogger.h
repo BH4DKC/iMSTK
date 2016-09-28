@@ -19,45 +19,52 @@
 
    =========================================================================*/
 
-#ifndef imstkLogUtility_h
-#define imstkLogUtility_h
+#ifndef imstkLogger_h
+#define imstkLogger_h
 
 #include <string>
 #include <iostream>
-
-#include "g3log/logmessage.hpp"
-#include "g3log/logworker.hpp"
+#include <fstream>
+#include <mutex>
+#include <map>
+#include <thread>
+#include <condition_variable>
+#include <memory>
 
 namespace imstk
 {
 
 ///
-/// \struct stdSink
+/// \class Logger
 ///
 /// \brief
 ///
-struct stdSink
+class Logger
 {
-    // Linux xterm color
-    // http://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
-    enum FG_Color { YELLOW = 33, RED = 31, GREEN = 32, WHITE = 97 };
+public:
+	static Logger * New(std::string name);
+	
+	// Logging methods
+	void log(std::string message_input);
+	void log(std::string description, double one, double two, double three); // 3-element vector
+	void log(std::string description, double one, double two, double three, double four); // 4-element vector
+	void log(std::string level, std::string message_input);
+	
+	static void eventLoop(Logger * logger);
 
-    FG_Color GetColor(const LEVELS level) const;
-    void ReceiveLogMessage(g3::LogMessageMover logEntry);
-};
+private:
+	Logger();
 
-///
-/// \struct LogUtility
-///
-/// \brief
-///
-struct LogUtility
-{
-    void createLogger(std::string name, std::string path);
+	static std::string getCurrentTimeFormatted();
 
-    std::unique_ptr<g3::LogWorker>                m_g3logWorker;
-    std::unique_ptr<g3::SinkHandle<g3::FileSink> >m_fileSinkHandle;
-    std::unique_ptr<g3::SinkHandle<stdSink> >     m_stdSinkHandle;
+	// Mutex for performance reasons
+	std::mutex mutex;
+	std::string message;
+	bool changed = false;
+	std::string name;
+	std::string filename;
+	std::shared_ptr<std::thread> thread;
+	std::condition_variable condition;
 };
 
 }

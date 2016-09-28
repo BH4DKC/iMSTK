@@ -37,11 +37,14 @@ HDAPIDeviceClient::initModule()
 	// Open Device
     m_handle = hdInitDevice(this->getName().c_str());
 
+	// Create logger
+	this->logger = imstk::Logger::New(this->getName());
+
 	// If failed
 	HDErrorInfo error;
 	if (HD_DEVICE_ERROR(error = hdGetError()))
 	{
-		LOG(FATAL) << "Failed to initialize Phantom Omni " << this->getName();
+		this->logger->log("FATAL","Failed to initialize Phantom Omni " + this->getName());
 		m_handle = -1;
         return;
 	}
@@ -49,14 +52,14 @@ HDAPIDeviceClient::initModule()
     // Calibration
     if (hdCheckCalibration() != HD_CALIBRATION_OK)
     {
-        LOG(INFO) << "Move " << this->getName() << " in its dock to calibrate it.";
+		this->logger->log("Move " + this->getName() + " in its dock to calibrate it.");
         while (hdCheckCalibration() != HD_CALIBRATION_OK)
         {
         }
     }
 
     // Success
-	LOG(INFO) << this->getName() << " successfully initialized.";
+	this->logger->log(this->getName() + " successfully initialized.");
     hdEnable(HD_FORCE_OUTPUT);
     hdEnable(HD_FORCE_RAMPING);
     hdStartScheduler();
@@ -77,8 +80,8 @@ HDAPIDeviceClient::cleanUpModule()
 
 HDCallbackCode HDCALLBACK
 HDAPIDeviceClient::hapticCallback(void* pData)
-{
-    auto client = reinterpret_cast<HDAPIDeviceClient*>(pData);
+{    
+	auto client = reinterpret_cast<HDAPIDeviceClient*>(pData);
     auto handle = client->m_handle;
     auto state = client->m_state;
 
@@ -99,6 +102,14 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[1] = state.buttons & HD_DEVICE_BUTTON_2;
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
+
+	// Add frequency control
+	int current_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+	if (current_milliseconds - client->last_log_time > client->log_rate_diff) {
+		client->last_log_time = current_milliseconds;
+		client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
+		client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
+	}
 
     return HD_CALLBACK_CONTINUE;
 }
