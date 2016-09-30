@@ -113,6 +113,16 @@ public:
     ///
     void setupController(std::shared_ptr<DeviceClient> deviceClient, double scaling = 1.0);
 
+	///
+	/// \brief
+	///
+	void setZoomFactor(const double zoomFac);
+
+	///
+	/// \brief
+	///
+	double getZoomFactor() const;
+
 protected:
     std::shared_ptr<CameraController> m_cameraController;   ///>
 
@@ -120,6 +130,7 @@ protected:
     Vec3d m_focalPoint = WORLD_ORIGIN;  ///>
     Vec3d m_viewUp = UP_VECTOR;         ///>
     double m_viewAngle = 60;            ///>
+	double m_zoomFactor = 1;            ///>
 };
 
 } // imstk

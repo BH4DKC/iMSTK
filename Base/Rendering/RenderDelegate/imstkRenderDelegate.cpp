@@ -23,6 +23,7 @@
 
 #include "g3log/g3log.hpp"
 
+#include "imstkGeometry.h"
 #include "imstkPlane.h"
 #include "imstkSphere.h"
 #include "imstkCube.h"
@@ -121,23 +122,45 @@ RenderDelegate::update()
 }
 
 void
+RenderDelegate::setVtkTrasnformFromEigen(const AffineTransform3d& t)
+{
+	auto em = t.matrix();
+	double m[16];
+
+	// copy data
+	m[0] = em(0, 0); 
+	m[1] = em(0, 1);
+	m[2] = em(0, 2);
+	m[3] = em(0, 3);
+
+	m[4] = em(1, 0);
+	m[5] = em(1, 1);
+	m[6] = em(1, 2);
+	m[7] = em(1, 3);
+
+	m[8] = em(2, 0);
+	m[9] = em(2, 1);
+	m[10] = em(2, 2);
+	m[11] = em(2, 3);
+
+	m[12] = em(3, 0);
+	m[13] = em(3, 1);
+	m[14] = em(3, 2);
+	m[15] = em(3, 3);
+
+	m_transform->SetMatrix(m);
+}
+
+void
 RenderDelegate::updateActorTransform()
 {
-    auto scaling   = this->getGeometry()->getScaling();
-    auto pos       = this->getGeometry()->getPosition();
-    auto quat      = this->getGeometry()->getOrientation();
-    auto angleAxis = Rotd(quat);
+	if (this->getGeometry()->isConfigurationModified())
+	{
+		setVtkTrasnformFromEigen(this->getGeometry()->getEigenTransform());
+		m_actor->SetUserTransform(m_transform);
 
-    m_transform->Identity();
-    m_transform->PostMultiply();
-    m_transform->Scale(scaling, scaling, scaling);
-    m_transform->RotateWXYZ(angleAxis.angle() * 180 / M_PI,
-                          angleAxis.axis()[0],
-                          angleAxis.axis()[1],
-                          angleAxis.axis()[2]);
-    m_transform->Translate(pos[0], pos[1], pos[2]);
-
-    m_actor->SetUserTransform(m_transform);
+		this->getGeometry()->setConfigurationModified(false);
+	}    
 }
 
 } // imstk

@@ -25,6 +25,9 @@
 #include "g3log/g3log.hpp"
 #include "imstkMath.h"
 
+// Eigen
+#include <Eigen/Geometry> 
+
 namespace imstk
 {
 
@@ -130,6 +133,33 @@ public:
     /// \brief Returns the string representing the type name of the geometry
     ///
     const std::string getTypeName() const;
+
+	///
+	/// \brief Returns true if one of position, orientation or scaling is modified
+	///
+	bool isConfigurationModified() const { return m_configurationModified; }
+
+	///
+	/// \brief Sets the state of configuration modified to desired value
+	///
+	void setConfigurationModified(const bool state)
+	{
+		m_configurationModified = state;
+	}
+
+	///
+	/// \brief Reset the geometric configuration to identity
+	///
+	void resetConfiguration();
+
+	///
+	/// \brief
+	///
+	const AffineTransform3d& getEigenTransform() const
+	{
+		return m_transform;
+	}
+
 protected:
 
     ///
@@ -140,12 +170,20 @@ protected:
              const Quatd& orientation = Quatd::Identity()) :
         m_type(type),
         m_position(position),
-        m_orientation(orientation){}
+		m_orientation(orientation), m_transform()
+	{
+		m_transform.setIdentity();
+	}
 
     Type m_type; ///> Geometry type
+
     Vec3d  m_position; ///> position
     Quatd  m_orientation; ///> orientation
     double m_scaling = 1; ///> Scaling
+
+	AffineTransform3d m_transform; ///> Compounded transform of the geometry
+
+	bool m_configurationModified = true; // true if one of position, orientation or scaling is modified
 };
 
 } //imstk

@@ -37,6 +37,9 @@ void
 Geometry::translate(const Vec3d& t)
 {
     m_position += t;
+
+	m_transform = Eigen::Translation3d(t)*m_transform;
+	m_configurationModified = true;
 }
 
 void
@@ -51,6 +54,9 @@ void
 Geometry::rotate(const Quatd& r)
 {
     m_orientation = r * m_orientation;
+
+	m_transform = r*m_transform;
+	m_configurationModified = true;
 }
 
 void
@@ -69,13 +75,16 @@ void
 Geometry::scale(const double& scaling)
 {
     m_scaling *= scaling;
+	
+	m_transform = Eigen::Scaling(scaling)*m_transform;
+	m_configurationModified = true;
 }
 
 void
 Geometry::transform(const RigidTransform3d& transform)
 {
     this->rotate(transform.rotation());
-    this->translate(transform.translation());
+	this->translate(transform.translation());
 }
 
 bool
@@ -98,6 +107,9 @@ void
 Geometry::setPosition(const Vec3d& position)
 {
     m_position = position;
+
+	m_transform.translation() = position;
+	m_configurationModified = true;
 }
 
 void
@@ -118,6 +130,12 @@ void
 Geometry::setOrientation(const Quatd& orientation)
 {
     m_orientation = orientation;
+
+	m_transform.linear() = Mat3d(orientation);
+
+	// reapply scaling
+	m_transform.scale(m_scaling);
+	m_configurationModified = true;
 }
 
 void
@@ -142,6 +160,9 @@ void
 Geometry::setScaling(const double& scaling)
 {
     m_scaling = scaling;
+
+	m_transform.scale(m_scaling);
+	m_configurationModified = true;
 }
 
 const Geometry::Type&
@@ -149,6 +170,14 @@ Geometry::getType() const
 {
     return m_type;
 }
+
+void
+Geometry::resetConfiguration()
+{
+	m_transform.setIdentity();
+	m_configurationModified = true;
+}
+
 
 const std::string
 Geometry::getTypeName() const

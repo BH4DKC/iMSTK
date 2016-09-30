@@ -8,37 +8,15 @@
 #include "imstkTimer.h"
 #include "imstkSimulationManager.h"
 #include "imstkViewer.h"
+#include "CameraNavigationUtils.h"
 
 // Objects
-#include "imstkForceModelConfig.h"
-#include "imstkDeformableBodyModel.h"
-#include "imstkDeformableObject.h"
 #include "imstkSceneObject.h"
 #include "imstkVirtualCouplingObject.h"
 #include "imstkLight.h"
 #include "imstkCamera.h"
 
-// Time Integrators
-#include "imstkBackwardEuler.h"
-
-// Solvers
-#include "imstkNonlinearSystem.h"
-#include "imstkNewtonMethod.h"
-#include "imstkConjugateGradient.h"
-
-// Geometry
-#include "imstkPlane.h"
-#include "imstkSphere.h"
-#include "imstkCube.h"
-#include "imstkTetrahedralMesh.h"
-#include "imstkSurfaceMesh.h"
-#include "imstkMeshReader.h"
-#include "imstkLineMesh.h"
-
-// Maps
-#include "imstkTetraTriangleMap.h"
 #include "imstkIsometricMap.h"
-#include "imstkOneToOneMap.h"
 
 // Devices
 #include "imstkHDAPIDeviceClient.h"
@@ -46,15 +24,9 @@
 #include "imstkVRPNDeviceServer.h"
 #include "imstkCameraController.h"
 
-// Collisions
-#include "imstkInteractionPair.h"
-
 // logger
 #include "g3log/g3log.hpp"
 #include "imstkUtils.h"
-
-#include "imstkVirtualCouplingPBDObject.h"
-#include "imstkPbdObject.h"
 
 // testVTKTexture
 #include <vtkOBJReader.h>
@@ -79,13 +51,9 @@
 #include <vtkImageResize.h>
 #include <vtkImageTranslateExtent.h>
 
-#define ADD_TOOL_CONTROLLER
+//#define ADD_TOOL_CONTROLLER
 
 using namespace imstk;
-
-const int overlaySize = 400;
-const std::string metricsFileNamePrefix = "cameraNavMetrics-";
-const std::string screenShotPrefix = "screenShot-";
 
 // Texture coordinates
 const imstk::Vec2d texCenter(750.0, 750.0);
@@ -108,72 +76,9 @@ typedef targetPoints<imstk::Vec3d> targetPointsInWorld;
 typedef targetPoints<imstk::Vec3d> screenSpacePtsWithDepth;
 
 targetPointsInWorld targetWorldPoints[6];
-
-///
-///	 \brief Add a 2D overlay of target markers on a 3D scene
-///
-void add2DOverlay(vtkSmartPointer<vtkRenderer> rendererVtk, const char* fileName)
-{
-	// Read the image
-	vtkNew<vtkPNGReader> reader;
-	reader->SetFileName(fileName);
-	reader->Update();
-
-	int dim[3] = { overlaySize, overlaySize, 1 };
-
-	// Resize image
-	vtkNew<vtkImageResize> resize;
-	resize->SetInputConnection(reader->GetOutputPort());
-	resize->SetOutputDimensions(dim);
-
-	// Translate image extent (origin to its center)
-	vtkNew<vtkImageTranslateExtent> translateExtent;
-	translateExtent->SetInputConnection(resize->GetOutputPort());
-	translateExtent->SetTranslation(-dim[0] / 2, -dim[1] / 2, 0);
-
-	// Mapper
-	vtkNew<vtkImageMapper> imageMapper;
-	imageMapper->SetInputConnection(translateExtent->GetOutputPort());
-	imageMapper->SetColorWindow(255);
-	imageMapper->SetColorLevel(127);
-
-	// Actor
-	vtkNew<vtkActor2D> imageActor;
-	imageActor->SetMapper(imageMapper.GetPointer());
-	imageActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedDisplay();
-	imageActor->SetPosition(0.5, 0.5);
-
-	// Renderer
-	rendererVtk->AddActor2D(imageActor.GetPointer());
-}
-
-///
-/// \brief Create a plane overlaid with a texture
-///
-void createPlaneTarget(
-	std::shared_ptr<imstk::Scene>& scene, 
-	double s, 
-	Eigen::Translation3d& t,
-	Eigen::Quaterniond& r, 
-	std::string& texFileName, 
-	std::string& planeName)
-{
-
-	// Read surface mesh
-	auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
-	auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
-	surfaceMesh->addTexture(texFileName);
-	
-	// position the plane
-	surfaceMesh->scale(s);
-	surfaceMesh->translate(t.x(), t.y(), t.z());
-	surfaceMesh->rotate(r);
-
-	// Create object and add to scene
-	auto object = std::make_shared<imstk::VisualObject>(planeName);
-	object->setVisualGeometry(surfaceMesh); // change to any mesh created above
-	scene->addSceneObject(object);
-}
+const double cameraAngulation = 0.0;// PI / 6.0;
+const double cameraViewAngle = 80.0;
+const double cameraZoomFactor = 1.0;
 
 ///
 /// \brief Create the target blocks
@@ -225,26 +130,30 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
 		{ { 7, 9, 0 } }, { { 9, 1, 0 } } };
 
 		// scale, translate, rotate (fix in architecture)
-		for (int j = 0; j < 10; j++)
+		/*for (int j = 0; j < 10; j++)
 		{
 			blockPts[j] *= scaling;
 			blockPts[j] += imstk::Vec3d(0, 0, -radius);
 			blockPts[j] = q*blockPts[j];
-		}
+		}*/
 
 		auto blockMesh = std::make_shared<imstk::SurfaceMesh>();
 		blockMesh->initialize(blockPts, blockTriangles, true);
-
-		//------------------------------------------------------
-
+		blockMesh->scale(scaling);
+		blockMesh->translate(Vec3d(0, 0, -radius));
+		blockMesh->rotate(q);
+		
 		// add object to the scene
 		auto blockObject = std::make_shared<imstk::VisualObject>("Target " + std::to_string(i));
 		blockObject->setVisualGeometry(blockMesh);
 		scene->addSceneObject(blockObject);
 
+		//------------------------------------------------------
+
+
 		std::string planeName("Plane " + std::to_string(i));
 		std::string textureName("Resources/target.png");
-		createPlaneTarget(scene, 1.0, Eigen::Translation3d(1, 0, 0), q, textureName, planeName);
+		createPlaneTargetWithTexture(scene, 1.0, Eigen::Translation3d(2, 0, 0), q, textureName, planeName);
 
 		// Read surface mesh
 		//auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
@@ -340,21 +249,6 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
 	}
 }
 
-///
-/// \brief Enable screenshot at the press of a keyboard button
-///
-void enableScreenshot()
-{
-	/*auto renWin = vtkSmartPointer<vtkRenderWindow>::New();
-	auto interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
-	auto style = vtkSmartPointer<ScreenCaptureInteractorStyle>::New();
-	renWin->SetInteractor(interactor);
-	vtkViewer->setVtkRenderWindow(renWin);
-	style->initialize(vtkViewer->getVtkRenderWindow());
-	vtkViewer->getVtkRenderWindowInteractor()->SetInteractorStyle(style);
-	style->SetCurrentRenderer(vtkViewer->getVtkRenderer());*/
-}
-
 int main()
 {
 	std::cout << "****************\n"
@@ -402,17 +296,19 @@ int main()
 	// Update Camera position
 	auto cam = scene->getCamera();
 	cam->setPosition(imstk::Vec3d(0, 0, 20));
-	cam->setViewAngle(80.0);
+	cam->setViewAngle(cameraViewAngle);
+	cam->setZoomFactor(cameraZoomFactor);
 
 	// Set camera controller
-	cam->setupController(client1, 0.4);
+	cam->setupController(client1, 0.4);	
+	cam->getController()->setRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
 	cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
 	// Add a sample scene object
-	auto dragonMesh = imstk::MeshReader::read("Resources/asianDragon/asianDragon.obj");
+	/*auto dragonMesh = imstk::MeshReader::read("Resources/asianDragon/asianDragon.obj");
 	auto dragonObject = std::make_shared<imstk::VisualObject>("dragonObject");
 	dragonObject->setVisualGeometry(dragonMesh);
-	//scene->addSceneObject(dragonObject);
+	scene->addSceneObject(dragonObject);*/
 
 	// Add plane scene object
 	auto planeGeom = std::make_shared<Plane>();
@@ -429,8 +325,7 @@ int main()
 	sdk->setCurrentScene("Camera Navigation simulator");
 
 	// Add a 2D overlay on the 3D scene
-	add2DOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), "Resources/viewfinder.png");
-
+	add2DTextureOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), "Resources/viewfinder.png");
 
 	// Run
 	sdk->startSimulation(true);

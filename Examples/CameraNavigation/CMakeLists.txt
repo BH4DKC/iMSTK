@@ -21,7 +21,7 @@ project(CameraNavigation)
 #-----------------------------------------------------------------------------
 # Create executable
 #-----------------------------------------------------------------------------
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} CameraNavigationUtils.h main.cpp)
 
 #-----------------------------------------------------------------------------
 # Link libraries to executable

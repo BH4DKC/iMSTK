@@ -52,13 +52,18 @@ public:
     ///
     /// \brief
     ///
-    ~CameraController() = default;
+	~CameraController() = default;
+
+	///
+	/// \brief
+	///
+	void setOffsetUsingCurrentCameraPose();
 
 protected:
     ///
     /// \brief
     ///
-    void initModule() override;
+	void initModule() override {};
 
     ///
     /// \brief
@@ -68,7 +73,7 @@ protected:
     ///
     /// \brief
     ///
-    void cleanUpModule() override;
+	void cleanUpModule() override {};
 
     Camera& m_camera; ///< Camera controlled by the external device
 

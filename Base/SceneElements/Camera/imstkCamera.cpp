@@ -107,6 +107,18 @@ Camera::getController() const
 }
 
 void
+Camera::setZoomFactor(const double zoomFac)
+{
+	m_zoomFactor = zoomFac;
+}
+
+double 
+Camera::getZoomFactor() const
+{
+	return m_zoomFactor;
+}
+
+void
 Camera::setupController(std::shared_ptr<DeviceClient> deviceClient, double scaling)
 {
     if(m_cameraController == nullptr)
