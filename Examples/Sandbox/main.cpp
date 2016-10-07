@@ -109,7 +109,7 @@ int main()
     //testTwoFalcons();
 	//testObjectController();
 	//testCameraController();
-	testViewer();
+	//testViewer();
 	//testReadMesh();
 	//testAnalyticalGeometry();
 	//testScenesManagement();
@@ -476,12 +476,20 @@ void testTwoOmnis(){
 	// Sphere0
 	auto sphere0Geom = std::make_shared<imstk::Sphere>();
 	sphere0Geom->setPosition(imstk::Vec3d(2, 2.5, 0));
-	sphere0Geom->scale(1);
+    sphere0Geom->scale(1);
+    auto sphere0Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere0", client0, 0.05);
+    sphere0Obj->setVisualGeometry(sphere0Geom);
+    sphere0Obj->setCollidingGeometry(sphere0Geom);
+    scene->addSceneObject(sphere0Obj);
 
 	// Sphere1
 	auto sphere1Geom = std::make_shared<imstk::Sphere>();
 	sphere1Geom->setPosition(imstk::Vec3d(-2, 2.5, 0));
 	sphere1Geom->scale(1);
+    auto sphere1Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere1", client1, 0.05);
+    sphere1Obj->setVisualGeometry(sphere1Geom);
+    sphere1Obj->setCollidingGeometry(sphere1Geom);
+    scene->addSceneObject(sphere1Obj);
 
 	// Update Camera position
 	auto cam = scene->getCamera();

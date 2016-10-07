@@ -37,9 +37,6 @@ HDAPIDeviceClient::init()
 	// Open Device
     m_handle = hdInitDevice(this->getDeviceName().c_str());
 
-	// Create logger
-	this->logger = imstk::Logger::New(this->getName());
-
 	// If failed
 	HDErrorInfo error;
 	if (HD_DEVICE_ERROR(error = hdGetError()))
