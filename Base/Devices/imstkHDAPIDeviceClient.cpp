@@ -37,11 +37,15 @@ HDAPIDeviceClient::init()
 	// Open Device
     m_handle = hdInitDevice(this->getDeviceName().c_str());
 
+	// Initialize logger
+	logger = imstk::Logger::New(this->getDeviceName());
+	logger->setFrequency(30);
+
 	// If failed
 	HDErrorInfo error;
 	if (HD_DEVICE_ERROR(error = hdGetError()))
 	{
-        LOG(FATAL) << "Failed to initialize Phantom Omni " << this->getDeviceName();
+        this->logger->log("FATAL","Failed to initialize Phantom Omni " + this->getDeviceName());
 		m_handle = -1;
         return;
     }
@@ -51,7 +55,7 @@ HDAPIDeviceClient::init()
     hdEnable(HD_FORCE_RAMPING);
 
     // Success
-    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
+    this->logger->log(this->getDeviceName() + " successfully initialized.");
 }
 
 void
@@ -89,6 +93,13 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[1] = state.buttons & HD_DEVICE_BUTTON_2;
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
+
+	if (client->logger->readyForLoggingWithFrequency())
+	{
+		client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
+		client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
+		client->logger->updateLogTime();
+	}
 
     return HD_CALLBACK_DONE;
 }

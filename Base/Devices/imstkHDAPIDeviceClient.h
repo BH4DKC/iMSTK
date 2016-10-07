@@ -28,6 +28,8 @@
 
 #include "imstkDeviceClient.h"
 
+#include "imstkLogger.h"
+
 #include <HD/hd.h>
 
 #include <memory>
@@ -67,6 +69,8 @@ private:
 
     static HDCallbackCode HDCALLBACK hapticCallback(void* pData);
 	
+	imstk::Logger * logger;
+
     HHD m_handle; //!< device handle
     HD_state m_state; //!< device reading state
 
