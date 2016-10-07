@@ -31,7 +31,7 @@ endif()
 include(imstkAddExternalProject)
 imstk_add_external_project( VRPN
   GIT_REPOSITORY https://github.com/agirault/vrpn
-  GIT_TAG improve-openhaptics
+  GIT_TAG 6928eb52d458392f34f4b0c20930abfed2bf6355
   INSTALL_COMMAND ${SKIP_STEP_COMMAND}
   CMAKE_ARGS
     -DBUILD_TESTING:BOOL=OFF

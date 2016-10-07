@@ -32,10 +32,10 @@ namespace imstk
 {
 
 void
-HDAPIDeviceClient::initModule()
+HDAPIDeviceClient::init()
 {
 	// Open Device
-    m_handle = hdInitDevice(this->getName().c_str());
+    m_handle = hdInitDevice(this->getDeviceName().c_str());
 
 	// Create logger
 	this->logger = imstk::Logger::New(this->getName());
@@ -44,55 +44,45 @@ HDAPIDeviceClient::initModule()
 	HDErrorInfo error;
 	if (HD_DEVICE_ERROR(error = hdGetError()))
 	{
-		this->logger->log("FATAL","Failed to initialize Phantom Omni " + this->getName());
+        LOG(FATAL) << "Failed to initialize Phantom Omni " << this->getDeviceName();
 		m_handle = -1;
         return;
-	}
-
-    // Calibration
-    if (hdCheckCalibration() != HD_CALIBRATION_OK)
-    {
-		this->logger->log("Move " + this->getName() + " in its dock to calibrate it.");
-        while (hdCheckCalibration() != HD_CALIBRATION_OK)
-        {
-        }
     }
 
-    // Success
-	this->logger->log(this->getName() + " successfully initialized.");
+    // Enable forces
     hdEnable(HD_FORCE_OUTPUT);
     hdEnable(HD_FORCE_RAMPING);
-    hdStartScheduler();
+
+    // Success
+    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
 }
 
 void
-HDAPIDeviceClient::runModule()
+HDAPIDeviceClient::run()
 {
     hdScheduleSynchronous(hapticCallback, this, HD_MAX_SCHEDULER_PRIORITY);
 }
 
 void
-HDAPIDeviceClient::cleanUpModule()
+HDAPIDeviceClient::cleanUp()
 {
-    hdStopScheduler();
     hdDisableDevice(m_handle);
 }
 
 HDCallbackCode HDCALLBACK
 HDAPIDeviceClient::hapticCallback(void* pData)
-{    
+{
 	auto client = reinterpret_cast<HDAPIDeviceClient*>(pData);
     auto handle = client->m_handle;
     auto state = client->m_state;
 
 	hdBeginFrame(handle);
-
+    hdMakeCurrentDevice(handle);
     hdSetDoublev(HD_CURRENT_FORCE, client->m_force.data());
     hdGetDoublev(HD_CURRENT_POSITION, state.pos);
     hdGetDoublev(HD_CURRENT_VELOCITY, state.vel);
     hdGetDoublev(HD_CURRENT_TRANSFORM, state.trans);
     hdGetIntegerv(HD_CURRENT_BUTTONS, &state.buttons);
-
     hdEndFrame(handle);
 
     client->m_position << state.pos[0], state.pos[1], state.pos[2];
@@ -103,15 +93,7 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
 
-	// Add frequency control
-	int current_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
-	if (current_milliseconds - client->last_log_time > client->log_rate_diff) {
-		client->last_log_time = current_milliseconds;
-		client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
-		client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
-	}
-
-    return HD_CALLBACK_CONTINUE;
+    return HD_CALLBACK_DONE;
 }
 
 } // imstk

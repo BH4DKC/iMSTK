@@ -56,9 +56,10 @@ public:
 
 protected:
 
-    void initModule() override;
-    void runModule() override;
-    void cleanUpModule() override;
+    friend class HDAPIDeviceServer;
+    void init();
+    void run();
+    void cleanUp();
 
 private:
 

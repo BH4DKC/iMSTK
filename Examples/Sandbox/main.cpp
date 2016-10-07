@@ -41,6 +41,7 @@
 
 // Devices
 #include "imstkHDAPIDeviceClient.h"
+#include "imstkHDAPIDeviceServer.h"
 #include "imstkVRPNDeviceClient.h"
 #include "imstkVRPNDeviceServer.h"
 #include "imstkCameraController.h"
@@ -104,8 +105,8 @@ int main()
 
 	//testMultiTextures();
 	//testMeshCCD();
-	//testPenaltyRigidCollision();
-	//testTwoOmnis();
+    //testPenaltyRigidCollision();
+    //testTwoFalcons();
 	//testObjectController();
 	//testCameraController();
 	testViewer();
@@ -120,20 +121,21 @@ int main()
 	//testDeformableBody();
 	//testVTKTexture();
 	//testMultiObjectWithTextures();
-	//testTwoOmnis();
+    testTwoOmnis();
 	//testVectorPlotters();
 	//testPbdVolume();
-	//testPbdCloth();	
-	/*int n;
-	std::cout << "testPbdCollision(): 1" << std::endl;
-	std::cout << "testLineMesh(): 2 " << std::endl;
-	//std::cin >> n;
-	if (n == 1)
-		testPbdCollision();
-	else if (n == 2)
-		testLineMesh();
+	//testPbdCloth();
 
-	return 0;*/
+//	int n;
+//	std::cout << "testPbdCollision(): 1" << std::endl;
+//	std::cout << "testLineMesh(): 2 " << std::endl;
+//	std::cin >> n;
+//	if (n == 1)
+//		testPbdCollision();
+//	else if (n == 2)
+//		testLineMesh();
+
+    return 0;
 }
 
 void testVTKTexture()
@@ -328,16 +330,16 @@ void testPenaltyRigidCollision()
 	// Device server
 	auto server = std::make_shared<imstk::VRPNDeviceServer>();
 	server->addDevice("device0", imstk::DeviceType::NOVINT_FALCON, 0);
-	server->addDevice("device1", imstk::DeviceType::NOVINT_FALCON, 1);
-	sdk->addDeviceServer(server);
+    server->addDevice("device1", imstk::DeviceType::NOVINT_FALCON, 1);
+    sdk->addModule(server);
 
 	// Falcon clients
 	auto client0 = std::make_shared<imstk::VRPNDeviceClient>("device0", "localhost");
-	auto client1 = std::make_shared<imstk::VRPNDeviceClient>("device1", "localhost");
-	client0->setForceEnabled(true);
-	client1->setForceEnabled(true);
-	sdk->addDeviceClient(client0);
-	sdk->addDeviceClient(client1);
+    auto client1 = std::make_shared<imstk::VRPNDeviceClient>("device1", "localhost");
+    client0->setForceEnabled(true);
+    client1->setForceEnabled(true);
+    sdk->addModule(client0);
+    sdk->addModule(client1);
 
 	// Plane
 	auto planeGeom = std::make_shared<Plane>();
@@ -356,14 +358,14 @@ void testPenaltyRigidCollision()
 	sphere0Obj->setCollidingGeometry(sphere0Geom);
 	scene->addSceneObject(sphere0Obj);
 
-	// Sphere1
-	auto sphere1Geom = std::make_shared<Sphere>();
-	sphere1Geom->scale(0.5);
-	sphere1Geom->translate(Vec3d(-1, 0.5, 0));
-	auto sphere1Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere1", client1, 40);
-	sphere1Obj->setVisualGeometry(sphere1Geom);
-	sphere1Obj->setCollidingGeometry(sphere1Geom);
-	scene->addSceneObject(sphere1Obj);
+    // Sphere1
+    auto sphere1Geom = std::make_shared<Sphere>();
+    sphere1Geom->scale(0.5);
+    sphere1Geom->translate(Vec3d(-1, 0.5, 0));
+    auto sphere1Obj = std::make_shared<imstk::VirtualCouplingObject>("Sphere1", client1, 40);
+    sphere1Obj->setVisualGeometry(sphere1Geom);
+    sphere1Obj->setCollidingGeometry(sphere1Geom);
+    scene->addSceneObject(sphere1Obj);
 
 	// Collisions
 	auto colGraph = scene->getCollisionGraph();
@@ -371,14 +373,14 @@ void testPenaltyRigidCollision()
 		CollisionDetection::Type::PlaneToSphere,
 		CollisionHandling::Type::None,
 		CollisionHandling::Type::Penalty);
-	colGraph->addInteractionPair(planeObj, sphere1Obj,
-		CollisionDetection::Type::PlaneToSphere,
-		CollisionHandling::Type::None,
-		CollisionHandling::Type::Penalty);
-	colGraph->addInteractionPair(sphere0Obj, sphere1Obj,
-		CollisionDetection::Type::SphereToSphere,
-		CollisionHandling::Type::Penalty,
-		CollisionHandling::Type::Penalty);
+    colGraph->addInteractionPair(planeObj, sphere1Obj,
+        CollisionDetection::Type::PlaneToSphere,
+        CollisionHandling::Type::None,
+        CollisionHandling::Type::Penalty);
+    colGraph->addInteractionPair(sphere0Obj, sphere1Obj,
+        CollisionDetection::Type::SphereToSphere,
+        CollisionHandling::Type::Penalty,
+        CollisionHandling::Type::Penalty);
 
 	// Run
 	sdk->setCurrentScene("InteractionPairTest");
@@ -396,17 +398,17 @@ void testTwoFalcons()
 	server->addDevice("falcon0", imstk::DeviceType::NOVINT_FALCON, 0);
 	server->addDevice("falcon1", imstk::DeviceType::NOVINT_FALCON, 1);
 	server->addDevice("hdk", imstk::DeviceType::OSVR_HDK);
-	sdk->addDeviceServer(server);
+    sdk->addModule(server);
 
 	// Falcon clients
 	auto falcon0 = std::make_shared<imstk::VRPNDeviceClient>("falcon0", "localhost");
-	sdk->addDeviceClient(falcon0);
+    sdk->addModule(falcon0);
 	auto falcon1 = std::make_shared<imstk::VRPNDeviceClient>("falcon1", "localhost");
-	sdk->addDeviceClient(falcon1);
+    sdk->addModule(falcon1);
 
 	// Cam Client
 	auto hdk = std::make_shared<imstk::VRPNDeviceClient>("hdk", "localhost");
-	sdk->addDeviceClient(hdk);
+    sdk->addModule(hdk);
 
 	// Plane
 	auto planeGeom = std::make_shared<imstk::Plane>();
@@ -454,8 +456,16 @@ void testTwoOmnis(){
 	auto scene = sdk->createNewScene("OmnisTestScene");
 
 	// Device clients
+    auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
+    auto client1 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 2");
 
-	//// Plane
+    // Device Server
+    auto server = std::make_shared<imstk::HDAPIDeviceServer>();
+    server->addDeviceClient(client0);
+    server->addDeviceClient(client1);
+    sdk->addModule(server);
+
+    // Plane
 	auto planeGeom = std::make_shared<imstk::Plane>();
 	planeGeom->scale(50);
 	planeGeom->translate(imstk::FORWARD_VECTOR * 15);
@@ -467,7 +477,6 @@ void testTwoOmnis(){
 	auto sphere0Geom = std::make_shared<imstk::Sphere>();
 	sphere0Geom->setPosition(imstk::Vec3d(2, 2.5, 0));
 	sphere0Geom->scale(1);
-
 
 	// Sphere1
 	auto sphere1Geom = std::make_shared<imstk::Sphere>();
@@ -493,8 +502,12 @@ void testObjectController()
 	auto scene = sdk->createNewScene("SceneTestDevice");
 
 	// Device Client
-	auto client = std::make_shared<imstk::HDAPIDeviceClient>("Default PHANToM"); // localhost = 127.0.0.1
-	sdk->addDeviceClient(client);
+    auto client = std::make_shared<imstk::HDAPIDeviceClient>("Default PHANToM");
+
+    // Device Server
+    auto server = std::make_shared<imstk::HDAPIDeviceServer>();
+    server->addDeviceClient(client);
+    sdk->addModule(server);
 
 	// Object
 	auto geom = std::make_shared<imstk::Cube>();
@@ -525,12 +538,12 @@ void testCameraController()
 	// Device server
 	auto server = std::make_shared<imstk::VRPNDeviceServer>("127.0.0.1");
 	server->addDevice("device0", imstk::DeviceType::OSVR_HDK);
-	sdk->addDeviceServer(server);
+    sdk->addModule(server);
 
 	// Device Client
 	auto client = std::make_shared<imstk::VRPNDeviceClient>("device0", "localhost"); // localhost = 127.0.0.1
 	//client->setLoopDelay(1000);
-	sdk->addDeviceClient(client);
+    sdk->addModule(client);
 
 	// Mesh
 	auto mesh = imstk::MeshReader::read("/home/virtualfls/Projects/IMSTK/resources/asianDragon/asianDragon.obj");
@@ -1285,7 +1298,7 @@ void testPbdCollision()
 	deformableObj->setCollidingGeometry(surfMesh);
 	deformableObj->setPhysicsGeometry(volTetMesh);
 	deformableObj->setPhysicsToCollidingMap(deformMapP2C);
-	deformableObj->setPhysicsToVisualMap(deformMapP2V); 
+	deformableObj->setPhysicsToVisualMap(deformMapP2V);
 	deformableObj->setCollidingToVisualMap(deformMapC2V);
 	deformableObj->init(/*Number of Constraints*/1,
 		/*Constraint configuration*/"FEM NeoHookean 1.0 0.3",
@@ -1410,7 +1423,7 @@ void testPbdCollision()
 
 		volTetMesh1->extractSurfaceMesh(surfMesh1);
 		volTetMesh1->extractSurfaceMesh(surfMeshVisual1);
-		
+
 
 		auto deformMapP2V1 = std::make_shared<imstk::OneToOneMap>();
 		deformMapP2V1->setMaster(volTetMesh1);
@@ -1432,7 +1445,7 @@ void testPbdCollision()
 		deformableObj1->setCollidingGeometry(surfMesh1);
 		deformableObj1->setPhysicsGeometry(volTetMesh1);
 		deformableObj1->setPhysicsToCollidingMap(deformMapP2C1);
-		deformableObj1->setPhysicsToVisualMap(deformMapP2V1); 
+		deformableObj1->setPhysicsToVisualMap(deformMapP2V1);
 		deformableObj1->setCollidingToVisualMap(deformMapC2V1);
 		deformableObj1->init(/*Number of Constraints*/1,
 			/*Constraint configuration*/"FEM NeoHookean 10.0 0.5",
@@ -1455,7 +1468,7 @@ void testPbdCollision()
 	}
 	else{
 		// floor
-		
+
 		std::vector<imstk::Vec3d> vertList;
 		double width = 100.0;
 		double height = 100.0;
@@ -1543,7 +1556,13 @@ void testLineMesh()
 	auto sdk = std::make_shared<imstk::SimulationManager>();
 	auto scene = sdk->createNewScene("SceneTestMesh");
 
-	LOG(INFO) << "TESTING!!!!!!!!!!";
+	// Device clients
+    auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
+
+    // Device Server
+    auto server = std::make_shared<imstk::HDAPIDeviceServer>();
+    server->addDeviceClient(client0);
+    sdk->addModule(server);
 
 	// Device clients
 
@@ -1637,7 +1656,7 @@ void testLineMesh()
 		bladeMapC2P->compute();
 	}
 
-	
+
 
 	if (clothTest){
 
