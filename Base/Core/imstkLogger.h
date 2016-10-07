@@ -110,6 +110,11 @@ public:
     ///
     static void eventLoop(Logger * logger);
 
+    ///
+    /// \brief Shuts down and cleans up logger safely
+    ///
+    void shutdown();
+
 private:
     Logger();
 
@@ -119,6 +124,7 @@ private:
     std::mutex mutex;
     std::string message;
     bool changed = false;
+    bool running = true;
     
     int frequency = 30;
     int period = 1000 / 30;

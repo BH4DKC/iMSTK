@@ -44,7 +44,6 @@ struct stdSink
 };
 
 // Available through namespace
-
 extern void Log(std::string name, std::string message);
 
 ///

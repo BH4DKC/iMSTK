@@ -31,7 +31,6 @@
 #include "imstkModule.h"
 #include "imstkSceneManager.h"
 #include "imstkViewer.h"
-#include "imstkLogger.h"
 #include "imstkLogUtility.h"
 
 namespace imstk

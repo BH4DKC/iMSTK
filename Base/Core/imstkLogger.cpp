@@ -24,7 +24,8 @@
 namespace imstk
 {
 
-Logger * Logger::New(std::string name)
+Logger *
+Logger::New(std::string name)
 {
     Logger * output = new Logger();
 
@@ -33,7 +34,8 @@ Logger * Logger::New(std::string name)
     return output;
 }
 
-std::string Logger::getCurrentTimeFormatted() {
+std::string
+Logger::getCurrentTimeFormatted() {
     time_t now = time(0);
     int year = gmtime(&now)->tm_year + 1900;
     int day = gmtime(&now)->tm_mday;
@@ -61,30 +63,38 @@ std::string Logger::getCurrentTimeFormatted() {
 Logger::Logger() {
 }
 
-void Logger::eventLoop(Logger * logger)
+void
+Logger::eventLoop(Logger * logger)
 {
     std::ofstream file(logger->filename);
 
     char buffer[1024];
     std::fill_n(buffer, 1024, '\0');
 
-    while (true) {
+    while (logger->running) {
         std::unique_lock<std::mutex> ul(logger->mutex);
-
         logger->condition.wait(ul, [logger]{return logger->changed; });
+        
+        if (!logger->running) {
+            logger->changed = false;
+            ul.unlock();
+            break;
+        }
+        
         strcpy(buffer, logger->message.c_str());
-
-        //std::cout << buffer << std::endl;
         logger->changed = false;
+        
         ul.unlock();
         logger->condition.notify_one();
 
         file << buffer << "\n";
-        //file.flush();
     }
+    file.close();
+    logger->condition.notify_one();
 }
 
-void Logger::log(std::string level, std::string message)
+void
+Logger::log(std::string level, std::string message)
 {
     std::string level_pad = level;
     level_pad.resize(10, ' ');
@@ -102,25 +112,29 @@ void Logger::log(std::string level, std::string message)
     ul.unlock();
 }
 
-void Logger::log(std::string message) {
+void
+Logger::log(std::string message) {
     log("INFO", message);
 }
 
-void Logger::log(std::string description, double one, double two, double three) {
+void
+Logger::log(std::string description, double one, double two, double three) {
     std::string description_pad = description + ':';
     description_pad.resize(5, ' ');
     std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
     log("INFO", message_input);
 }
 
-void Logger::log(std::string description, double one, double two, double three, double four) {
+void
+Logger::log(std::string description, double one, double two, double three, double four) {
     std::string description_pad = description + ':';
     description_pad.resize(8, ' ');
     std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
     log("INFO", message_input);
 }
 
-bool Logger::readyForLoggingWithFrequency()
+bool
+Logger::readyForLoggingWithFrequency()
 {
     long long currentMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
     if (currentMilliseconds - this->lastLogTime > this->period)
@@ -130,20 +144,39 @@ bool Logger::readyForLoggingWithFrequency()
     return false;
 }
 
-void Logger::updateLogTime()
+void
+Logger::updateLogTime()
 {
     this->lastLogTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
 }
 
-void Logger::setFrequency(int frequency)
+void
+Logger::setFrequency(int frequency)
 {
     this->frequency = frequency;
     this->period = 1000 / this->frequency;
 }
 
-int Logger::getFrequency()
+int
+Logger::getFrequency()
 {
     return this->frequency;
+}
+
+void
+Logger::shutdown()
+{
+    // Safely setting the running state
+    {
+        std::lock_guard<std::mutex> guard(this->mutex);
+        this->changed = true;
+        this->running = false;
+    }
+
+    this->condition.notify_one();
+    std::unique_lock<std::mutex> ul(this->mutex);
+    this->condition.wait(ul, [this]{return !this->changed; });
+    ul.unlock();
 }
 
 }

@@ -68,6 +68,7 @@ void
 HDAPIDeviceClient::cleanUp()
 {
     hdDisableDevice(m_handle);
+    logger->shutdown();
 }
 
 HDCallbackCode HDCALLBACK
