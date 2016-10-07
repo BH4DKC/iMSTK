@@ -49,7 +49,7 @@ public:
     /// \brief Logger instantiation method
     /// \params name this name will be used in the file name of the log file
     ///
-    static Logger * New(std::string name);
+    Logger(std::string name);
     
     ///
     /// \brief Log one line.
@@ -116,24 +116,21 @@ public:
     void shutdown();
 
 private:
-    Logger();
-
     static std::string getCurrentTimeFormatted();
 
     // Mutex for performance reasons
-    std::mutex mutex;
-    std::string message;
-    bool changed = false;
-    bool running = true;
+    std::unique_ptr<std::mutex> m_mutex;
+    std::string m_message;
+    bool m_changed = false;
+    bool m_running = true;
     
-    int frequency = 30;
-    int period = 1000 / 30;
-    long long lastLogTime = 0;
+    int m_frequency = 30;
+    int m_period = 1000 / 30;
+    long long m_lastLogTime = 0;
 
-    std::string name;
-    std::string filename;
-    std::shared_ptr<std::thread> thread;
-    std::condition_variable condition;
+    std::string m_filename;
+    std::unique_ptr<std::thread> m_thread;
+    std::condition_variable m_condition;
 };
 
 }

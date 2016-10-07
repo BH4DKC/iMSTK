@@ -54,7 +54,7 @@ public:
         DeviceClient(name, "localhost")
     {}
 
-    virtual ~HDAPIDeviceClient() {}
+    virtual ~HDAPIDeviceClient() {};
 
 protected:
 

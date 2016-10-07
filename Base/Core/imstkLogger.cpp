@@ -24,14 +24,11 @@
 namespace imstk
 {
 
-Logger *
-Logger::New(std::string name)
+Logger::Logger(std::string name)
 {
-    Logger * output = new Logger();
-
-    output->filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
-    output->thread = std::make_shared<std::thread>(Logger::eventLoop, output);
-    return output;
+    this->m_filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
+    this->m_mutex = std::make_unique<std::mutex>();
+    this->m_thread = std::make_unique<std::thread>(Logger::eventLoop, this);
 }
 
 std::string
@@ -60,37 +57,34 @@ Logger::getCurrentTimeFormatted() {
     return year_string + day_string + month_string + "-" + hour_string + min_string + sec_string;
 }
 
-Logger::Logger() {
-}
-
 void
 Logger::eventLoop(Logger * logger)
 {
-    std::ofstream file(logger->filename);
+    std::ofstream file(logger->m_filename);
 
     char buffer[1024];
     std::fill_n(buffer, 1024, '\0');
 
-    while (logger->running) {
-        std::unique_lock<std::mutex> ul(logger->mutex);
-        logger->condition.wait(ul, [logger]{return logger->changed; });
+    while (logger->m_running) {
+        std::unique_lock<std::mutex> ul(*logger->m_mutex);
+        logger->m_condition.wait(ul, [logger]{return logger->m_changed; });
         
-        if (!logger->running) {
-            logger->changed = false;
+        if (!logger->m_running) {
+            logger->m_changed = false;
             ul.unlock();
             break;
         }
         
-        strcpy(buffer, logger->message.c_str());
-        logger->changed = false;
+        strcpy(buffer, logger->m_message.c_str());
+        logger->m_changed = false;
         
         ul.unlock();
-        logger->condition.notify_one();
+        logger->m_condition.notify_one();
 
         file << buffer << "\n";
     }
     file.close();
-    logger->condition.notify_one();
+    logger->m_condition.notify_one();
 }
 
 void
@@ -98,17 +92,17 @@ Logger::log(std::string level, std::string message)
 {
     std::string level_pad = level;
     level_pad.resize(10, ' ');
-    this->message = getCurrentTimeFormatted() + " " + level_pad + "" + message;
+    this->m_message = getCurrentTimeFormatted() + " " + level_pad + "" + message;
 
     // Safely setting the change state
     {
-        std::lock_guard<std::mutex> guard(this->mutex);
-        changed = true;
+        std::lock_guard<std::mutex> guard(*this->m_mutex);
+        m_changed = true;
     }
 
-    this->condition.notify_one();
-    std::unique_lock<std::mutex> ul(this->mutex);
-    this->condition.wait(ul, [this]{return !this->changed; });
+    this->m_condition.notify_one();
+    std::unique_lock<std::mutex> ul(*this->m_mutex);
+    this->m_condition.wait(ul, [this]{return !this->m_changed; });
     ul.unlock();
 }
 
@@ -137,7 +131,7 @@ bool
 Logger::readyForLoggingWithFrequency()
 {
     long long currentMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
-    if (currentMilliseconds - this->lastLogTime > this->period)
+    if (currentMilliseconds - this->m_lastLogTime > this->m_period)
     {
         return true;
     }
@@ -147,20 +141,20 @@ Logger::readyForLoggingWithFrequency()
 void
 Logger::updateLogTime()
 {
-    this->lastLogTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+    this->m_lastLogTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
 }
 
 void
 Logger::setFrequency(int frequency)
 {
-    this->frequency = frequency;
-    this->period = 1000 / this->frequency;
+    this->m_frequency = frequency;
+    this->m_period = 1000 / this->m_frequency;
 }
 
 int
 Logger::getFrequency()
 {
-    return this->frequency;
+    return this->m_frequency;
 }
 
 void
@@ -168,15 +162,18 @@ Logger::shutdown()
 {
     // Safely setting the running state
     {
-        std::lock_guard<std::mutex> guard(this->mutex);
-        this->changed = true;
-        this->running = false;
+        std::lock_guard<std::mutex> guard(*this->m_mutex);
+        this->m_changed = true;
+        this->m_running = false;
     }
 
-    this->condition.notify_one();
-    std::unique_lock<std::mutex> ul(this->mutex);
-    this->condition.wait(ul, [this]{return !this->changed; });
+    this->m_condition.notify_one();
+    std::unique_lock<std::mutex> ul(*this->m_mutex);
+    this->m_condition.wait(ul, [this]{return !this->m_changed; });
     ul.unlock();
+
+    m_mutex.release();
+    m_thread.release();
 }
 
 }

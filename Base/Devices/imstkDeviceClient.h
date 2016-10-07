@@ -122,7 +122,7 @@ protected:
     std::map<size_t, bool> m_buttons;        ///< Buttons: true = pressed/false = not pressed
     Vec3d m_force = Vec3d::Zero();           ///< Force vector
 
-    imstk::Logger * logger; // Logger that runs on seperate thread
+    std::unique_ptr<imstk::Logger> m_logger; // Logger that runs on seperate thread
 
 };
 
