@@ -69,7 +69,7 @@ private:
 
     static HDCallbackCode HDCALLBACK hapticCallback(void* pData);
 	
-	imstk::Logger * logger;
+    imstk::Logger * logger;
 
     HHD m_handle; //!< device handle
     HD_state m_state; //!< device reading state

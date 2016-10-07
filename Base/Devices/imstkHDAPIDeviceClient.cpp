@@ -34,19 +34,19 @@ namespace imstk
 void
 HDAPIDeviceClient::init()
 {
-	// Open Device
+    // Open Device
     m_handle = hdInitDevice(this->getDeviceName().c_str());
 
-	// Initialize logger
-	logger = imstk::Logger::New(this->getDeviceName());
-	logger->setFrequency(30);
+    // Initialize logger
+    logger = imstk::Logger::New(this->getDeviceName());
+    logger->setFrequency(30);
 
-	// If failed
-	HDErrorInfo error;
-	if (HD_DEVICE_ERROR(error = hdGetError()))
-	{
+    // If failed
+    HDErrorInfo error;
+    if (HD_DEVICE_ERROR(error = hdGetError()))
+    {
         this->logger->log("FATAL","Failed to initialize Phantom Omni " + this->getDeviceName());
-		m_handle = -1;
+        m_handle = -1;
         return;
     }
 
@@ -77,7 +77,7 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     auto handle = client->m_handle;
     auto state = client->m_state;
 
-	hdBeginFrame(handle);
+    hdBeginFrame(handle);
     hdMakeCurrentDevice(handle);
     hdSetDoublev(HD_CURRENT_FORCE, client->m_force.data());
     hdGetDoublev(HD_CURRENT_POSITION, state.pos);
@@ -94,12 +94,12 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
 
-	if (client->logger->readyForLoggingWithFrequency())
-	{
-		client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
-		client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
-		client->logger->updateLogTime();
-	}
+    if (client->logger->readyForLoggingWithFrequency())
+    {
+        client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
+        client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
+        client->logger->updateLogTime();
+    }
 
     return HD_CALLBACK_DONE;
 }
