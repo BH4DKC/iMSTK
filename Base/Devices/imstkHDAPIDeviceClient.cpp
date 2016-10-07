@@ -37,6 +37,9 @@ HDAPIDeviceClient::init()
 	// Open Device
     m_handle = hdInitDevice(this->getDeviceName().c_str());
 
+    // Create logger
+    this->logger = imstk::Logger::New(this->getDeviceName());
+
 	// If failed
 	HDErrorInfo error;
 	if (HD_DEVICE_ERROR(error = hdGetError()))
@@ -89,6 +92,14 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[1] = state.buttons & HD_DEVICE_BUTTON_2;
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
+
+    // Add frequency control
+     int current_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+     if (current_milliseconds - client->last_log_time > client->log_rate_diff) {
+     client->last_log_time = current_milliseconds;
+     client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
+     client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
+     }
 
     return HD_CALLBACK_DONE;
 }

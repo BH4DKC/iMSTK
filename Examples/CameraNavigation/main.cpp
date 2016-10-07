@@ -15,6 +15,8 @@
 #include "imstkVirtualCouplingObject.h"
 #include "imstkLight.h"
 #include "imstkCamera.h"
+#include "imstkSphere.h"
+#include "imstkCube.h"
 
 #include "imstkIsometricMap.h"
 
@@ -29,21 +31,38 @@
 #include "g3log/g3log.hpp"
 #include "imstkUtils.h"
 
+using namespace imstk;
+
 #define ADD_TOOL_CONTROLLER
 
-using namespace imstk;
+//-------------------------------------------------
+// Settings
+//-------------------------------------------------
 
 // Select the scenario
 const unsigned int scanarioNumber = 1;
+
+// Device names
+const std::string device1Name("PHANToM 1");// Device 1 name
+const std::string device2Name("PHANToM 2");// Device 2 name
+
+const std::string pointerFileName("Resources/handle2.obj");// Pointer file name
+const std::string patternTextureFileName("Resources/viewfinder.png");// Target texture file name
 
 // Camera settings
 const double cameraAngulation = 0.0;// PI / 6.0;
 const double cameraViewAngle = 80.0;
 const double cameraZoomFactor = 1.0;
 
+//-------------------------------------------------
+
 // Hold on the target for a certain amount of time
-void createScenario1(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared_ptr<imstk::Scene>& scene)
+void createScenario1()
 {
+    // SDK and Scene
+    auto sdk = std::make_shared<imstk::SimulationManager>();
+    auto scene = sdk->createNewScene("CameraNavigationSimulator");
+
     // Add plane scene object
     auto planeGeom = std::make_shared<Plane>();
     planeGeom->scale(10);
@@ -56,7 +75,7 @@ void createScenario1(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared
     createTargets(scene);
 
     // Device clients 2
-    auto client0 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 1");
+    auto client0 = std::make_shared<imstk::HDAPIDeviceClient>(device1Name);
 
     // Device Server
     auto server = std::make_shared<imstk::HDAPIDeviceServer>();
@@ -75,14 +94,13 @@ void createScenario1(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared
 
 #ifdef ADD_TOOL_CONTROLLER
     // Device clients 1
-    auto client1 = std::make_shared<imstk::HDAPIDeviceClient>("PHANToM 2");
+    auto client1 = std::make_shared<imstk::HDAPIDeviceClient>(device2Name);
 
     server->addDeviceClient(client1);
 
     // Load meshes
-    std::string path2obj = "Resources/handle2.obj";
-    auto mesh = imstk::MeshReader::read(path2obj);
-    auto visualMesh = imstk::MeshReader::read(path2obj);
+    auto mesh = imstk::MeshReader::read(pointerFileName);
+    auto visualMesh = imstk::MeshReader::read(pointerFileName);
 
     // construct map
     auto C2VHandle = std::make_shared<imstk::IsometricMap>();
@@ -103,12 +121,18 @@ void createScenario1(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared
     sdk->addModule(server);
 
     // Set the scene as current
-    sdk->setCurrentScene("Camera Navigation simulator");
+    sdk->setCurrentScene("CameraNavigationSimulator");
+
+    sdk->startSimulation(true);
 }
 
 // Match a pattern on the target
-void createScenario2(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared_ptr<imstk::Scene>& scene)
+void createScenario2()
 {
+    // SDK and Scene
+    auto sdk = std::make_shared<imstk::SimulationManager>();
+    auto scene = sdk->createNewScene("CameraNavigationSimulator");
+
     // Add a sample scene object
     /*auto dragonMesh = imstk::MeshReader::read("Resources/asianDragon/asianDragon.obj");
     auto dragonObject = std::make_shared<imstk::VisualObject>("dragonObject");
@@ -127,54 +151,67 @@ void createScenario2(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared
     createTargets(scene);
 
     // Set the scene as current
-    sdk->setCurrentScene("Camera Navigation simulator");
+    sdk->setCurrentScene("CameraNavigationSimulator");
 
     // Add a 2D overlay on the 3D scene
-    add2DTextureOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), "Resources/viewfinder.png");
+    add2DTextureOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), patternTextureFileName.c_str());
+
+    sdk->startSimulation(true);
 }
 
 // Trace a pattern on the target
-void createScenario3(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared_ptr<imstk::Scene>& scene)
+void createScenario3()
 {
+    // SDK and Scene
+    auto sdk = std::make_shared<imstk::SimulationManager>();
+    auto sceneTest = sdk->createNewScene("CameraNavigationSimulator");
 
+
+    // Run
+    sdk->setCurrentScene("CameraNavigationSimulator");
+    sdk->startSimulation(true);
 }
 
 // Test spatial awareness
-void createScenario4(std::shared_ptr<imstk::SimulationManager>& sdk, std::shared_ptr<imstk::Scene>& scene)
+void createScenario4()
 {
+    // SDK and Scene
+    auto sdk = std::make_shared<imstk::SimulationManager>();
+    auto sceneTest = sdk->createNewScene("CameraNavigationSimulator");
+
+
+    // Run
+    sdk->setCurrentScene("CameraNavigationSimulator");
+    sdk->startSimulation(true);
 
 }
 
 // Driver code
 int main()
 {
-    std::cout << "****************\n"
-        << "Starting Camera Navigation Application"
-        << "****************\n";
+    std::cout << "--------------------------------------\n"
+            << "Starting Camera Navigation Application\n"
+            << "--------------------------------------\n" << std::endl;
 
-    // create sdk and scene
-    auto sdk = std::make_shared<SimulationManager>();
-    auto scene = sdk->createNewScene("Camera Navigation simulator");
-
+    // create the selected scenario
     switch (scanarioNumber)
     {
     case 1:
-        createScenario1(sdk, scene);
+        createScenario1();
         break;
     case 2:
-        createScenario2(sdk, scene);
+        createScenario2();
         break;
     case 3:
-        createScenario3(sdk, scene);
+        createScenario3();
         break;
     case 4:
-        createScenario4(sdk, scene);
+        createScenario4();
         break;
     default:
         std::cout << "Error: select the scenes from 1-4" << std::endl;
         break;
     }
 
-    // Run
-    sdk->startSimulation(true);
+    return 0;
 }
