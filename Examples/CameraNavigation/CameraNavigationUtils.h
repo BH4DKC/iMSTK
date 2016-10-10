@@ -78,7 +78,7 @@ typedef targetPoints<imstk::Vec3d> screenSpacePtsWithDepth;
 
 targetPointsInWorld targetWorldPoints[6];
 
-const int overlaySize = 400;
+
 const std::string metricsFileNamePrefix = "cameraNavMetrics-";
 const std::string screenShotPrefix = "screenShot-";
 
@@ -131,14 +131,14 @@ protected:
 ///
 ///	 \brief Add a 2D overlay of target markers on a 3D scene
 ///
-void add2DTextureOverlay(vtkSmartPointer<vtkRenderer> rendererVtk, const char* fileName)
+void add2DTextureOverlay(const vtkSmartPointer<vtkRenderer>& rendererVtk, const char* fileName, const int size)
 {
     // Read the image
     vtkNew<vtkPNGReader> reader;
     reader->SetFileName(fileName);
     reader->Update();
 
-    int dim[3] = { overlaySize, overlaySize, 1 };
+    int dim[3] = { size, size, 1 };
 
     // Resize image
     vtkNew<vtkImageResize> resize;
@@ -167,19 +167,48 @@ void add2DTextureOverlay(vtkSmartPointer<vtkRenderer> rendererVtk, const char* f
 }
 
 ///
-/// \brief Create a plane overlaid with a texture
+/// \brief Create a plane overlaid with a texture given four vertices
 ///
 void createPlaneTargetWithTexture(
-    std::shared_ptr<imstk::Scene>& scene,
-    double s,
-    Eigen::Translation3d& t,
-    Eigen::Quaterniond& r,
-    std::string& texFileName,
-    std::string& planeName)
+    const std::shared_ptr<imstk::Scene>& scene,
+    const imstk::Vec3d& a,
+    const imstk::Vec3d& b,
+    const imstk::Vec3d& c,
+    const imstk::Vec3d& d,
+    const std::string& texFileName,
+    const std::string& planeName)
+{
+    // Read surface mesh
+    auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
+
+    objMesh->setInitialVerticePosition(0, a);
+    objMesh->setInitialVerticePosition(1, b);
+    objMesh->setInitialVerticePosition(2, c);
+    objMesh->setInitialVerticePosition(3, d);
+
+    auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
+    surfaceMesh->addTexture(texFileName);
+
+    // Create object and add to scene
+    auto object = std::make_shared<imstk::VisualObject>(planeName);
+    object->setVisualGeometry(surfaceMesh); // change to any mesh created above
+    scene->addSceneObject(object);
+}
+
+///
+/// \brief Create a plane overlaid with a texture give translation, scale and rotation
+///
+void createPlaneTargetWithTexture(
+    const std::shared_ptr<imstk::Scene>& scene,
+    const double s,
+    const Eigen::Translation3d& t,
+    const Eigen::Quaterniond& r,
+    const std::string& texFileName,
+    const std::string& planeName)
 {
 
     // Read surface mesh
-    auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
+    auto objMesh = imstk::MeshReader::read("Resources/plane3.obj");
     auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
     surfaceMesh->addTexture(texFileName);
 
@@ -198,7 +227,7 @@ void createPlaneTargetWithTexture(
 ///
 /// \brief Create the target blocks
 ///
-void createTargets(std::shared_ptr<imstk::Scene>& scene)
+void createTargetsScenario1(std::shared_ptr<imstk::Scene>& scene)
 {
     // some constants
     const float X = 8;
@@ -206,8 +235,8 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
     const float Z = 6;
     const float pY = 0.25;
     const float pZ = 0.25;
-    const double radius = 3.0;
-    const double scaling = 0.15;
+    const double radius = 4.5;//3.0;
+    const double scaling = 0.25;// 0.15;
     const double planeWidth = 10;
 
     //imstk::Color meshColor(0.25, 0.25, 0.25, 1.0);
@@ -235,6 +264,19 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
             imstk::Vec3d(-X / 2, Y, Z*(pZ - 0.5)), imstk::Vec3d(X / 2, Y, Z*(pZ - 0.5)),
             imstk::Vec3d(-X / 2, Y*pY, Z / 2), imstk::Vec3d(X / 2, Y*pY, Z / 2) };
 
+        for (int j = 0; j < 10; j++)
+        {
+            blockPts[j] *= scaling;
+        }
+
+        Vec3d texturePlaneNormal = (blockPts[7] - blockPts[6]).cross(blockPts[8] - blockPts[6]);
+        texturePlaneNormal.normalize();
+
+        /*std::cout << blockPts[6].x() << ", " << blockPts[6].y() << ", " << blockPts[6].z() << std::endl;
+        std::cout << blockPts[7].x() << ", " << blockPts[7].y() << ", " << blockPts[7].z() << std::endl;
+        std::cout << blockPts[8].x() << ", " << blockPts[8].y() << ", " << blockPts[8].z() << std::endl;
+        std::cout << blockPts[9].x() << ", " << blockPts[9].y() << ", " << blockPts[9].z() << std::endl;*/
+
         std::vector<std::array<size_t, 3>> blockTriangles = { { { 0, 1, 2 } }, { { 0, 2, 3 } },
         { { 0, 3, 4 } }, { { 5, 0, 4 } },
         { { 5, 4, 6 } }, { { 7, 5, 6 } },
@@ -252,9 +294,18 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
         blockPts[j] = q*blockPts[j];
         }*/
 
+        imstk::Vec3d pts[4];
+        for (int k = 0; k < 4; k++)
+        {
+        pts[k] = blockPts[6 + k] * scaling;
+        pts[k] += imstk::Vec3d(0, 0, -radius);
+        pts[k] = q*pts[k];
+        }
+
+
         auto blockMesh = std::make_shared<imstk::SurfaceMesh>();
         blockMesh->initialize(blockPts, blockTriangles, true);
-        blockMesh->scale(scaling);
+        //blockMesh->scale(scaling);
         blockMesh->translate(Vec3d(0, 0, -radius));
         blockMesh->rotate(q);
 
@@ -265,101 +316,208 @@ void createTargets(std::shared_ptr<imstk::Scene>& scene)
 
         //------------------------------------------------------
 
-
         std::string planeName("Plane " + std::to_string(i));
         std::string textureName("Resources/target.png");
-        createPlaneTargetWithTexture(scene, 1.0, Eigen::Translation3d(2, 0, 0), q, textureName, planeName);
 
-        // Read surface mesh
-        //auto objMesh = imstk::MeshReader::read("Resources/plane.obj");
-        //auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
-        //surfaceMesh->addTexture("Resources/target.png");
-
-        //// Create object and add to scene
-        //auto object = std::make_shared<imstk::VisualObject>("meshObject");
-        //object->setVisualGeometry(surfaceMesh); // change to any mesh created above
-        //scene->addSceneObject(object);
-
-        //// TARGETS
-        //// Some constants
-        //const double L_3d = blockPts[7].x() - blockPts[6].x();
-        //const double H_3d = (blockPts[8] - blockPts[6]).norm();
-        //const double delta = 0.5*(L_3d - H_3d);
-        //const double yL = blockPts[6].y() - blockPts[8].y();
-        //const double zL = blockPts[8].z() - blockPts[6].z();
-
-        //imstk::Vec3d pointA(blockPts[6].x() + delta, blockPts[6].y(), blockPts[6].z());
-
-        //// Set the target points
-        //double y6 = blockPts[6].y();
-        //double z6 = blockPts[6].z();
-        //targetWorldPoints[i].center = imstk::Vec3d(0.5*(blockPts[6] + blockPts[9]));
-        //targetWorldPoints[i].top = imstk::Vec3d(pointA.x() + H_3d / 2, y6 - yL / 6, z6 + zL / 6);
-        //targetWorldPoints[i].bottom = imstk::Vec3d(pointA.x() + H_3d / 2, y6 - 5 * yL / 6, z6 + 5 * zL / 6);
-        //targetWorldPoints[i].corners[0] = imstk::Vec3d(pointA.x() + 252.0*H_3d / 1500, y6 - 665.0*yL / 1500, z6 + 665.0*zL / 1500);
-        //targetWorldPoints[i].corners[1] = imstk::Vec3d(pointA.x() + 1254.0*H_3d / 1500, y6 - 665.0*yL / 1500, z6 + 665.0*zL / 1500);
-        //targetWorldPoints[i].corners[2] = imstk::Vec3d(pointA.x() + 1254.0*H_3d / 1500, y6 - 832.0*yL / 1500, z6 + 1254.0*zL / 1500);
-        //targetWorldPoints[i].corners[3] = imstk::Vec3d(pointA.x() + 252.0*H_3d / 1500, y6 - 832.0*yL / 1500, z6 + 1254.0*zL / 1500);
-
-        //auto targetRenderDetail = std::make_shared<imstk::RenderDetail>(IMSTK_RENDER_TEXTURE);
-        //targetRenderDetail->addTexture("target", targetFileName, "", "");
-        //// surface mesh
-        //imstk::Vec3d topLeftEdge(-X / 2, Y, Z*(pZ - 0.5));
-        //imstk::Vec3d topRightEdge(X / 2, Y, Z*(pZ - 0.5));
-        //imstk::Vec3d bottomLeftEdge(-X / 2, Y*pY, Z / 2);
-        //imstk::Vec3d bottomRightEdge(X / 2, Y*pY, Z / 2);
-        //std::vector<imstk::Vec3d> points = { topLeftEdge, topRightEdge, bottomLeftEdge, bottomRightEdge };
-        //std::array<size_t, 3> tri1 = { { 0, 1, 2 } };
-        //std::array<size_t, 3> tri2 = { { 1, 2, 3 } };
-        //std::vector<std::array<size_t, 3>> triArray = { tri1, tri2 };
-        //auto surfaceMesh = std::make_shared<imstk::SurfaceMesh>();
-        //surfaceMesh->initialize(points, triArray);
-
-        //// Texture Coordinates
-        ///*double height = (bottomLeftEdge - topLeftEdge).norm();
-        //double width = (bottomLeftEdge - bottomRightEdge).norm();
-        //double dist = std::min(height, width);
-        //double dx = 0.0, dy = 0.0;
-        //if (dist == height)
-        //{
-        //	double x_a = bottomLeftEdge[0];
-        //	double x_b = bottomRightEdge[0];
-        //	dx = std::abs((x_b - x_a - dist) / (2 * dist));
-        //}
-        //else
-        //{
-        //	double y_a = bottomLeftEdge[1];
-        //	double y_b = topLeftEdge[1];
-        //	dy = std::abs((y_b - y_a - dist) / (2 * dist));
-        //}
-        //surfaceMesh->addTextureCoordinate(1.0 + dx, -dy);
-        //surfaceMesh->addTextureCoordinate(-dx, -dy);
-        //surfaceMesh->addTextureCoordinate(1.0 + dx, 1.0 + dy);
-        //surfaceMesh->addTextureCoordinate(-dx, 1.0 + dy);
-
-        //surfaceMesh->setUseOBJTexture(true);*/
-
-        //// model
-        //auto targetModel = std::make_shared<imstk::MeshCollisionModel>();
-        //targetModel->setMesh(surfaceMesh);
-        //targetModel->setRenderDetail(targetRenderDetail);
-        //targetModel->getMesh()->scale(s);
-        //targetModel->getMesh()->translate(t2);
-        //targetModel->getMesh()->rotate(q);
-
-        //// Scale, Translate and rotate the points
-        //imstk::Vec3d tra(0, 0, -radius + 0.01);
-        //targetWorldPoints[i].center = q*(s*targetWorldPoints[i].center + tra);
-        //targetWorldPoints[i].top = q*(s*targetWorldPoints[i].top + tra);
-        //targetWorldPoints[i].bottom = q*(s*targetWorldPoints[i].bottom + tra);
-        //for (int j = 0; j < 4; j++)
-        //{
-        //	targetWorldPoints[i].corners[j] = q*(s*targetWorldPoints[i].corners[j] + tra);
-        //}
-
-        //// object
-        //auto targetObject = std::make_shared<imstk::VisualObject>();
-        //targetObject->setVisualGeometry(targetModel);
-        //scene->addSceneObject(targetObject);
+        // Move the texture plane by delta to avoid coinciding with the plane of the block
+        const double delta = -0.001;
+        createPlaneTargetWithTexture(scene, 1, Eigen::Translation3d(texturePlaneNormal.x()*delta, texturePlaneNormal.y()*delta, texturePlaneNormal.z()*delta - radius), q, textureName, planeName);
     }
+}
+
+
+///
+/// \brief Create the target blocks
+///
+void createTargetsScenario2(std::shared_ptr<imstk::Scene>& scene)
+{
+    // some constants
+    const float X = 8;
+    const float Y = 6;
+    const float Z = 6;
+    const float pY = 0.25;
+    const float pZ = 0.25;
+    const double radius = 3.0;
+    const double scaling = 0.25;// 0.15;
+    const double planeWidth = 10;
+
+    //imstk::Color meshColor(0.25, 0.25, 0.25, 1.0);
+
+    //auto blockRenderDetail = std::make_shared<imstk::RenderDetail>();//IMSTK_RENDER_NORMALS
+    //blockRenderDetail->setAmbientColor(meshColor);
+    //blockRenderDetail->setDiffuseColor(meshColor);
+    //blockRenderDetail->setSpecularColor(meshColor);
+    //blockRenderDetail->setShininess(100.0);
+
+    int i = 0;
+    // transformations
+    Eigen::UniformScaling<double> s(scaling);
+    Eigen::Translation3d t1(0, 0, -radius);
+    Eigen::Translation3d t2(0, 0, -radius + 0.01);
+    Eigen::Quaterniond q(cos(i*22.0 / 42), 0, sin(i*22.0 / 42), 0);
+    q.normalize();
+
+    // BLOCKS
+    // surface mesh
+    std::vector<imstk::Vec3d> blockPts = { imstk::Vec3d(X / 2, 0, -Z / 2), imstk::Vec3d(X / 2, 0, Z / 2),
+        imstk::Vec3d(-X / 2, 0, Z / 2), imstk::Vec3d(-X / 2, 0, -Z / 2),
+        imstk::Vec3d(-X / 2, Y, -Z / 2), imstk::Vec3d(X / 2, Y, -Z / 2),
+        imstk::Vec3d(-X / 2, Y, Z*(pZ - 0.5)), imstk::Vec3d(X / 2, Y, Z*(pZ - 0.5)),
+        imstk::Vec3d(-X / 2, Y*pY, Z / 2), imstk::Vec3d(X / 2, Y*pY, Z / 2) };
+
+    for (int j = 0; j < 10; j++)
+    {
+        blockPts[j] *= scaling;
+    }
+    Vec3d texturePlaneNormal = (blockPts[7] - blockPts[6]).cross(blockPts[8] - blockPts[6]);
+    texturePlaneNormal.normalize();
+
+    /*std::cout << blockPts[6].x() << ", " << blockPts[6].y() << ", " << blockPts[6].z() << std::endl;
+    std::cout << blockPts[7].x() << ", " << blockPts[7].y() << ", " << blockPts[7].z() << std::endl;
+    std::cout << blockPts[8].x() << ", " << blockPts[8].y() << ", " << blockPts[8].z() << std::endl;
+    std::cout << blockPts[9].x() << ", " << blockPts[9].y() << ", " << blockPts[9].z() << std::endl;*/
+
+    std::vector<std::array<size_t, 3>> blockTriangles = { { { 0, 1, 2 } }, { { 0, 2, 3 } },
+    { { 0, 3, 4 } }, { { 5, 0, 4 } },
+    { { 5, 4, 6 } }, { { 7, 5, 6 } },
+    { { 6, 8, 9 } }, { { 6, 9, 7 } },
+    { { 2, 1, 9 } }, { { 8, 2, 9 } },
+    { { 3, 6, 4 } }, { { 3, 8, 6 } },
+    { { 3, 2, 8 } }, { { 5, 7, 0 } },
+    { { 7, 9, 0 } }, { { 9, 1, 0 } } };
+
+    // scale, translate, rotate (fix in architecture)
+    /*for (int j = 0; j < 10; j++)
+    {
+    blockPts[j] *= scaling;
+    blockPts[j] += imstk::Vec3d(0, 0, -radius);
+    blockPts[j] = q*blockPts[j];
+    }*/
+
+    imstk::Vec3d pts[4];
+    for (int k = 0; k < 4; k++)
+    {
+        pts[k] = blockPts[6 + k] * scaling;
+        pts[k] += imstk::Vec3d(0, 0, -radius);
+        pts[k] = q*pts[k];
+    }
+
+
+    auto blockMesh = std::make_shared<imstk::SurfaceMesh>();
+    blockMesh->initialize(blockPts, blockTriangles, true);
+    //blockMesh->scale(scaling);
+    //blockMesh->translate(Vec3d(0, 0, -radius));
+    //blockMesh->rotate(q);
+
+    // add object to the scene
+    auto blockObject = std::make_shared<imstk::VisualObject>("Target " + std::to_string(i));
+    blockObject->setVisualGeometry(blockMesh);
+    scene->addSceneObject(blockObject);
+
+    //------------------------------------------------------
+
+    std::string planeName("Plane " + std::to_string(i));
+    std::string textureName("Resources/circle.png");
+
+    const double delta = -0.001;
+    //createPlaneTargetWithTexture(scene, 1, Eigen::Translation3d(texturePlaneNormal.x()*delta, texturePlaneNormal.y()*delta, texturePlaneNormal.z()*delta - radius), q, textureName, planeName);
+    createPlaneTargetWithTexture(scene, 1, Eigen::Translation3d(texturePlaneNormal.x()*delta, texturePlaneNormal.y()*delta, texturePlaneNormal.z()*delta), q, textureName, planeName);
+
+}
+
+
+///
+/// \brief Create the target blocks
+///
+void createTargetsScenario3(std::shared_ptr<imstk::Scene>& scene)
+{
+    // some constants
+    const float X = 8;
+    const float Y = 6;
+    const float Z = 6;
+    const float pY = 0.25;
+    const float pZ = 0.25;
+    const double radius = 3.0;
+    const double scaling = 0.25;// 0.15;
+    const double planeWidth = 10;
+
+    //imstk::Color meshColor(0.25, 0.25, 0.25, 1.0);
+
+    //auto blockRenderDetail = std::make_shared<imstk::RenderDetail>();//IMSTK_RENDER_NORMALS
+    //blockRenderDetail->setAmbientColor(meshColor);
+    //blockRenderDetail->setDiffuseColor(meshColor);
+    //blockRenderDetail->setSpecularColor(meshColor);
+    //blockRenderDetail->setShininess(100.0);
+
+    int i = 0;
+    // transformations
+    Eigen::UniformScaling<double> s(scaling);
+    Eigen::Translation3d t1(0, 0, -radius);
+    Eigen::Translation3d t2(0, 0, -radius + 0.01);
+    Eigen::Quaterniond q(cos(i*22.0 / 42), 0, sin(i*22.0 / 42), 0);
+    q.normalize();
+
+    // BLOCKS
+    // surface mesh
+    std::vector<imstk::Vec3d> blockPts = { imstk::Vec3d(X / 2, 0, -Z / 2), imstk::Vec3d(X / 2, 0, Z / 2),
+        imstk::Vec3d(-X / 2, 0, Z / 2), imstk::Vec3d(-X / 2, 0, -Z / 2),
+        imstk::Vec3d(-X / 2, Y, -Z / 2), imstk::Vec3d(X / 2, Y, -Z / 2),
+        imstk::Vec3d(-X / 2, Y, Z*(pZ - 0.5)), imstk::Vec3d(X / 2, Y, Z*(pZ - 0.5)),
+        imstk::Vec3d(-X / 2, Y*pY, Z / 2), imstk::Vec3d(X / 2, Y*pY, Z / 2) };
+
+    for (int j = 0; j < 10; j++)
+    {
+        blockPts[j] *= scaling;
+    }
+    Vec3d texturePlaneNormal = (blockPts[7] - blockPts[6]).cross(blockPts[8] - blockPts[6]);
+    texturePlaneNormal.normalize();
+
+    /*std::cout << blockPts[6].x() << ", " << blockPts[6].y() << ", " << blockPts[6].z() << std::endl;
+    std::cout << blockPts[7].x() << ", " << blockPts[7].y() << ", " << blockPts[7].z() << std::endl;
+    std::cout << blockPts[8].x() << ", " << blockPts[8].y() << ", " << blockPts[8].z() << std::endl;
+    std::cout << blockPts[9].x() << ", " << blockPts[9].y() << ", " << blockPts[9].z() << std::endl;*/
+
+    std::vector<std::array<size_t, 3>> blockTriangles = { { { 0, 1, 2 } }, { { 0, 2, 3 } },
+    { { 0, 3, 4 } }, { { 5, 0, 4 } },
+    { { 5, 4, 6 } }, { { 7, 5, 6 } },
+    { { 6, 8, 9 } }, { { 6, 9, 7 } },
+    { { 2, 1, 9 } }, { { 8, 2, 9 } },
+    { { 3, 6, 4 } }, { { 3, 8, 6 } },
+    { { 3, 2, 8 } }, { { 5, 7, 0 } },
+    { { 7, 9, 0 } }, { { 9, 1, 0 } } };
+
+    // scale, translate, rotate (fix in architecture)
+    /*for (int j = 0; j < 10; j++)
+    {
+    blockPts[j] *= scaling;
+    blockPts[j] += imstk::Vec3d(0, 0, -radius);
+    blockPts[j] = q*blockPts[j];
+    }*/
+
+    imstk::Vec3d pts[4];
+    for (int k = 0; k < 4; k++)
+    {
+        pts[k] = blockPts[6 + k] * scaling;
+        pts[k] += imstk::Vec3d(0, 0, -radius);
+        pts[k] = q*pts[k];
+    }
+
+
+    auto blockMesh = std::make_shared<imstk::SurfaceMesh>();
+    blockMesh->initialize(blockPts, blockTriangles, true);
+    //blockMesh->scale(scaling);
+    //blockMesh->translate(Vec3d(0, 0, -radius));
+    //blockMesh->rotate(q);
+
+    // add object to the scene
+    auto blockObject = std::make_shared<imstk::VisualObject>("Target " + std::to_string(i));
+    blockObject->setVisualGeometry(blockMesh);
+    scene->addSceneObject(blockObject);
+
+    std::string planeName("Plane " + std::to_string(i));
+    std::string textureName("Resources/point.png");
+
+    const double delta = -0.001;
+    createPlaneTargetWithTexture(scene, 1, Eigen::Translation3d(texturePlaneNormal.x()*delta, texturePlaneNormal.y()*delta, texturePlaneNormal.z()*delta), q, textureName, planeName);
+
 }

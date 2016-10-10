@@ -114,6 +114,11 @@ void Mesh::setVerticePosition(const int& vertNum, const Vec3d& pos)
     m_verticesPositions.at(vertNum) = pos;
 }
 
+void Mesh::setInitialVerticePosition(const int& vertNum, const Vec3d& pos)
+{
+    m_initialVerticesPositions.at(vertNum) = pos;
+}
+
 const Vec3d&
 Mesh::getVertexPosition(const int& vertNum) const
 {

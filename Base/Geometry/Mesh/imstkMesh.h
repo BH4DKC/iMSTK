@@ -93,6 +93,11 @@ public:
     void setVerticePosition(const int &vertNum, const Vec3d& pos);
 
     ///
+    /// \brief Explicitly set the initial vertex position
+    ///
+    void setInitialVerticePosition(const int& vertNum, const Vec3d& pos);
+
+    ///
     /// \brief Returns the position of a vertex given its index
     ///
     const Vec3d& getVertexPosition(const int& vertNum) const;
