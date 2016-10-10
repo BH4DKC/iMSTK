@@ -40,7 +40,7 @@ using namespace imstk;
 //-------------------------------------------------
 
 // Select the scenario
-const unsigned int scanarioNumber = 3; //possible values: 1, 2, 3, 4
+const unsigned int scanarioNumber = 1; //possible values: 1, 2, 3, 4
 
 // Camera settings
 const double cameraAngulation = 0.0; //possible values: 0, 30, 45 deg
@@ -63,21 +63,24 @@ const std::string patternTextureFileName("Resources/viewfinder.png");// Target t
 // Simulation constants
 const int overlaySize = 300;
 
-const double cameraControllerScaling = 0.4;
+const double CameraBoundingBoxSize = 500.0;
+const double cameraControllerScaling = 0.2;
 
 //-------------------------------------------------
 
 // Hold on the target for a certain amount of time
 void createScenario1()
 {
+    std::cout << "Creating Scenario 1" << std::endl;
+
     // SDK and Scene
     auto sdk = std::make_shared<imstk::SimulationManager>();
     auto scene = sdk->createNewScene("CameraNavigationSimulator");
 
     // Add plane scene object
     auto planeGeom = std::make_shared<Plane>();
-    planeGeom->scale(10);
-    planeGeom->translate(0, -1, 0);
+    planeGeom->scale(15);
+    //planeGeom->translate(0, -1, 0);
     auto planeObj = std::make_shared<CollidingObject>("Plane");
     planeObj->setVisualGeometry(planeGeom);
     scene->addSceneObject(planeObj);
@@ -111,19 +114,29 @@ void createScenario1()
     // Add a 2D overlay on the 3D scene
     add2DTextureOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), patternTextureFileName.c_str(), overlaySize);
 
+    // Reset the clipping planes
+    sdk->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange(-CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize);
+
     sdk->startSimulation(true);
 }
 
 // Match a pattern on the target
 void createScenario2()
 {
+    std::cout << "Creating Scenario 2" << std::endl;
+
     auto sdk = std::make_shared<imstk::SimulationManager>();
     auto scene = sdk->createNewScene("CameraNavigationSimulator");
 
     // Add plane scene object
     auto planeGeom = std::make_shared<Plane>();
     planeGeom->scale(10);
-    planeGeom->translate(0, -1, 0);
+    //planeGeom->translate(0, -1, 0);
     auto planeObj = std::make_shared<CollidingObject>("Plane");
     planeObj->setVisualGeometry(planeGeom);
     scene->addSceneObject(planeObj);
@@ -180,19 +193,29 @@ void createScenario2()
     // Set the scene as current
     sdk->setCurrentScene("CameraNavigationSimulator");
 
+    // Reset the clipping planes
+    sdk->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange(-CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize);
+
     sdk->startSimulation(true);
 }
 
 // Trace a pattern on the target
 void createScenario3()
 {
+    std::cout << "Creating Scenario 3" << std::endl;
+
     auto sdk = std::make_shared<imstk::SimulationManager>();
     auto scene = sdk->createNewScene("CameraNavigationSimulator");
 
     // Add plane scene object
     auto planeGeom = std::make_shared<Plane>();
     planeGeom->scale(10);
-    planeGeom->translate(0, -1, 0);
+    //planeGeom->translate(0, -1, 0);
     auto planeObj = std::make_shared<CollidingObject>("Plane");
     planeObj->setVisualGeometry(planeGeom);
     scene->addSceneObject(planeObj);
@@ -249,12 +272,38 @@ void createScenario3()
     // Set the scene as current
     sdk->setCurrentScene("CameraNavigationSimulator");
 
+    // Reset the clipping planes
+    sdk->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange(-CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize);
+
     sdk->startSimulation(true);
 }
 
 // Test spatial awareness
 void createScenario4()
-{}
+{
+    std::cout << "Creating Scenario 4" << std::endl;
+
+    auto sdk = std::make_shared<imstk::SimulationManager>();
+    auto scene = sdk->createNewScene("CameraNavigationSimulator");
+
+    // Set the scene as current
+    sdk->setCurrentScene("CameraNavigationSimulator");
+
+    // Reset the clipping planes
+    sdk->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange(-CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize,
+        -CameraBoundingBoxSize,
+        CameraBoundingBoxSize);
+
+    sdk->startSimulation(true);
+}
 
 // Driver code
 int main()

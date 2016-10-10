@@ -272,6 +272,9 @@ void createTargetsScenario1(std::shared_ptr<imstk::Scene>& scene)
         Vec3d texturePlaneNormal = (blockPts[7] - blockPts[6]).cross(blockPts[8] - blockPts[6]);
         texturePlaneNormal.normalize();
 
+        //std::cout << "L: " << (blockPts[7] - blockPts[6]).norm() << std::endl;
+        //std::cout << "W: " << (blockPts[8] - blockPts[6]).norm() << std::endl;
+
         /*std::cout << blockPts[6].x() << ", " << blockPts[6].y() << ", " << blockPts[6].z() << std::endl;
         std::cout << blockPts[7].x() << ", " << blockPts[7].y() << ", " << blockPts[7].z() << std::endl;
         std::cout << blockPts[8].x() << ", " << blockPts[8].y() << ", " << blockPts[8].z() << std::endl;

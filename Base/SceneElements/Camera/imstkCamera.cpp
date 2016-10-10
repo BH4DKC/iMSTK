@@ -89,7 +89,8 @@ Camera::setViewUp(const double& x,
     m_viewUp = Vec3d(x,y,z).normalized();
 }
 
-const double& Camera::getViewAngle() const
+const double&
+Camera::getViewAngle() const
 {
     return m_viewAngle;
 }
@@ -112,7 +113,7 @@ Camera::setZoomFactor(const double zoomFac)
 	m_zoomFactor = zoomFac;
 }
 
-double 
+double
 Camera::getZoomFactor() const
 {
 	return m_zoomFactor;
