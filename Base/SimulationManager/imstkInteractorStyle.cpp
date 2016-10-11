@@ -58,6 +58,13 @@ InteractorStyle::OnTimer()
         this->CurrentRenderer->ResetCameraClippingRange();
     }
 
+    // Capture screen if triggered by the user
+    if(m_simManager->getViewer()->shouldICaptureScreen())
+    {
+        m_simManager->getViewer()->captureScreen();
+        m_simManager->getViewer()->setScreenCaptureState(false);
+    }
+
     // Render
     this->Interactor->Render();
 }
@@ -174,6 +181,16 @@ InteractorStyle::OnChar()
     case 'S' :
     {
         m_simManager->startSimulation();
+    }
+    break;
+
+    // Screen capture
+    case 'b':
+    {
+        if (m_simManager->getViewer()->isScreencaptureEnabled())
+        {
+            m_simManager->getViewer()->setScreenCaptureState(true);
+        }
     }
     break;
 

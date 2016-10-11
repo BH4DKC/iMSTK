@@ -33,6 +33,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
+
+// Screenshot
+#include "imstkScreenCaptureUtility.h"
+
 namespace imstk
 {
 
@@ -102,6 +106,58 @@ public:
     ///
     const bool& isRendering() const;
 
+    ///
+    /// \brief
+    ///
+    void setScreenCaptureState(const bool state)
+    {
+        m_triggerScreencapture = state;
+    }
+
+    ///
+    /// \brief
+    ///
+    bool shouldICaptureScreen() const
+    {
+        return m_triggerScreencapture;
+    }
+
+    ///
+    /// \brief Enable the screen capture
+    ///
+    void enableScreenCapture(const std::string prefix = "screenShot-")
+    {
+        if (m_screenCapturer == nullptr)
+        {
+            m_screenCapturer = std::make_shared<screenCaptureUtility>(prefix);
+        }
+        m_screencaptureEnabled = true;
+    }
+
+    ///
+    /// \brief
+    ///
+    void disableScreenCapture(const std::string prefix = "screenShot-")
+    {
+        m_screencaptureEnabled = false;
+    }
+
+    ///
+    /// \brief
+    ///
+    void captureScreen() const
+    {
+        m_screenCapturer->saveScreenShot(this->getVtkRenderWindow());
+    }
+
+    ///
+    /// \brief
+    ///
+    bool isScreencaptureEnabled() const
+    {
+        return m_screencaptureEnabled;
+    }
+
 protected:
 
     vtkSmartPointer<vtkRenderWindow> m_vtkRenderWindow = vtkSmartPointer<vtkRenderWindow>::New();
@@ -109,6 +165,11 @@ protected:
     std::shared_ptr<Scene> m_currentScene;
     std::unordered_map<std::shared_ptr<Scene>, std::shared_ptr<Renderer>> m_rendererMap;
     bool m_running = false;
+
+    // Screen capture
+    bool m_triggerScreencapture = false;
+    bool m_screencaptureEnabled = false;
+    std::shared_ptr<screenCaptureUtility> m_screenCapturer;
 };
 
 } // imstk

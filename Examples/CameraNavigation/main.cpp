@@ -122,6 +122,9 @@ void createScenario1()
         -CameraBoundingBoxSize,
         CameraBoundingBoxSize);
 
+    // Enable screen capture
+    sdk->getViewer()->enableScreenCapture();
+
     sdk->startSimulation(true);
 }
 

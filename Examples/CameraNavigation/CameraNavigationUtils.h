@@ -43,17 +43,6 @@
 #include <vtkImageResize.h>
 #include <vtkImageTranslateExtent.h>
 
-// Screenshot
-#include <vtkRenderWindowInteractor.h>
-#include <vtkObjectFactory.h>
-#include <vtkRendererCollection.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkRenderWindow.h>
-#include <vtkWindowToImageFilter.h>
-#include <vtkPNGWriter.h>
-#include <vtkCamera.h>
-#include <vtkRenderer.h>
-
 using namespace imstk;
 
 // Texture coordinates
@@ -80,53 +69,7 @@ targetPointsInWorld targetWorldPoints[6];
 
 
 const std::string metricsFileNamePrefix = "cameraNavMetrics-";
-const std::string screenShotPrefix = "screenShot-";
 
-///
-/// keep track of the screen capture
-///
-class screenCaptureUtil
-{
-
-    screenCaptureUtil(vtkRenderWindow* rw) : m_triggerScreenCapture(false), m_screenShotNumber(0)
-    {
-        m_windowToImageFilter->SetInput(rw);
-        m_windowToImageFilter->SetMagnification(1);
-        m_windowToImageFilter->SetInputBufferTypeToRGB();
-        m_windowToImageFilter->ReadFrontBufferOff();
-        m_windowToImageFilter->Update();
-
-        m_pngWriter->SetInputConnection(m_windowToImageFilter->GetOutputPort());
-    };
-
-    ~screenCaptureUtil(){};
-
-    void saveScreenShot()
-    {
-        m_windowToImageFilter->Modified();
-
-        std::string captureName = screenShotPrefix + std::to_string(m_screenShotNumber) + ".png";
-
-        m_pngWriter->SetFileName(captureName.data());
-        m_pngWriter->Write();
-
-        std::cout << "Screen shot " << m_screenShotNumber << " saved.\n";
-
-        m_screenShotNumber++;
-        m_triggerScreenCapture = false;
-    };
-
-    unsigned int getScreenShotNumber() const
-    {
-        return m_screenShotNumber;
-    };
-
-protected:
-    vtkNew<vtkWindowToImageFilter> m_windowToImageFilter;
-    vtkNew<vtkPNGWriter> m_pngWriter;
-    bool m_triggerScreenCapture;
-    unsigned int m_screenShotNumber;
-};
 
 ///
 ///	 \brief Add a 2D overlay of target markers on a 3D scene
