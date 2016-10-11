@@ -24,100 +24,156 @@
 namespace imstk
 {
 
-Logger * Logger::New(std::string name)
+Logger::Logger(std::string name)
 {
-	Logger * output = new Logger();
-
-	output->filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
-	output->thread = std::make_shared<std::thread>(Logger::eventLoop, output);
-	return output;
+    this->m_filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
+    this->m_mutex = std::make_unique<std::mutex>();
+    this->m_thread = std::make_unique<std::thread>(Logger::eventLoop, this);
 }
 
-std::string Logger::getCurrentTimeFormatted() {
-	time_t now = time(0);
-	int year = gmtime(&now)->tm_year + 1900;
-	int day = gmtime(&now)->tm_mday;
-	int month = gmtime(&now)->tm_mon;
-	int hour = gmtime(&now)->tm_hour;
-	int min = gmtime(&now)->tm_min;
-	int sec = gmtime(&now)->tm_sec;
+std::string
+Logger::getCurrentTimeFormatted() {
+    time_t now = time(0);
+    int year = gmtime(&now)->tm_year + 1900;
+    int day = gmtime(&now)->tm_mday;
+    int month = gmtime(&now)->tm_mon;
+    int hour = gmtime(&now)->tm_hour;
+    int min = gmtime(&now)->tm_min;
+    int sec = gmtime(&now)->tm_sec;
 
-	std::string year_string = std::to_string(year);
-	std::string day_string = std::to_string(day);
-	if (day < 10) { day_string = "0" + day_string; }
-	std::string month_string = std::to_string(month);
-	if (month < 10) { month_string = "0" + month_string; }
+    std::string year_string = std::to_string(year);
+    std::string day_string = std::to_string(day);
+    if (day < 10) { day_string = "0" + day_string; }
+    std::string month_string = std::to_string(month);
+    if (month < 10) { month_string = "0" + month_string; }
 
-	std::string hour_string = std::to_string(hour);
-	if (hour < 10) { hour_string = "0" + hour_string; }
-	std::string min_string = std::to_string(min);
-	if (min < 10) { min_string = "0" + min_string; }
-	std::string sec_string = std::to_string(sec);
-	if (sec < 10) { sec_string = "0" + sec_string; }
+    std::string hour_string = std::to_string(hour);
+    if (hour < 10) { hour_string = "0" + hour_string; }
+    std::string min_string = std::to_string(min);
+    if (min < 10) { min_string = "0" + min_string; }
+    std::string sec_string = std::to_string(sec);
+    if (sec < 10) { sec_string = "0" + sec_string; }
 
-	return year_string + day_string + month_string + "-" + hour_string + min_string + sec_string;
+    return year_string + day_string + month_string + "-" + hour_string + min_string + sec_string;
 }
 
-Logger::Logger() {
-}
-
-void Logger::eventLoop(Logger * logger)
+void
+Logger::eventLoop(Logger * logger)
 {
-	std::ofstream file(logger->filename);
+    std::ofstream file(logger->m_filename);
 
-	char buffer[1024];
-	std::fill_n(buffer, 1024, '\0');
+    char buffer[1024];
+    std::fill_n(buffer, 1024, '\0');
 
-	while (true) {
-		std::unique_lock<std::mutex> ul(logger->mutex);
+    while (logger->m_running) {
+        std::unique_lock<std::mutex> ul(*logger->m_mutex);
+        logger->m_condition.wait(ul, [logger]{return logger->m_changed; });
 
-		logger->condition.wait(ul, [logger]{return logger->changed; });
-		strcpy(buffer, logger->message.c_str());
+        if (!logger->m_running) {
+            logger->m_changed = false;
+            ul.unlock();
+            break;
+        }
 
-		//std::cout << buffer << std::endl;
-		logger->changed = false;
-		ul.unlock();
-		logger->condition.notify_one();
+        strcpy(buffer, logger->m_message.c_str());
+        logger->m_changed = false;
 
-		file << buffer << "\n";
-		//file.flush();
-	}
+        ul.unlock();
+        logger->m_condition.notify_one();
+
+        file << buffer << "\n";
+    }
+    file.close();
+    logger->m_condition.notify_one();
 }
 
-void Logger::log(std::string level, std::string message_input)
+void
+Logger::log(std::string level, std::string message)
 {
-	std::string level_pad = level;
-	level_pad.resize(10, ' ');
-	this->message = getCurrentTimeFormatted() + " " + level_pad + "" + message_input;
+    std::string level_pad = level;
+    level_pad.resize(10, ' ');
+    this->m_message = getCurrentTimeFormatted() + " " + level_pad + "" + message;
 
-	// Safely setting the change state
-	{
-		std::lock_guard<std::mutex> guard(this->mutex);
-		changed = true;
-	}
+    // Safely setting the change state
+    {
+        std::lock_guard<std::mutex> guard(*this->m_mutex);
+        m_changed = true;
+    }
 
-	this->condition.notify_one();
-	std::unique_lock<std::mutex> ul(this->mutex);
-	this->condition.wait(ul, [this]{return !this->changed; });
-	ul.unlock();
+    this->m_condition.notify_one();
+    std::unique_lock<std::mutex> ul(*this->m_mutex);
+    this->m_condition.wait(ul, [this]{return !this->m_changed; });
+    ul.unlock();
 }
 
-void Logger::log(std::string message_input) {
-	log("INFO", message_input);
+void
+Logger::log(std::string message) {
+    log("INFO", message);
 }
 
-void Logger::log(std::string description, double one, double two, double three) {
-	std::string description_pad = description + ':';
-	description_pad.resize(5, ' ');
-	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
-	log("INFO", message_input);
+void
+Logger::log(std::string description, double one, double two, double three) {
+    std::string description_pad = description + ':';
+    description_pad.resize(5, ' ');
+    std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
+    log("INFO", message_input);
 }
 
-void Logger::log(std::string description, double one, double two, double three, double four) {
-	std::string description_pad = description + ':';
-	description_pad.resize(8, ' ');
-	std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
-	log("INFO", message_input);
+void
+Logger::log(std::string description, double one, double two, double three, double four) {
+    std::string description_pad = description + ':';
+    description_pad.resize(8, ' ');
+    std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
+    log("INFO", message_input);
+}
+
+bool
+Logger::readyForLoggingWithFrequency()
+{
+    long long currentMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+    if (currentMilliseconds - this->m_lastLogTime > this->m_period)
+    {
+        return true;
+    }
+    return false;
+}
+
+void
+Logger::updateLogTime()
+{
+    this->m_lastLogTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+}
+
+void
+Logger::setFrequency(int frequency)
+{
+    this->m_frequency = frequency;
+    this->m_period = 1000 / this->m_frequency;
+}
+
+int
+Logger::getFrequency()
+{
+    return this->m_frequency;
+}
+
+void
+Logger::shutdown()
+{
+    // Safely setting the running state
+    {
+        std::lock_guard<std::mutex> guard(*this->m_mutex);
+        this->m_changed = true;
+        this->m_running = false;
+    }
+
+    this->m_condition.notify_one();
+    std::unique_lock<std::mutex> ul(*this->m_mutex);
+    this->m_condition.wait(ul, [this]{return !this->m_changed; });
+    ul.unlock();
+
+    m_mutex.release();
+    m_thread.release();
 }
 
 }

@@ -34,18 +34,19 @@ namespace imstk
 void
 HDAPIDeviceClient::init()
 {
-	// Open Device
+    // Open Device
     m_handle = hdInitDevice(this->getDeviceName().c_str());
 
-    // Create logger
-    this->logger = imstk::Logger::New(this->getDeviceName());
+    // Initialize logger
+    m_logger = std::make_unique<imstk::Logger>(this->getDeviceName());
+    m_logger->setFrequency(30);
 
-	// If failed
-	HDErrorInfo error;
-	if (HD_DEVICE_ERROR(error = hdGetError()))
-	{
-        LOG(FATAL) << "Failed to initialize Phantom Omni " << this->getDeviceName();
-		m_handle = -1;
+    // If failed
+    HDErrorInfo error;
+    if (HD_DEVICE_ERROR(error = hdGetError()))
+    {
+        this->m_logger->log("FATAL","Failed to initialize Phantom Omni " + this->getDeviceName());
+        m_handle = -1;
         return;
     }
 
@@ -54,7 +55,7 @@ HDAPIDeviceClient::init()
     hdEnable(HD_FORCE_RAMPING);
 
     // Success
-    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
+    this->m_logger->log(this->getDeviceName() + " successfully initialized.");
 }
 
 void
@@ -67,6 +68,7 @@ void
 HDAPIDeviceClient::cleanUp()
 {
     hdDisableDevice(m_handle);
+    m_logger->shutdown();
 }
 
 HDCallbackCode HDCALLBACK
@@ -76,7 +78,7 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     auto handle = client->m_handle;
     auto state = client->m_state;
 
-	hdBeginFrame(handle);
+    hdBeginFrame(handle);
     hdMakeCurrentDevice(handle);
     hdSetDoublev(HD_CURRENT_FORCE, client->m_force.data());
     hdGetDoublev(HD_CURRENT_POSITION, state.pos);
@@ -93,13 +95,12 @@ HDAPIDeviceClient::hapticCallback(void* pData)
     client->m_buttons[2] = state.buttons & HD_DEVICE_BUTTON_3;
     client->m_buttons[3] = state.buttons & HD_DEVICE_BUTTON_4;
 
-    // Add frequency control
-     int current_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
-     if (current_milliseconds - client->last_log_time > client->log_rate_diff) {
-     client->last_log_time = current_milliseconds;
-     client->logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
-     client->logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
-     }
+    if (client->m_logger->readyForLoggingWithFrequency())
+    {
+        client->m_logger->log("P", state.pos[0], state.pos[1], state.pos[2]);
+        client->m_logger->log("V", state.vel[0], state.vel[1], state.vel[2]);
+        client->m_logger->updateLogTime();
+    }
 
     return HD_CALLBACK_DONE;
 }

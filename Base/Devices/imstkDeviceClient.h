@@ -24,6 +24,7 @@
 
 #include <map>
 
+#include "imstkLogger.h"
 #include "imstkMath.h"
 
 namespace imstk
@@ -120,6 +121,9 @@ protected:
     Quatd m_orientation = Quatd::Identity(); ///< Orientation of the end effector
     std::map<size_t, bool> m_buttons;        ///< Buttons: true = pressed/false = not pressed
     Vec3d m_force = Vec3d::Zero();           ///< Force vector
+
+    std::unique_ptr<imstk::Logger> m_logger; // Logger that runs on seperate thread
+
 };
 
 }

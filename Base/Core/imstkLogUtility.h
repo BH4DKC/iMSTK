@@ -28,48 +28,47 @@ limitations under the License.
 
 namespace imstk
 {
-	///
-	/// \struct stdSink
-	///
-	/// \brief
-	///
-	struct stdSink
-	{
-		// Linux xterm color
-		// http://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
-		enum FG_Color { YELLOW = 33, RED = 31, GREEN = 32, WHITE = 97 };
+///
+/// \struct stdSink
+///
+/// \brief
+///
+struct stdSink
+{
+    // Linux xterm color
+    // http://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+    enum FG_Color { YELLOW = 33, RED = 31, GREEN = 32, WHITE = 97 };
 
-		FG_Color GetColor(const LEVELS level) const;
-		void ReceiveLogMessage(g3::LogMessageMover logEntry);
-	};
+    FG_Color GetColor(const LEVELS level) const;
+    void ReceiveLogMessage(g3::LogMessageMover logEntry);
+};
 
-	// Available through namespace
+// Available through namespace
+extern void Log(std::string name, std::string message);
 
-	extern void Log(std::string name, std::string message);
+///
+/// \struct LogManager
+///
+/// \brief
+///
 
-	///
-	/// \struct LogManager
-	///
-	/// \brief
-	///
+struct LogManager {
+    std::map<std::string, Logger *> loggers;
+    std::map<std::string, std::thread *> loggerThreads;
+};
 
-	struct LogManager {
-		std::map<std::string, Logger *> loggers;
-		std::map<std::string, std::thread *> loggerThreads;
-	};
+///
+/// \struct LogUtility
+///
+/// \brief
+///
+struct LogUtility
+{
+    void createLogger(std::string name, std::string path);
 
-	///
-	/// \struct LogUtility
-	///
-	/// \brief
-	///
-	struct LogUtility
-	{
-		void createLogger(std::string name, std::string path);
-
-		std::unique_ptr<g3::LogWorker>                m_g3logWorker;
-		std::unique_ptr<g3::SinkHandle<g3::FileSink> >m_fileSinkHandle;
-		std::unique_ptr<g3::SinkHandle<stdSink> >     m_stdSinkHandle;
-	};
+    std::unique_ptr<g3::LogWorker>                m_g3logWorker;
+    std::unique_ptr<g3::SinkHandle<g3::FileSink> >m_fileSinkHandle;
+    std::unique_ptr<g3::SinkHandle<stdSink> >     m_stdSinkHandle;
+};
 }
 #endif
