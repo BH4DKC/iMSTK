@@ -57,6 +57,8 @@ const double cameraZoomFactor = 1.0; //possible values: TBD
 const std::string device1Name("PHANToM 2");// Device 1 name
 const std::string device2Name("PHANToM 1");// Device 2 name
 
+const int loggingFrequency = 20;
+
 const std::string pointerFileName("Resources/pencil.obj");// Pointer file name
 const std::string patternTextureFileName("Resources/viewfinder.png");// Target texture file name
 
@@ -90,6 +92,8 @@ void createScenario1()
 
     // Device clients 2
     auto client0 = std::make_shared<imstk::HDAPIDeviceClient>(device1Name);
+    client0->enableLogging();
+    client0->setLoggerFrequency(loggingFrequency);
 
     // Device Server
     auto server = std::make_shared<imstk::HDAPIDeviceServer>();
