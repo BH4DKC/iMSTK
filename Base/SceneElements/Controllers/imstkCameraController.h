@@ -57,7 +57,27 @@ public:
 	///
 	/// \brief
 	///
-	void setOffsetUsingCurrentCameraPose();
+    void setOffsetUsingCurrentCameraPose();
+
+    ///
+    /// \brief
+    ///
+    void setCameraRotationOffset(const Quatd& r);
+
+    ///
+    /// \brief
+    ///
+    void setCameraTranslationOffset(const Vec3d& t);
+
+    ///
+    /// \brief
+    ///
+    const Vec3d& getCameraTranslationOffset() const;
+
+    ///
+    /// \brief
+    ///
+    const Quatd& getCameraRotationOffset() const;
 
 protected:
     ///
@@ -76,6 +96,9 @@ protected:
 	void cleanUpModule() override {};
 
     Camera& m_camera; ///< Camera controlled by the external device
+
+    Vec3d m_cameraTranslationOffset = WORLD_ORIGIN;     ///< Translation offset for the camera over tracking data
+    Quatd m_cameraRotationOffset = Quatd::Identity();   ///< Rotation offset for the camera over tracking data
 
 };
 

@@ -28,7 +28,7 @@
 namespace imstk
 {
 
-void 
+void
 CameraController::setOffsetUsingCurrentCameraPose()
 {
 	auto pos = m_camera.getPosition();
@@ -59,10 +59,38 @@ CameraController::runModule()
         return;
     }
 
+    // Apply Offsets
+    p = p + m_cameraTranslationOffset;
+    r *= m_cameraRotationOffset;
+
     // Set camera info
 	m_camera.setPosition(p);
 	m_camera.setFocalPoint((r*FORWARD_VECTOR) + p);
 	m_camera.setViewUp(r*UP_VECTOR);
+}
+
+void
+CameraController::setCameraRotationOffset(const Quatd& r)
+{
+    m_cameraRotationOffset = r;
+}
+
+void
+CameraController::setCameraTranslationOffset(const Vec3d& t)
+{
+    m_cameraTranslationOffset = t;
+}
+
+const imstk::Vec3d&
+CameraController::getCameraTranslationOffset() const
+{
+    return m_cameraTranslationOffset;
+}
+
+const imstk::Quatd&
+CameraController::getCameraRotationOffset() const
+{
+    return m_cameraRotationOffset;
 }
 
 } // imstk

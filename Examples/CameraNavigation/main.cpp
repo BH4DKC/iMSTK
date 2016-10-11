@@ -43,7 +43,7 @@ using namespace imstk;
 const unsigned int scanarioNumber = 1; //possible values: 1, 2, 3, 4
 
 // Camera settings
-const double cameraAngulation = 0.0; //possible values: 0, 30, 45 deg
+const double cameraAngulation = PI_4; //possible values: 0, 30, 45 deg
 const double cameraViewAngle = 80.0; //possible values: 80 deg
 const double cameraZoomFactor = 1.0; //possible values: TBD
 
@@ -103,7 +103,7 @@ void createScenario1()
 
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
-    cam->getController()->setRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
     //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
     sdk->addModule(server);
@@ -159,7 +159,7 @@ void createScenario2()
 
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
-    cam->getController()->setRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
     //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
 #ifdef ADD_TOOL_CONTROLLER
@@ -238,7 +238,7 @@ void createScenario3()
 
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
-    cam->getController()->setRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
     //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
 #ifdef ADD_TOOL_CONTROLLER
