@@ -23,6 +23,7 @@
 #include "imstkInteractorStyle.h"
 #include "imstkSimulationManager.h"
 #include "imstkCameraController.h"
+#include "imstkVirtualCouplingObject.h"
 
 // vtk
 #include "vtkObjectFactory.h"
@@ -200,9 +201,15 @@ InteractorStyle::OnChar()
     case 'v':
     case 'V':
     {
-        auto devClient = m_simManager->getCurrentScene()->getCamera()->getController()->getDeviceClient();
-        devClient->enableLogging();
-        devClient->setLoggerFrequency(20);
+        const int logFrequency = 20;
+        auto devClient1 = m_simManager->getCurrentScene()->getCamera()->getController()->getDeviceClient();
+        devClient1->enableLogging();
+        devClient1->setLoggerFrequency(logFrequency);
+
+        auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
+        virCoupObj->getDeviceClient()->enableLogging();
+        devClient1->setLoggerFrequency(logFrequency);
+
     }
     break;
 
@@ -211,6 +218,9 @@ InteractorStyle::OnChar()
     {
         auto devClient = m_simManager->getCurrentScene()->getCamera()->getController()->getDeviceClient();
         devClient->disableLogging();
+
+        auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
+        virCoupObj->getDeviceClient()->disableLogging();
     }
     break;
 

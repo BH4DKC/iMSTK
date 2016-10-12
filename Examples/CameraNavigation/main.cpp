@@ -175,21 +175,11 @@ void createScenario2()
 
     // Load meshes
     auto mesh = imstk::MeshReader::read(pointerFileName);
-    //mesh->scale(0.1);
-    //auto visualMesh = imstk::MeshReader::read(pointerFileName);
-    //visualMesh->scale(0.1);
-
-    //// construct map
-    //auto C2VHandle = std::make_shared<imstk::IsometricMap>();
-    //C2VHandle->setMaster(mesh);
-    //C2VHandle->setSlave(visualMesh);
-    //C2VHandle->compute();
 
     // create virtual tool
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
-    //handle->setCollidingToVisualMap(C2VHandle);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);
