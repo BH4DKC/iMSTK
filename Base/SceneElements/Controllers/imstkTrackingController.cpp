@@ -153,6 +153,7 @@ void
 TrackingController::disableLogging()
 {
     m_enableLoogging = false;
+    m_logger->shutdown();
 }
 
 } // imstk
