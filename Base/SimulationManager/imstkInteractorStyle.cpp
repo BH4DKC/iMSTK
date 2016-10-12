@@ -22,6 +22,7 @@
 // imstk
 #include "imstkInteractorStyle.h"
 #include "imstkSimulationManager.h"
+#include "imstkCameraController.h"
 
 // vtk
 #include "vtkObjectFactory.h"
@@ -186,11 +187,30 @@ InteractorStyle::OnChar()
 
     // Screen capture
     case 'b':
+    case 'B':
     {
         if (m_simManager->getViewer()->isScreencaptureEnabled())
         {
             m_simManager->getViewer()->setScreenCaptureState(true);
         }
+    }
+    break;
+
+    // Screen capture
+    case 'v':
+    case 'V':
+    {
+        auto devClient = m_simManager->getCurrentScene()->getCamera()->getController()->getDeviceClient();
+        devClient->enableLogging();
+        devClient->setLoggerFrequency(20);
+    }
+    break;
+
+    case 'c':
+    case 'C':
+    {
+        auto devClient = m_simManager->getCurrentScene()->getCamera()->getController()->getDeviceClient();
+        devClient->disableLogging();
     }
     break;
 

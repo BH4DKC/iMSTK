@@ -34,7 +34,7 @@ class SimulationManager;
 using vtkBaseInteractorStyle = vtkInteractorStyleTrackballCamera;
 
 ///
-/// \class classname
+/// \class InteractorStyle
 ///
 /// \brief
 ///

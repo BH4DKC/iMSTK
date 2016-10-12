@@ -40,10 +40,10 @@ using namespace imstk;
 //-------------------------------------------------
 
 // Select the scenario
-const unsigned int scanarioNumber = 1; //possible values: 1, 2, 3, 4
+const unsigned int scenarioNumber = 2; //possible values: 1, 2, 3, 4
 
 // Camera settings
-const double cameraAngulation = PI_4; //possible values: 0, 30, 45 deg
+const double cameraAngulation = 0; //possible values: 0, 30, 45 deg
 const double cameraViewAngle = 80.0; //possible values: 80 deg
 const double cameraZoomFactor = 1.0; //possible values: TBD
 
@@ -59,7 +59,7 @@ const std::string device2Name("PHANToM 1");// Device 2 name
 
 const int loggingFrequency = 20;
 
-const std::string pointerFileName("Resources/pencil.obj");// Pointer file name
+const std::string pointerFileName("Resources/pencil4.obj");// Pointer file name
 const std::string patternTextureFileName("Resources/viewfinder.png");// Target texture file name
 
 // Simulation constants
@@ -108,7 +108,6 @@ void createScenario1()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
-    //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
     sdk->addModule(server);
 
@@ -167,7 +166,6 @@ void createScenario2()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
-    //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
 #ifdef ADD_TOOL_CONTROLLER
     // Device clients 1
@@ -177,19 +175,21 @@ void createScenario2()
 
     // Load meshes
     auto mesh = imstk::MeshReader::read(pointerFileName);
-    auto visualMesh = imstk::MeshReader::read(pointerFileName);
+    //mesh->scale(0.1);
+    //auto visualMesh = imstk::MeshReader::read(pointerFileName);
+    //visualMesh->scale(0.1);
 
-    // construct map
-    auto C2VHandle = std::make_shared<imstk::IsometricMap>();
-    C2VHandle->setMaster(mesh);
-    C2VHandle->setSlave(visualMesh);
-    C2VHandle->compute();
+    //// construct map
+    //auto C2VHandle = std::make_shared<imstk::IsometricMap>();
+    //C2VHandle->setMaster(mesh);
+    //C2VHandle->setSlave(visualMesh);
+    //C2VHandle->compute();
 
     // create virtual tool
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
-    handle->setCollidingToVisualMap(C2VHandle);
+    //handle->setCollidingToVisualMap(C2VHandle);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);
@@ -246,7 +246,6 @@ void createScenario3()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
-    //cam->getController()->setInversionFlags(imstk::CameraController::InvertFlag::rotY | imstk::CameraController::InvertFlag::rotZ);
 
 #ifdef ADD_TOOL_CONTROLLER
     // Device clients 1
@@ -256,19 +255,19 @@ void createScenario3()
 
     // Load meshes
     auto mesh = imstk::MeshReader::read(pointerFileName);
-    auto visualMesh = imstk::MeshReader::read(pointerFileName);
+    //auto visualMesh = imstk::MeshReader::read(pointerFileName);
 
     // construct map
-    auto C2VHandle = std::make_shared<imstk::IsometricMap>();
+    /*auto C2VHandle = std::make_shared<imstk::IsometricMap>();
     C2VHandle->setMaster(mesh);
     C2VHandle->setSlave(visualMesh);
-    C2VHandle->compute();
+    C2VHandle->compute();*/
 
     // create virtual tool
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
-    handle->setCollidingToVisualMap(C2VHandle);
+    //handle->setCollidingToVisualMap(C2VHandle);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);
@@ -298,6 +297,41 @@ void createScenario4()
     auto sdk = std::make_shared<imstk::SimulationManager>();
     auto scene = sdk->createNewScene("CameraNavigationSimulator");
 
+    auto client0 = std::make_shared<imstk::HDAPIDeviceClient>(device1Name);
+
+    // Device Server
+    auto server = std::make_shared<imstk::HDAPIDeviceServer>();
+    server->addDeviceClient(client0);
+
+    // Update Camera position
+    auto cam = scene->getCamera();
+    cam->setPosition(imstk::Vec3d(0, 0, 20));
+    cam->setViewAngle(cameraViewAngle);
+    cam->setZoomFactor(cameraZoomFactor);
+
+    // Set camera controller
+    cam->setupController(client0, cameraControllerScaling);
+    cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+
+    //------------------------------------------------------------------------------
+    // Read surface mesh
+    auto objMesh = imstk::MeshReader::read("Resources/plane3.obj");
+    auto surfaceMesh = std::dynamic_pointer_cast<imstk::SurfaceMesh>(objMesh);
+    surfaceMesh->addTexture("Resources/gallbladder.png");
+
+    // position the plane
+    surfaceMesh->scale(10);
+    /*surfaceMesh->translate(t.x(), t.y(), t.z());
+    surfaceMesh->rotate(r);*/
+
+    // Create object and add to scene
+    auto object = std::make_shared<imstk::VisualObject>("start");
+    object->setVisualGeometry(surfaceMesh); // change to any mesh created above
+    scene->addSceneObject(object);
+    //------------------------------------------------------------------------------
+
+    sdk->addModule(server);
+
     // Set the scene as current
     sdk->setCurrentScene("CameraNavigationSimulator");
 
@@ -320,7 +354,7 @@ int main()
             << "--------------------------------------\n" << std::endl;
 
     // create the selected scenario
-    switch (scanarioNumber)
+    switch (scenarioNumber)
     {
     case 1:
         createScenario1();
