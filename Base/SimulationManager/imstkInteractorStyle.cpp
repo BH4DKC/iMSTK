@@ -34,10 +34,141 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAbstractPropPicker.h"
 
+// path
+#include "vtkPolyData.h"
+#include "vtkPoints.h"
+#include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkXMLPolyDataWriter.h"
+
+#include <string>
+
 namespace imstk
 {
 
 vtkStandardNewMacro(InteractorStyle);
+
+
+void
+InteractorStyle::displayPath(std::string fileName)
+{
+    auto points = vtkSmartPointer<vtkPoints>::New();
+    auto dataArray = vtkSmartPointer<vtkFloatArray>::New();
+    dataArray->SetName("Velocity");
+
+    // open logger file
+    fstream fstr(fileName.c_str(), fstream::in);
+    if (!fstr.is_open() || !fstr.good() || fstr.eof())
+    {
+        LOG(WARNING) << "ERROR opening "<< fileName;
+        return;
+    }
+
+    // parse logger file
+    char line[1024];
+    while (fstr.good())
+    {
+        fstr.getline(line, 1024);
+        if (line[0] == '\0') continue;
+
+        char *ptr;
+        double x = 0.0, y = 0.0, z = 0.0;
+        int columnNumber = 0;
+        bool reTokenise = false;
+
+        if (strncmp(line, ",", 1) == 0)
+        {
+            ptr = nullptr;
+            reTokenise = true;
+        }
+        else
+        {
+            ptr = strtok(line, ",");
+        }
+
+        // Read columns
+        while (columnNumber < 4)
+        {
+            if (ptr != nullptr)
+            {
+                if (columnNumber == 1)
+                {
+                    x = atof(ptr);
+                }
+                else if (columnNumber == 2)
+                {
+                    y = atof(ptr);
+                }
+                else if (columnNumber == 3)
+                {
+                    z = atof(ptr);
+                }
+            }
+
+            if (reTokenise == false)
+            {
+                ptr = strtok(NULL, ",");
+            }
+            else
+            {
+                ptr = strtok(line, ",");
+                reTokenise = false;
+            }
+            columnNumber++;
+        }
+
+        // Add points or velocities
+        if (line[0] == 'P')
+        {
+            points->InsertNextPoint(x,y,z);
+        }
+        else if (line[0] == 'V')
+        {
+            dataArray->InsertNextValue(Vec3d(x,y,z).norm());
+        }
+    }
+
+    auto numpts = points->GetNumberOfPoints();
+    auto numdata = dataArray->GetNumberOfValues();
+    if(numpts != numdata)
+    {
+        LOG(WARNING) << "ERROR reading " << fileName << " : inconsistant number of points & velocity "
+                     <<"(" << numpts << " & " << numdata << ")";
+        return;
+    }
+
+    // Set up spline points
+    auto polyData = vtkSmartPointer<vtkPolyData>::New();
+    polyData->SetPoints( points );
+    polyData->GetPointData()->AddArray( dataArray );
+    polyData->GetPointData()->SetActiveScalars("Velocity");
+
+    // Set up curves between adjacent points
+    polyData->Allocate( numpts-1 );
+    for (vtkIdType i = 0; i <  numpts-1; ++i)
+    {
+        vtkIdType ii[2];
+        ii[0] = i;
+        ii[1] = i+1;
+        polyData->InsertNextCell( VTK_LINE, 2, ii );
+    }
+
+    auto writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    writer->SetFileName("falcon0.vtp");
+    writer->SetInputData(polyData);
+    writer->SetDataModeToAscii();
+    writer->Write();
+
+    // Setup actor and mapper
+    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputData(polyData);
+    auto actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+
+    m_simManager->getViewer()->getCurrentRenderer()->getVtkRenderer()->AddActor(actor);
+}
 
 void
 InteractorStyle::OnTimer()
