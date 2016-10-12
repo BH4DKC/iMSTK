@@ -26,13 +26,15 @@ namespace imstk
 
 Logger::Logger(std::string name)
 {
-    this->m_filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
+    this->m_filename = name + ".log";
+    //this->m_filename = name + ".device_log." + getCurrentTimeFormatted() + ".log";
     this->m_mutex = std::make_unique<std::mutex>();
     this->m_thread = std::make_unique<std::thread>(Logger::eventLoop, this);
 }
 
 std::string
-Logger::getCurrentTimeFormatted() {
+Logger::getCurrentTimeFormatted()
+{
     time_t now = time(0);
     int year = gmtime(&now)->tm_year + 1900;
     int day = gmtime(&now)->tm_mday;
@@ -92,7 +94,8 @@ Logger::log(std::string level, std::string message)
 {
     std::string level_pad = level;
     level_pad.resize(10, ' ');
-    this->m_message = getCurrentTimeFormatted() + " " + level_pad + "" + message;
+    //this->m_message = getCurrentTimeFormatted() + " " + level_pad + "" + message;
+    this->m_message = message;
 
     // Safely setting the change state
     {
@@ -107,20 +110,28 @@ Logger::log(std::string level, std::string message)
 }
 
 void
-Logger::log(std::string message) {
+Logger::log(std::string message)
+{
     log("INFO", message);
 }
 
 void
-Logger::log(std::string description, double one, double two, double three) {
-    std::string description_pad = description + ':';
+Logger::log(std::string description, double one, double two, double three)
+{
+    /*std::string description_pad = description + ':';
     description_pad.resize(5, ' ');
     std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three);
-    log("INFO", message_input);
+    log("INFO", message_input);*/
+
+    std::string description_pad = description + ',';
+    //description_pad.resize(5, ' ');
+    std::string message_input = description_pad + std::to_string(one) + "," + std::to_string(two) + "," + std::to_string(three);
+    log("", message_input);
 }
 
 void
-Logger::log(std::string description, double one, double two, double three, double four) {
+Logger::log(std::string description, double one, double two, double three, double four)
+{
     std::string description_pad = description + ':';
     description_pad.resize(8, ' ');
     std::string message_input = description_pad + std::to_string(one) + ", " + std::to_string(two) + ", " + std::to_string(three) + ", " + std::to_string(four);
@@ -174,6 +185,12 @@ Logger::shutdown()
 
     m_mutex.release();
     m_thread.release();
+}
+
+void
+Logger::setFileName(const std::string& name)
+{
+    this->m_filename = name + ".log";
 }
 
 }

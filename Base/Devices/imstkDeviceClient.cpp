@@ -167,7 +167,8 @@ DeviceClient::enableLogging()
     }
 
     // Success
-    this->m_logger->log(this->getDeviceName() + " successfully initialized.");
+    //this->m_logger->log(this->getDeviceName() + " successfully initialized.");
+    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
 }
 
 void DeviceClient::disableLogging()

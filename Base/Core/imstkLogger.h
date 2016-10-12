@@ -115,6 +115,11 @@ public:
     ///
     void shutdown();
 
+    ///
+    /// \brief
+    ///
+    void setFileName(const std::string& name);
+
 private:
     static std::string getCurrentTimeFormatted();
 
