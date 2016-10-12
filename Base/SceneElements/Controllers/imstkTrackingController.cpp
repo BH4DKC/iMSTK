@@ -40,6 +40,7 @@ TrackingController::computeTrackingData(Vec3d& p, Quatd& r)
     // Retrieve device info
     p = m_deviceClient->getPosition();
     r = m_deviceClient->getOrientation();
+    auto v = m_deviceClient->getVelocity();
 
     // Apply inverse if needed
     if(m_invertFlags & InvertFlag::transX) p[0] = -p[0];
@@ -51,7 +52,15 @@ TrackingController::computeTrackingData(Vec3d& p, Quatd& r)
 
     // Apply Offsets
     p = m_rotationOffset * p * m_scaling + m_translationOffset;
+    v = m_rotationOffset * v * m_scaling;
     r *= m_rotationOffset;
+
+    if (m_enableLoogging && m_logger->readyForLoggingWithFrequency())
+    {
+        m_logger->log("P", p.x(), p.y(), p.z());
+        m_logger->log("V", v.x(), v.y(), v.z());
+        m_logger->updateLogTime();
+    }
 
     return true;
 }
@@ -114,6 +123,36 @@ void
 TrackingController::setInversionFlags(unsigned char f)
 {
     m_invertFlags = f;
+}
+
+void
+TrackingController::setLoggerFrequency(const int frequency)
+{
+    if (m_logger != nullptr)
+    {
+        m_logger->setFrequency(frequency);
+    }
+}
+
+void
+TrackingController::enableLogging()
+{
+    // Initialize logger
+    if (m_logger == nullptr)
+    {
+        m_logger = std::make_unique<imstk::Logger>(this->getDeviceClient()->getDeviceName());
+    }
+    m_enableLoogging = true;
+
+    // Success
+    //this->m_logger->log(this->getDeviceName() + " successfully initialized.");
+    LOG(INFO) << this->getDeviceClient()->getDeviceName() << " successfully initialized.";
+}
+
+void
+TrackingController::disableLogging()
+{
+    m_enableLoogging = false;
 }
 
 } // imstk

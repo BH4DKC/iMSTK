@@ -98,21 +98,6 @@ public:
     const Vec3d& getForce() const;
     void setForce(Vec3d force);
 
-    ///
-    /// \brief Set he frequency of the data logging
-    ///
-    void setLoggerFrequency(const int frequency);
-
-    ///
-    /// \brief Enable logging of data
-    ///
-    void enableLogging();
-
-    ///
-    /// \brief Disable logging of data
-    ///
-    void disableLogging();
-
 protected:
 
     ///
@@ -120,8 +105,7 @@ protected:
     ///
     DeviceClient(std::string name, std::string ip, const bool logData = false):
         m_deviceName(name),
-        m_ip(ip),
-        m_enableLoogging(logData)
+        m_ip(ip)
     {}
 
     std::string m_deviceName; ///< Device Name
@@ -137,9 +121,6 @@ protected:
     Quatd m_orientation = Quatd::Identity(); ///< Orientation of the end effector
     std::map<size_t, bool> m_buttons;        ///< Buttons: true = pressed/false = not pressed
     Vec3d m_force = Vec3d::Zero();           ///< Force vector
-
-    std::unique_ptr<imstk::Logger> m_logger; ///< Logger that runs on seperate thread
-    bool m_enableLoogging; ///< Logger is disabled by default
 
 };
 

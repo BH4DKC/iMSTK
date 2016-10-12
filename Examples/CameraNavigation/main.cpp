@@ -92,8 +92,6 @@ void createScenario1()
 
     // Device clients 2
     auto client0 = std::make_shared<imstk::HDAPIDeviceClient>(device1Name);
-    client0->enableLogging();
-    client0->setLoggerFrequency(loggingFrequency);
 
     // Device Server
     auto server = std::make_shared<imstk::HDAPIDeviceServer>();
@@ -108,6 +106,8 @@ void createScenario1()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->enableLogging();
+    cam->getController()->setLoggerFrequency(loggingFrequency);
 
     sdk->addModule(server);
 
@@ -245,19 +245,11 @@ void createScenario3()
 
     // Load meshes
     auto mesh = imstk::MeshReader::read(pointerFileName);
-    //auto visualMesh = imstk::MeshReader::read(pointerFileName);
-
-    // construct map
-    /*auto C2VHandle = std::make_shared<imstk::IsometricMap>();
-    C2VHandle->setMaster(mesh);
-    C2VHandle->setSlave(visualMesh);
-    C2VHandle->compute();*/
 
     // create virtual tool
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
-    //handle->setCollidingToVisualMap(C2VHandle);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);

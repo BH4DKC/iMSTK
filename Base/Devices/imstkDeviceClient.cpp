@@ -146,34 +146,4 @@ DeviceClient::setForce(Vec3d force)
     m_force = force;
 }
 
-void
-DeviceClient::setLoggerFrequency(const int frequency)
-{
-    if (m_logger != nullptr)
-    {
-        m_logger->setFrequency(frequency);
-    }
-}
-
-void
-DeviceClient::enableLogging()
-{
-    m_enableLoogging = true;
-
-    // Initialize logger
-    if (m_logger == nullptr)
-    {
-        m_logger = std::make_unique<imstk::Logger>(this->getDeviceName());
-    }
-
-    // Success
-    //this->m_logger->log(this->getDeviceName() + " successfully initialized.");
-    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
-}
-
-void DeviceClient::disableLogging()
-{
-    m_enableLoogging = false;
-}
-
 } // imstk

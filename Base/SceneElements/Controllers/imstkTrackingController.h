@@ -53,7 +53,13 @@ public:
     ///
     /// \brief Destructor
     ///
-    ~TrackingController() = default;
+    ~TrackingController()
+    {
+        if (m_logger != nullptr)
+        {
+            m_logger->shutdown();
+        }
+    }
 
     ///
     /// \brief Compute the world position and orientation
@@ -90,13 +96,29 @@ public:
     unsigned char getInversionFlags();
     void setInversionFlags(unsigned char f);
 
+    ///
+    /// \brief Set he frequency of the data logging
+    ///
+    void setLoggerFrequency(const int frequency);
+
+    ///
+    /// \brief Enable logging of data
+    ///
+    void enableLogging();
+
+    ///
+    /// \brief Disable logging of data
+    ///
+    void disableLogging();
+
 protected:
     ///
     /// \brief Constructor
     ///
-    TrackingController(std::shared_ptr<DeviceClient> deviceClient = nullptr, double scaling = 1.0) :
+    TrackingController(std::shared_ptr<DeviceClient> deviceClient = nullptr, double scaling = 1.0, const bool logData = false) :
         m_deviceClient(deviceClient),
-        m_scaling(scaling)
+        m_scaling(scaling),
+        m_enableLoogging(logData)
     {}
 
     std::shared_ptr<DeviceClient> m_deviceClient; ///< Reports device tracking information
@@ -104,6 +126,9 @@ protected:
     Vec3d m_translationOffset = WORLD_ORIGIN;     ///< Translation concatenated to the device translation
     Quatd m_rotationOffset = Quatd::Identity();   ///< Rotation concatenated to the device rotation
     unsigned char m_invertFlags = 0x00;           ///< Invert flags to be masked with TrackingController::InvertFlag
+
+    std::unique_ptr<imstk::Logger> m_logger; ///< Logger that runs on seperate thread
+    bool m_enableLoogging; ///< Logger is disabled by default
 };
 
 } // imstk
