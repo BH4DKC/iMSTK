@@ -97,19 +97,19 @@ Viewer::setRenderingMode(Renderer::Mode mode)
     m_vtkRenderWindow->Render();
 
     // Setup render window
-    if( mode == Renderer::Mode::SIMULATION )
-    {
-        m_interactorStyle->HighlightProp(nullptr);
-        m_vtkRenderWindow->HideCursor();
-        //m_vtkRenderWindow->BordersOff();
-        //m_vtkRenderWindow->FullScreenOn(1);
-    }
-    else
-    {
-        m_vtkRenderWindow->ShowCursor();
-        //m_vtkRenderWindow->BordersOn();
-        //m_vtkRenderWindow->FullScreenOff(1);
-    }
+//    if( mode == Renderer::Mode::SIMULATION )
+//    {
+//        m_interactorStyle->HighlightProp(nullptr);
+//        m_vtkRenderWindow->HideCursor();
+//        //m_vtkRenderWindow->BordersOff();
+//        m_vtkRenderWindow->FullScreenOn();
+//    }
+//    else
+//    {
+//        m_vtkRenderWindow->ShowCursor();
+//        //m_vtkRenderWindow->BordersOn();
+//        m_vtkRenderWindow->FullScreenOff();
+//    }
 }
 
 void
@@ -117,6 +117,8 @@ Viewer::startRenderingLoop()
 {
     m_running = true;
     m_vtkRenderWindow->GetInteractor()->Initialize();
+//    m_vtkRenderWindow->HideCursor();
+//    m_vtkRenderWindow->FullScreenOn();
     m_vtkRenderWindow->GetInteractor()->CreateRepeatingTimer(1000.0/60);
     m_vtkRenderWindow->GetInteractor()->Start();
     m_vtkRenderWindow->GetInteractor()->DestroyTimer();
