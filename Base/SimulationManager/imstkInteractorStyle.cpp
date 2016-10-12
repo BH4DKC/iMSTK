@@ -331,12 +331,18 @@ InteractorStyle::OnChar()
     {
         const int logFrequency = 20;
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
-        camCtrl1->enableLogging();
-        camCtrl1->setLoggerFrequency(logFrequency);
+        if(camCtrl1)
+        {
+            camCtrl1->enableLogging();
+            camCtrl1->setLoggerFrequency(logFrequency);
+        }
 
         auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
-        virCoupObj->enableLogging();
-        virCoupObj->setLoggerFrequency(logFrequency);
+        if(virCoupObj)
+        {
+            virCoupObj->enableLogging();
+            virCoupObj->setLoggerFrequency(logFrequency);
+        }
 
     }
     break;
@@ -345,10 +351,16 @@ InteractorStyle::OnChar()
     case 'C':
     {
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
-        camCtrl1->disableLogging();
+        if(camCtrl1)
+        {
+            camCtrl1->disableLogging();
+        }
 
         auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
-        virCoupObj->disableLogging();
+        if(virCoupObj)
+        {
+            virCoupObj->disableLogging();
+        }
     }
     break;
 
