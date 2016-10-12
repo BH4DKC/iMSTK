@@ -67,6 +67,8 @@ InteractorStyle::displayPath(std::string fileName)
     }
 
     // parse logger file
+    double min = MAX_D;
+    double max = MIN_D;
     char line[1024];
     while (fstr.good())
     {
@@ -126,7 +128,10 @@ InteractorStyle::displayPath(std::string fileName)
         }
         else if (line[0] == 'V')
         {
-            dataArray->InsertNextValue(Vec3d(x,y,z).norm());
+            auto norm = Vec3d(x,y,z).norm();
+            if( norm < min ) min = norm;
+            if( norm > max ) max = norm;
+            dataArray->InsertNextValue(norm);
         }
     }
 
@@ -164,6 +169,7 @@ InteractorStyle::displayPath(std::string fileName)
     // Setup actor and mapper
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(polyData);
+    mapper->SetScalarRange(min, max);
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
 
