@@ -106,7 +106,7 @@ public:
     void setSimulationManager(SimulationManager* simManager);
 
 private:
-
+    void displayPath(std::string fileName);
     SimulationManager* m_simManager;    ///>
 
 };
