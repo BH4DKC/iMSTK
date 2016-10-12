@@ -186,10 +186,7 @@ InteractorStyle::OnTimer()
     m_simManager->getViewer()->getCurrentRenderer()->updateRenderDelegates();
 
     // Reset camera clipping range
-    if(this->CurrentRenderer != nullptr)
-    {
-        this->CurrentRenderer->ResetCameraClippingRange();
-    }
+     m_simManager->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange();
 
     // Capture screen if triggered by the user
     if(m_simManager->getViewer()->shouldICaptureScreen())
@@ -361,6 +358,7 @@ InteractorStyle::OnChar()
     case 'e' :
     case 'E' :
     {
+        this->displayPath("falcon0.log");
         m_simManager->endSimulation();
     }
     break;
