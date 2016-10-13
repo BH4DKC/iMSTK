@@ -42,6 +42,8 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkXMLPolyDataWriter.h"
+#include "vtkLookupTable.h"
+#include "vtkColorTransferFunction.h"
 
 #include <string>
 
@@ -52,17 +54,17 @@ vtkStandardNewMacro(InteractorStyle);
 
 
 void
-InteractorStyle::displayPath(std::string fileName)
+InteractorStyle::displayPath(std::string deviceName)
 {
     auto points = vtkSmartPointer<vtkPoints>::New();
     auto dataArray = vtkSmartPointer<vtkFloatArray>::New();
     dataArray->SetName("Velocity");
 
     // open logger file
-    fstream fstr(fileName.c_str(), fstream::in);
+    fstream fstr((deviceName+".log").c_str(), fstream::in);
     if (!fstr.is_open() || !fstr.good() || fstr.eof())
     {
-        LOG(WARNING) << "ERROR opening "<< fileName;
+        LOG(WARNING) << "ERROR opening "<< deviceName << ".log";
         return;
     }
 
@@ -139,7 +141,7 @@ InteractorStyle::displayPath(std::string fileName)
     auto numdata = dataArray->GetNumberOfValues();
     if(numpts != numdata)
     {
-        LOG(WARNING) << "ERROR reading " << fileName << " : inconsistant number of points & velocity "
+        LOG(WARNING) << "ERROR reading " << deviceName << ".log : inconsistant number of points & velocity "
                      <<"(" << numpts << " & " << numdata << ")";
         return;
     }
@@ -161,15 +163,26 @@ InteractorStyle::displayPath(std::string fileName)
     }
 
     auto writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-    writer->SetFileName("falcon0.vtp");
+    writer->SetFileName((deviceName+".vtp").c_str());
     writer->SetInputData(polyData);
     writer->SetDataModeToAscii();
     writer->Write();
+
+    // Lookup Table
+    auto colors = vtkSmartPointer<vtkColorTransferFunction>::New();
+    colors->AddRGBPoint(min, 1, 0, 0);
+    colors->AddRGBPoint((max-min)/3, 1, 0.5, 0);
+    colors->AddRGBPoint((max-min)*2/3, 1, 1, 0);
+    colors->AddRGBPoint(max, 0, 1, 0);
+    colors->SetColorSpaceToRGB();
 
     // Setup actor and mapper
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(polyData);
     mapper->SetScalarRange(min, max);
+    mapper->SetLookupTable(colors);
+    mapper->ScalarVisibilityOn();
+
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
 
@@ -379,13 +392,13 @@ InteractorStyle::OnChar()
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         if (camCtrl1)
         {
-            this->displayPath("PHANToM 1.log");
+            this->displayPath("PHANToM 1");
         }
 
         auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
         if (virCoupObj)
         {
-            this->displayPath("PHANToM 2.log");
+            this->displayPath("PHANToM 2");
         }
         m_simManager->endSimulation();
     }
