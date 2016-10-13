@@ -55,7 +55,7 @@ public:
     ///
     ~TrackingController()
     {
-        if (m_logger != nullptr)
+        if (m_logger != nullptr && m_enableLoogging == true)
         {
             m_logger->shutdown();
         }
