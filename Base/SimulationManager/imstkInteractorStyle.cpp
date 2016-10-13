@@ -376,7 +376,17 @@ InteractorStyle::OnChar()
     case 'e' :
     case 'E' :
     {
-        this->displayPath("falcon0.log");
+        auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
+        if (camCtrl1)
+        {
+            this->displayPath("PHANToM 1.log");
+        }
+
+        auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
+        if (virCoupObj)
+        {
+            this->displayPath("PHANToM 2.log");
+        }
         m_simManager->endSimulation();
     }
     break;
