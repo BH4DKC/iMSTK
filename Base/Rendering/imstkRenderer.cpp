@@ -72,8 +72,8 @@ Renderer::Renderer(std::shared_ptr<Scene> scene)
     }
 
     // Global Axis
-    auto axes = vtkSmartPointer<vtkAxesActor>::New();
-    m_debugVtkActors.push_back( axes );
+//    auto axes = vtkSmartPointer<vtkAxesActor>::New();
+//    m_debugVtkActors.push_back( axes );
 
     // Camera and camera actor
     m_sceneVtkCamera = vtkSmartPointer<vtkCamera>::New();
