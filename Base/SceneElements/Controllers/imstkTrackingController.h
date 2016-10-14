@@ -97,7 +97,12 @@ public:
     void setInversionFlags(unsigned char f);
 
     ///
-    /// \brief Set he frequency of the data logging
+    /// \brief Get the frequency of the data logging
+    ///
+    const int getLoggerFrequency();
+
+    ///
+    /// \brief Set the frequency of the data logging
     ///
     void setLoggerFrequency(const int frequency);
 
@@ -129,6 +134,7 @@ protected:
 
     std::unique_ptr<imstk::Logger> m_logger; ///< Logger that runs on seperate thread
     bool m_enableLoogging; ///< Logger is disabled by default
+    int m_loggingFrequency = 10; ///<
 };
 
 } // imstk

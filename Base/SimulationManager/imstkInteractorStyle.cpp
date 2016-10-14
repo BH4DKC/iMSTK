@@ -348,8 +348,8 @@ InteractorStyle::OnChar()
     case 'v':
     case 'V':
     {
-        const int logFrequency = 20;
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
+        const int logFrequency = camCtrl1->getLoggerFrequency();
         if(camCtrl1)
         {
             camCtrl1->enableLogging();

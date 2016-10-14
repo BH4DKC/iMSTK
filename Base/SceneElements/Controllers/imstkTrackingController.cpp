@@ -125,11 +125,18 @@ TrackingController::setInversionFlags(unsigned char f)
     m_invertFlags = f;
 }
 
+const int
+TrackingController::getLoggerFrequency()
+{
+    return m_loggingFrequency;
+}
+
 void
 TrackingController::setLoggerFrequency(const int frequency)
 {
     if (m_logger != nullptr)
     {
+        m_loggingFrequency = frequency;
         m_logger->setFrequency(frequency);
     }
 }

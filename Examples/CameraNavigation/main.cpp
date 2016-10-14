@@ -40,7 +40,7 @@ using namespace imstk;
 //-------------------------------------------------
 
 // Select the scenario
-const unsigned int scenarioNumber = 2; //possible values: 1, 2, 3, 4
+const unsigned int scenarioNumber = 1; //possible values: 1, 2, 3, 4
 
 // Camera settings
 const double cameraAngulation = 0; //possible values: 0, 30, 45 deg
@@ -106,7 +106,7 @@ void createScenario1()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
-    cam->getController()->enableLogging();
+    //cam->getController()->enableLogging();
     cam->getController()->setLoggerFrequency(loggingFrequency);
 
     sdk->addModule(server);
@@ -166,6 +166,7 @@ void createScenario2()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setLoggerFrequency(loggingFrequency);
 
 #ifdef ADD_TOOL_CONTROLLER
     // Device clients 1
@@ -180,6 +181,7 @@ void createScenario2()
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
+    handle->setLoggerFrequency(loggingFrequency);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);
@@ -236,6 +238,7 @@ void createScenario3()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setLoggerFrequency(loggingFrequency);
 
 #ifdef ADD_TOOL_CONTROLLER
     // Device clients 1
@@ -250,6 +253,7 @@ void createScenario3()
     auto handle = std::make_shared<imstk::VirtualCouplingObject>("tool", client1, 0.5);
     handle->setCollidingGeometry(mesh);
     handle->setVisualGeometry(mesh);
+    handle->setLoggerFrequency(loggingFrequency);
 
     // add virtual tool to the scene
     scene->addSceneObject(handle);
@@ -294,6 +298,7 @@ void createScenario4()
     // Set camera controller
     cam->setupController(client0, cameraControllerScaling);
     cam->getController()->setCameraRotationOffset(Quatd(Eigen::AngleAxisd(cameraAngulation, Vec3d::UnitY())));
+    cam->getController()->setLoggerFrequency(loggingFrequency);
 
     //------------------------------------------------------------------------------
     // Read surface mesh
