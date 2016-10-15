@@ -33,6 +33,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
+// 2D actor
+#include <vtkTextActor.h>
+#include <vtkTextProperty.h>
+
 
 // Screenshot
 #include "imstkScreenCaptureUtility.h"
@@ -59,6 +63,9 @@ public:
         m_vtkRenderWindow->SetInteractor(m_vtkRenderWindow->MakeRenderWindowInteractor());
         m_vtkRenderWindow->GetInteractor()->SetInteractorStyle( m_interactorStyle );
         m_vtkRenderWindow->SetSize(1000,800);
+
+        //2d actor
+        m_textActor = vtkSmartPointer<vtkTextActor>::New();
     }
 
     ///
@@ -158,6 +165,19 @@ public:
         return m_screencaptureEnabled;
     }
 
+    ///
+    /// \brief
+    ///
+    vtkSmartPointer<vtkTextActor> get2DActor()
+    {
+        return m_textActor;
+    }
+
+    void setTextTo2DActor(std::string& text)
+    {
+        m_textActor->SetInput(text.c_str());
+    }
+
 protected:
 
     vtkSmartPointer<vtkRenderWindow> m_vtkRenderWindow = vtkSmartPointer<vtkRenderWindow>::New();
@@ -170,6 +190,9 @@ protected:
     bool m_triggerScreencapture = false;
     bool m_screencaptureEnabled = false;
     std::shared_ptr<screenCaptureUtility> m_screenCapturer;
+
+    // overlay 2d Actor
+    vtkSmartPointer<vtkTextActor> m_textActor;
 };
 
 } // imstk

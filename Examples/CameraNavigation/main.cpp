@@ -117,6 +117,10 @@ void createScenario1()
     // Add a 2D overlay on the 3D scene
     add2DTextureOverlay(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), patternTextureFileName.c_str(), overlaySize);
 
+    std::string str = (" ");
+    auto v = sdk->getViewer();
+    add2dActor(sdk->getViewer()->getCurrentRenderer()->getVtkRenderer(), sdk->getViewer()->get2DActor(), str);
+
     // Reset the clipping planes
     sdk->getViewer()->getCurrentRenderer()->getVtkRenderer()->ResetCameraClippingRange(-CameraBoundingBoxSize,
         CameraBoundingBoxSize,

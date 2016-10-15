@@ -116,6 +116,14 @@ public:
     ///
     void disableLogging();
 
+    ///
+    /// \brief
+    ///
+    long long getLoggingTime()
+    {
+        return m_totalLoggingTime;
+    }
+
 protected:
     ///
     /// \brief Constructor
@@ -134,7 +142,8 @@ protected:
 
     std::unique_ptr<imstk::Logger> m_logger; ///< Logger that runs on seperate thread
     bool m_enableLoogging; ///< Logger is disabled by default
-    int m_loggingFrequency = 10; ///<
+    int m_loggingFrequency = 10; ///<Logging frequency
+    long long m_totalLoggingTime;
 };
 
 } // imstk

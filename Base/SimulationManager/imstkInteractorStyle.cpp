@@ -393,6 +393,12 @@ InteractorStyle::OnChar()
         if (camCtrl1)
         {
             this->displayPath("PHANToM 1");
+
+            double t = (double)camCtrl1->getLoggingTime() / 1000.0;
+            auto str = std::to_string(t);
+            str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+            str = "Time: " + str + " sec.";
+            m_simManager->getViewer()->setTextTo2DActor(str);
         }
 
         auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));

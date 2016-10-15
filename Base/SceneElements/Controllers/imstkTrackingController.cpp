@@ -151,6 +151,8 @@ TrackingController::enableLogging()
     }
     m_enableLoogging = true;
 
+    m_totalLoggingTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+
     // Success
     //this->m_logger->log(this->getDeviceName() + " successfully initialized.");
     LOG(INFO) << this->getDeviceClient()->getDeviceName() << " successfully initialized.";
@@ -159,6 +161,8 @@ TrackingController::enableLogging()
 void
 TrackingController::disableLogging()
 {
+    auto tPresent = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+    m_totalLoggingTime = tPresent - m_totalLoggingTime;
     m_enableLoogging = false;
     m_logger->shutdown();
 }

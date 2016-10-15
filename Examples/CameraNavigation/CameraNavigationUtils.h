@@ -43,6 +43,10 @@
 #include <vtkImageResize.h>
 #include <vtkImageTranslateExtent.h>
 
+// 2D actor
+#include <vtkTextActor.h>
+#include <vtkTextProperty.h>
+
 using namespace imstk;
 
 // Texture coordinates
@@ -70,6 +74,16 @@ targetPointsInWorld targetWorldPoints[6];
 
 const std::string metricsFileNamePrefix = "cameraNavMetrics-";
 
+void add2dActor(const vtkSmartPointer<vtkRenderer>& rendererVtk, vtkSmartPointer<vtkTextActor>& textActor, std::string& str)
+{
+
+    // Setup the text and add it to the renderer
+    textActor->SetInput(str.c_str());
+    textActor->SetPosition2(10, 40);
+    textActor->GetTextProperty()->SetFontSize(24);
+    textActor->GetTextProperty()->SetColor(0.9, 0.9, 0.9);
+    rendererVtk->AddActor2D(textActor);
+}
 
 ///
 ///	 \brief Add a 2D overlay of target markers on a 3D scene
