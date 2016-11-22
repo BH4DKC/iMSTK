@@ -25,6 +25,9 @@
 #include <memory>
 
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkPoints.h"
+#include "vtkFloatArray.h"
+
 
 namespace imstk
 {
@@ -106,6 +109,10 @@ public:
     void setSimulationManager(SimulationManager* simManager);
 
 private:
+    bool parseLogFileAndCalculateMetrics(std::string filename, vtkSmartPointer<vtkPoints> outPoints,
+        vtkSmartPointer<vtkFloatArray> outVelocities,
+        vtkSmartPointer<vtkFloatArray> outAccelerations,
+        vtkSmartPointer<vtkFloatArray> outJerks);
     void displayPath(std::string fileName);
     SimulationManager* m_simManager;    ///>
 

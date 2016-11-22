@@ -36,15 +36,15 @@
 
 // path
 #include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkLookupTable.h"
 #include "vtkColorTransferFunction.h"
-
+#include "vtkArrowSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkProperty.h"
 #include <string>
 
 namespace imstk
@@ -52,20 +52,18 @@ namespace imstk
 
 vtkStandardNewMacro(InteractorStyle);
 
-
-void
-InteractorStyle::displayPath(std::string deviceName)
+bool 
+InteractorStyle::parseLogFileAndCalculateMetrics(std::string filename, vtkSmartPointer<vtkPoints> outPoints,
+    vtkSmartPointer<vtkFloatArray> outVelocities,
+    vtkSmartPointer<vtkFloatArray> outAccelerations,
+    vtkSmartPointer<vtkFloatArray> outJerks)
 {
-    auto points = vtkSmartPointer<vtkPoints>::New();
-    auto dataArray = vtkSmartPointer<vtkFloatArray>::New();
-    dataArray->SetName("Velocity");
-
     // open logger file
-    fstream fstr((deviceName+".log").c_str(), fstream::in);
+    fstream fstr(filename.c_str(), fstream::in);
     if (!fstr.is_open() || !fstr.good() || fstr.eof())
     {
-        LOG(WARNING) << "ERROR opening "<< deviceName << ".log";
-        return;
+        LOG(WARNING) << "ERROR opening " << filename ;
+        return false;
     }
 
     // parse logger file
@@ -126,25 +124,88 @@ InteractorStyle::displayPath(std::string deviceName)
         // Add points or velocities
         if (line[0] == 'P')
         {
-            points->InsertNextPoint(x,y,z);
+            outPoints->InsertNextPoint(x, y, z);
         }
         else if (line[0] == 'V')
         {
-            auto norm = Vec3d(x,y,z).norm();
-            if( norm < min ) min = norm;
-            if( norm > max ) max = norm;
-            dataArray->InsertNextValue(norm);
+            auto norm = Vec3d(x, y, z).norm();
+            outVelocities->InsertNextValue(norm);
         }
     }
 
-    auto numpts = points->GetNumberOfPoints();
-    auto numdata = dataArray->GetNumberOfValues();
-    if(numpts != numdata)
+    auto numpts = outPoints->GetNumberOfPoints();
+    auto numdata = outVelocities->GetNumberOfValues();
+    if (numpts != numdata)
     {
-        LOG(WARNING) << "ERROR reading " << deviceName << ".log : inconsistant number of points & velocity "
-                     <<"(" << numpts << " & " << numdata << ")";
-        return;
+        LOG(WARNING) << "ERROR reading " << filename << " : inconsistant number of points & velocity "
+            << "(" << numpts << " & " << numdata << ")";
+        return false;
     }
+
+    //Calculate accelerations and jerks for each point
+    for (auto index = 0; index < numpts; index++)
+    {
+
+        if (index < 2 || index >= numpts - 2)
+        {
+            //Ignoring the boundary points
+            outJerks->InsertNextTuple3(0., 0., 0.);
+            if (index == 0 || index == numpts - 1)
+                outAccelerations->InsertNextTuple3(0., 0., 0.);
+            continue;
+        }
+
+		    Vec3d x(0., 0., 0.);
+		    Vec3d x_min1(0., 0., 0.);
+		    Vec3d x_min2(0., 0., 0.);
+		    Vec3d x_plus1(0., 0., 0.);
+		    Vec3d x_plus2(0., 0., 0.);
+
+        outPoints->GetPoint(index, x.data());
+
+
+        auto newInd = index - 1;
+        outPoints->GetPoint(newInd, x_min1.data());
+
+        newInd = index - 2;
+        outPoints->GetPoint(newInd, x_min2.data());
+
+        newInd = index + 1;
+        outPoints->GetPoint(newInd, x_plus1.data());
+
+        newInd = index + 2;
+        outPoints->GetPoint(newInd, x_plus2.data());
+        
+        //acceleration calculated as a second central derivative of position wrt time, h=1
+        auto acceleration = x_plus1 - 2 * x + x_min1;
+        //jerk calculated as the third derivative of position wrt time, h=1
+        auto jerk = 0.5*(x_plus2 - x_min2 - 2 * x_plus1 + 2 * x_min1);
+
+        LOG(INFO) << index << ", acceleration: " << acceleration << ", jerk: " << jerk;
+
+        outAccelerations->InsertNextTuple3(acceleration[0], acceleration[1], acceleration[2]);
+        outJerks->InsertNextTuple3(jerk[0], jerk[1], jerk[2]);
+    }
+
+    return true;
+}
+
+void
+InteractorStyle::displayPath(std::string deviceName)
+{
+    auto points = vtkSmartPointer<vtkPoints>::New();
+    auto dataArray = vtkSmartPointer<vtkFloatArray>::New();
+    dataArray->SetName("Velocity");
+    auto accelArray = vtkSmartPointer<vtkFloatArray>::New();
+    accelArray->SetName("Acceleration");
+    accelArray->SetNumberOfComponents(3);
+    auto jerkArray = vtkSmartPointer<vtkFloatArray>::New();
+    jerkArray->SetName("Jerk");
+    jerkArray->SetNumberOfComponents(3);
+    
+    // Precalculate all the metrics from device's log file
+    if (!parseLogFileAndCalculateMetrics(deviceName + ".log", points, dataArray, accelArray, jerkArray))
+        return;
 
     // Set up spline points
     auto polyData = vtkSmartPointer<vtkPolyData>::New();
@@ -153,6 +214,7 @@ InteractorStyle::displayPath(std::string deviceName)
     polyData->GetPointData()->SetActiveScalars("Velocity");
 
     // Set up curves between adjacent points
+    auto numpts = points->GetNumberOfPoints();
     polyData->Allocate( numpts-1 );
     for (vtkIdType i = 0; i <  numpts-1; ++i)
     {
@@ -169,24 +231,55 @@ InteractorStyle::displayPath(std::string deviceName)
     writer->Write();
 
     // Lookup Table
+    double velocityRange[2];
+    dataArray->GetRange(velocityRange);
+    LOG(INFO) << "Velocity Norms range: " << velocityRange[0] << " " << velocityRange[1];
     auto colors = vtkSmartPointer<vtkColorTransferFunction>::New();
-    colors->AddRGBPoint(min, 1, 0, 0);
-    colors->AddRGBPoint((max-min)/3, 1, 0.5, 0);
-    colors->AddRGBPoint((max-min)*2/3, 1, 1, 0);
-    colors->AddRGBPoint(max, 0, 1, 0);
+    colors->AddRGBPoint(velocityRange[0], 1, 0, 0);
+    colors->AddRGBPoint((velocityRange[1]-velocityRange[0])/3, 1, 0.5, 0);
+    colors->AddRGBPoint((velocityRange[1]-velocityRange[0])*2/3, 1, 1, 0);
+    colors->AddRGBPoint(velocityRange[1], 0, 1, 0);
     colors->SetColorSpaceToRGB();
 
     // Setup actor and mapper
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(polyData);
-    mapper->SetScalarRange(min, max);
+    mapper->SetScalarRange(velocityRange[0], velocityRange[1]);
     mapper->SetLookupTable(colors);
     mapper->ScalarVisibilityOn();
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
 
+
+    //Add actor for jerk glyphs
+    vtkSmartPointer<vtkArrowSource> arrow =
+        vtkSmartPointer<vtkArrowSource>::New();
+    polyData->GetPointData()->SetVectors(jerkArray);
+    vtkSmartPointer<vtkGlyph3D> glyphs =
+        vtkSmartPointer<vtkGlyph3D>::New();
+    glyphs->SetInputData(polyData);
+    glyphs->SetSourceConnection(arrow->GetOutputPort());
+    glyphs->ScalingOn();
+    glyphs->SetScaleModeToScaleByVector();
+    glyphs->SetColorModeToColorByVector();
+    glyphs->OrientOn();
+    glyphs->ClampingOff();
+    glyphs->SetVectorModeToUseVector();
+    glyphs->SetIndexModeToOff();
+
+    vtkSmartPointer<vtkPolyDataMapper> glyphMapper =
+        vtkSmartPointer<vtkPolyDataMapper>::New();
+    glyphMapper->SetInputConnection(glyphs->GetOutputPort());
+    glyphMapper->ScalarVisibilityOff();
+
+    vtkSmartPointer<vtkActor> glyphActor =
+        vtkSmartPointer<vtkActor>::New();
+    glyphActor->SetMapper(glyphMapper);
+    glyphActor->GetProperty()->SetColor(0., 0., 1.);
+
     m_simManager->getViewer()->getCurrentRenderer()->getVtkRenderer()->AddActor(actor);
+    m_simManager->getViewer()->getCurrentRenderer()->getVtkRenderer()->AddActor(glyphActor);
 }
 
 void
