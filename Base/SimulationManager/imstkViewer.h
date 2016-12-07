@@ -178,6 +178,14 @@ public:
         m_textActor->SetInput(text.c_str());
     }
 
+    ///
+    /// \brief Set custom event handler for keypress event
+    ///
+    void setCustomOnCharEventHandler(vtkSlotFunctionType func, char c)
+    {
+        m_interactorStyle->setOnCharEventHandler(func, c);
+    }
+
 protected:
 
     vtkSmartPointer<vtkRenderWindow> m_vtkRenderWindow = vtkSmartPointer<vtkRenderWindow>::New();

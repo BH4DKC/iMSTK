@@ -42,6 +42,7 @@ HDAPIDeviceClient::init()
     HDErrorInfo error;
     if (HD_DEVICE_ERROR(error = hdGetError()))
     {
+        LOG(FATAL) << "Failed to initialize Phantom Omni " << this->getDeviceName();
         m_handle = -1;
         return;
     }
@@ -49,6 +50,9 @@ HDAPIDeviceClient::init()
     // Enable forces
     hdEnable(HD_FORCE_OUTPUT);
     hdEnable(HD_FORCE_RAMPING);
+
+    // Success
+    LOG(INFO) << this->getDeviceName() << " successfully initialized.";
 }
 
 void
@@ -66,7 +70,7 @@ HDAPIDeviceClient::cleanUp()
 HDCallbackCode HDCALLBACK
 HDAPIDeviceClient::hapticCallback(void* pData)
 {
-	auto client = reinterpret_cast<HDAPIDeviceClient*>(pData);
+	  auto client = reinterpret_cast<HDAPIDeviceClient*>(pData);
     auto handle = client->m_handle;
     auto state = client->m_state;
 

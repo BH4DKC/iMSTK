@@ -23,18 +23,25 @@
 #define imstkInteractorStyle_h
 
 #include <memory>
+#include <functional>
+#include <unordered_map>
 
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 
-
 namespace imstk
 {
 
 class SimulationManager;
+class InteractorStyle;
 
 using vtkBaseInteractorStyle = vtkInteractorStyleTrackballCamera;
+
+///
+/// \brief event handlers. This will return true if the default event handler behavior still needs to run, false otherwise
+///
+using vtkSlotFunctionType = std::function< bool(const InteractorStyle*) >;
 
 ///
 /// \class InteractorStyle
@@ -108,12 +115,21 @@ public:
     ///
     void setSimulationManager(SimulationManager* simManager);
 
+    ///
+    /// \brief
+    ///
+    void setOnCharEventHandler(vtkSlotFunctionType func, char c);
+
 private:
+    //functions
     bool parseLogFileAndCalculateMetrics(std::string filename, vtkSmartPointer<vtkPoints> outPoints,
         vtkSmartPointer<vtkFloatArray> outVelocities,
         vtkSmartPointer<vtkFloatArray> outAccelerations,
         vtkSmartPointer<vtkFloatArray> outJerks);
     void displayPath(std::string fileName);
+
+    //map of OnCharHandler functions for each character
+    std::unordered_map<char, vtkSlotFunctionType> m_charHandlerFunctionMap;
     SimulationManager* m_simManager;    ///>
 
 };

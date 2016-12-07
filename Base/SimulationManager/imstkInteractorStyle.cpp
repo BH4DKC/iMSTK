@@ -312,11 +312,25 @@ InteractorStyle::OnTimer()
 }
 
 void
+InteractorStyle::setOnCharEventHandler(vtkSlotFunctionType func, char c)
+{
+    m_charHandlerFunctionMap[c] = func;
+}
+
+void
 InteractorStyle::OnChar()
 {
     vtkRenderWindowInteractor *rwi = this->Interactor;
 
-    switch (rwi->GetKeyCode())
+    char inputChar = rwi->GetKeyCode();
+
+    if (m_charHandlerFunctionMap.find(inputChar) != m_charHandlerFunctionMap.end() &&
+        !m_charHandlerFunctionMap[inputChar](this))
+    {
+        return;
+    }
+    
+    switch (inputChar)
     {
     // Highlight picked actor
     case 'p' :
@@ -441,6 +455,7 @@ InteractorStyle::OnChar()
     case 'v':
     case 'V':
     {
+        LOG(INFO) << "=============Enable logging==============";
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         const int logFrequency = camCtrl1->getLoggerFrequency();
         if(camCtrl1)
@@ -462,6 +477,7 @@ InteractorStyle::OnChar()
     case 'c':
     case 'C':
     {
+        LOG(INFO) << "=============Disable logging==============";
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         if(camCtrl1)
         {
@@ -482,6 +498,7 @@ InteractorStyle::OnChar()
     case 'e' :
     case 'E' :
     {
+        LOG(INFO) << "=============End simulation==============";
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         if (camCtrl1)
         {

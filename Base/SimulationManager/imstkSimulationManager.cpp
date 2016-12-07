@@ -237,6 +237,12 @@ SimulationManager::setCurrentScene(std::string newSceneName, bool unloadCurrentS
     m_currentSceneName = newSceneName;
 }
 
+void 
+SimulationManager::setCustomOnCharEventHandler(vtkSlotFunctionType func, char c)
+{
+    this->getViewer()->setCustomOnCharEventHandler(func, c);
+}
+
 void
 SimulationManager::startSimulation(bool debug)
 {
