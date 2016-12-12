@@ -30,6 +30,7 @@
 #include <vtkImageReader2.h>
 #include <vtkTexture.h>
 #include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
 
 #include "g3log/g3log.hpp"
 
@@ -68,6 +69,10 @@ SurfaceMeshRenderDelegate::SurfaceMeshRenderDelegate(std::shared_ptr<SurfaceMesh
     auto polydata = vtkSmartPointer<vtkPolyData>::New();
     polydata->SetPoints(points);
     polydata->SetPolys(triangles);
+
+   /* auto normalGen = vtkSmartPointer<vtkPolyDataNormals>::New();
+    normalGen->SetInputData(polydata);
+    normalGen->SplittingOff();*/
 
     // Mapper
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -128,6 +133,9 @@ SurfaceMeshRenderDelegate::SurfaceMeshRenderDelegate(std::shared_ptr<SurfaceMesh
 
     // Actor
     m_actor->SetMapper(mapper);
+
+    this->setColorAndOpacity();
+    this->setWireFrameMode();
 
     // Transform
     this->updateActorTransform();

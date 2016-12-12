@@ -78,10 +78,20 @@ public:
     ///
     void updateActorTransform();
 
-	///
-	/// \brief
-	///
-	void setVtkTrasnformFromEigen(const AffineTransform3d& t);
+	  ///
+	  /// \brief
+	  ///
+	  void setVtkTrasnformFromEigen(const AffineTransform3d& t);
+
+    ///
+    /// \brief
+    ///
+    void setColorAndOpacity();
+
+    ///
+    /// \brief
+    ///
+    void setWireFrameMode();
 
 protected:
     ///

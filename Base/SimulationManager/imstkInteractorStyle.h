@@ -121,12 +121,12 @@ public:
     void setOnCharEventHandler(vtkSlotFunctionType func, char c);
 
 private:
-    //functions
-    bool parseLogFileAndCalculateMetrics(std::string filename, vtkSmartPointer<vtkPoints> outPoints,
-        vtkSmartPointer<vtkFloatArray> outVelocities,
-        vtkSmartPointer<vtkFloatArray> outAccelerations,
-        vtkSmartPointer<vtkFloatArray> outJerks);
-    void displayPath(std::string fileName);
+    ////functions
+    //bool parseLogFileAndCalculateMetrics(std::string filename, vtkSmartPointer<vtkPoints> outPoints,
+    //    vtkSmartPointer<vtkFloatArray> outVelocities,
+    //    vtkSmartPointer<vtkFloatArray> outAccelerations,
+    //    vtkSmartPointer<vtkFloatArray> outJerks);
+    //void displayPath(std::string fileName);
 
     //map of OnCharHandler functions for each character
     std::unordered_map<char, vtkSlotFunctionType> m_charHandlerFunctionMap;

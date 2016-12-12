@@ -36,7 +36,7 @@
 // 2D actor
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
-
+#include <vtkProperty.h>
 
 // Screenshot
 #include "imstkScreenCaptureUtility.h"
@@ -173,9 +173,11 @@ public:
         return m_textActor;
     }
 
-    void setTextTo2DActor(std::string& text)
+    void setTextTo2DActor(std::string& text, Vec3d color= Vec3d::Ones())
     {
         m_textActor->SetInput(text.c_str());
+        m_textActor->GetTextProperty()->SetColor(color.x(), color.y(), color.z());
+        LOG(INFO) << "Color: " << color;
     }
 
     ///

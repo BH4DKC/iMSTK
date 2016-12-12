@@ -41,6 +41,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkTransform.h"
+#include "vtkProperty.h"
 
 namespace imstk
 {
@@ -106,6 +107,8 @@ RenderDelegate::setActorMapper(vtkAlgorithmOutput *source)
     mapper->SetInputConnection(normalGen->GetOutputPort());
 
     m_actor->SetMapper(mapper);
+    this->setColorAndOpacity();
+    this->setWireFrameMode();
 }
 
 vtkSmartPointer<vtkActor>
@@ -119,6 +122,23 @@ RenderDelegate::update()
 {
     // TODO : only when rigid transform applied
     this->updateActorTransform();
+}
+
+void
+RenderDelegate::setColorAndOpacity()
+{
+    imstk::Color geomColor = this->getGeometry()->getGeometryColor();
+    this->m_actor->GetProperty()->SetColor(geomColor.r, geomColor.g, geomColor.b);
+    this->m_actor->GetProperty()->SetOpacity(geomColor.a);
+}
+
+void 
+RenderDelegate::setWireFrameMode()
+{
+    if (this->getGeometry()->getWireFrameMode())
+        this->m_actor->GetProperty()->SetRepresentationToWireframe();
+    else
+        this->m_actor->GetProperty()->SetRepresentationToSurface();
 }
 
 void

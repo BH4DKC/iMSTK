@@ -115,6 +115,7 @@ Renderer::setup(Mode mode)
         }
 
         m_vtkRenderer->SetActiveCamera(m_defaultVtkCamera);
+        m_vtkRenderer->SetUseDepthPeeling(true);
     }
     else if( mode == Mode::DEBUG && m_currentMode != Mode::DEBUG )
     {
@@ -131,6 +132,7 @@ Renderer::setup(Mode mode)
 
         m_vtkRenderer->SetActiveCamera(m_defaultVtkCamera);
         m_vtkRenderer->ResetCamera();
+        m_vtkRenderer->SetUseDepthPeeling(true);
     }
     else if ( mode == Mode::SIMULATION && m_currentMode != Mode::SIMULATION )
     {
@@ -149,6 +151,10 @@ Renderer::setup(Mode mode)
 
         m_vtkRenderer->SetActiveCamera(m_sceneVtkCamera);
         m_vtkRenderer->ResetCameraClippingRange();
+
+        
+        // Choose to use depth peeling (if supported) (initial value is 0 (false)):
+        m_vtkRenderer->SetUseDepthPeeling(true);
     }
 
     m_currentMode = mode;
@@ -167,7 +173,7 @@ Renderer::updateSceneCamera(std::shared_ptr<Camera> imstkCam)
     m_sceneVtkCamera->SetFocalPoint(f[0], f[1], f[2]);
     m_sceneVtkCamera->SetViewUp(v[0], v[1], v[2]);
     m_sceneVtkCamera->SetViewAngle(imstkCam->getViewAngle());
-	m_sceneVtkCamera->Zoom(imstkCam->getZoomFactor());
+	  m_sceneVtkCamera->Zoom(imstkCam->getZoomFactor());
 }
 
 void

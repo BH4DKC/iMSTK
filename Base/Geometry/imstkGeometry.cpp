@@ -31,6 +31,7 @@ Geometry::print() const
     LOG(INFO) << "Position: " << "(" << m_position.x() << ", " << m_position.y() << ", " << m_position.z() << ")";
     LOG(INFO) << "Orientation:\n" << m_orientation.toRotationMatrix();
     LOG(INFO) << "Scaling: " << m_scaling;
+    LOG(INFO) << "Color: " << m_color;
 }
 
 void
@@ -178,6 +179,11 @@ Geometry::resetConfiguration()
 	m_configurationModified = true;
 }
 
+void 
+Geometry::setColorProperty(double r, double g, double b, double a)
+{
+    m_color.setValue(r, g, b, a);
+}
 
 const std::string
 Geometry::getTypeName() const
