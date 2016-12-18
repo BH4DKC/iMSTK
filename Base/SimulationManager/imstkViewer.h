@@ -177,7 +177,6 @@ public:
     {
         m_textActor->SetInput(text.c_str());
         m_textActor->GetTextProperty()->SetColor(color.x(), color.y(), color.z());
-        LOG(INFO) << "Color: " << color;
     }
 
     ///
