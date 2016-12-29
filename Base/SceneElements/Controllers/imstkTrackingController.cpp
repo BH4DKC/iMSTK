@@ -161,6 +161,12 @@ TrackingController::enableLogging()
 void
 TrackingController::disableLogging()
 {
+    if (!m_enableLoogging)
+    {
+        LOG(WARNING) << "Can't disable when logger's not enabled";
+        return;
+    }
+
     auto tPresent = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
     m_totalLoggingTime = tPresent - m_totalLoggingTime;
     m_enableLoogging = false;

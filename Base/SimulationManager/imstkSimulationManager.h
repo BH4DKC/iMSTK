@@ -153,6 +153,11 @@ public:
     ///
     void endSimulation();
 
+    ///
+    /// \brief Set custom event handler for keypress event
+    ///
+    void setCustomOnCharEventHandler(vtkSlotFunctionType func, const char c);
+
 private:
 
     void startModuleInNewThread(std::shared_ptr<Module> module);

@@ -51,10 +51,10 @@ public:
     ///
     SurfaceMeshRenderDelegate(std::shared_ptr<SurfaceMesh>SurfaceMesh);
 
-	///
-	/// \brief
-	///	
-	void mapVertices();
+    ///
+    /// \brief
+    ///	
+    void mapVertices();
 
 
     ///

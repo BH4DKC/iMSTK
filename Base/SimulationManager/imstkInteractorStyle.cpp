@@ -36,15 +36,15 @@
 
 // path
 #include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkLookupTable.h"
 #include "vtkColorTransferFunction.h"
-
+#include "vtkArrowSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkProperty.h"
 #include <string>
 
 namespace imstk
@@ -52,142 +52,6 @@ namespace imstk
 
 vtkStandardNewMacro(InteractorStyle);
 
-
-void
-InteractorStyle::displayPath(std::string deviceName)
-{
-    auto points = vtkSmartPointer<vtkPoints>::New();
-    auto dataArray = vtkSmartPointer<vtkFloatArray>::New();
-    dataArray->SetName("Velocity");
-
-    // open logger file
-    fstream fstr((deviceName+".log").c_str(), fstream::in);
-    if (!fstr.is_open() || !fstr.good() || fstr.eof())
-    {
-        LOG(WARNING) << "ERROR opening "<< deviceName << ".log";
-        return;
-    }
-
-    // parse logger file
-    double min = MAX_D;
-    double max = MIN_D;
-    char line[1024];
-    while (fstr.good())
-    {
-        fstr.getline(line, 1024);
-        if (line[0] == '\0') continue;
-
-        char *ptr;
-        double x = 0.0, y = 0.0, z = 0.0;
-        int columnNumber = 0;
-        bool reTokenise = false;
-
-        if (strncmp(line, ",", 1) == 0)
-        {
-            ptr = nullptr;
-            reTokenise = true;
-        }
-        else
-        {
-            ptr = strtok(line, ",");
-        }
-
-        // Read columns
-        while (columnNumber < 4)
-        {
-            if (ptr != nullptr)
-            {
-                if (columnNumber == 1)
-                {
-                    x = atof(ptr);
-                }
-                else if (columnNumber == 2)
-                {
-                    y = atof(ptr);
-                }
-                else if (columnNumber == 3)
-                {
-                    z = atof(ptr);
-                }
-            }
-
-            if (reTokenise == false)
-            {
-                ptr = strtok(NULL, ",");
-            }
-            else
-            {
-                ptr = strtok(line, ",");
-                reTokenise = false;
-            }
-            columnNumber++;
-        }
-
-        // Add points or velocities
-        if (line[0] == 'P')
-        {
-            points->InsertNextPoint(x,y,z);
-        }
-        else if (line[0] == 'V')
-        {
-            auto norm = Vec3d(x,y,z).norm();
-            if( norm < min ) min = norm;
-            if( norm > max ) max = norm;
-            dataArray->InsertNextValue(norm);
-        }
-    }
-
-    auto numpts = points->GetNumberOfPoints();
-    auto numdata = dataArray->GetNumberOfValues();
-    if(numpts != numdata)
-    {
-        LOG(WARNING) << "ERROR reading " << deviceName << ".log : inconsistant number of points & velocity "
-                     <<"(" << numpts << " & " << numdata << ")";
-        return;
-    }
-
-    // Set up spline points
-    auto polyData = vtkSmartPointer<vtkPolyData>::New();
-    polyData->SetPoints( points );
-    polyData->GetPointData()->AddArray( dataArray );
-    polyData->GetPointData()->SetActiveScalars("Velocity");
-
-    // Set up curves between adjacent points
-    polyData->Allocate( numpts-1 );
-    for (vtkIdType i = 0; i <  numpts-1; ++i)
-    {
-        vtkIdType ii[2];
-        ii[0] = i;
-        ii[1] = i+1;
-        polyData->InsertNextCell( VTK_LINE, 2, ii );
-    }
-
-    auto writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-    writer->SetFileName((deviceName+".vtp").c_str());
-    writer->SetInputData(polyData);
-    writer->SetDataModeToAscii();
-    writer->Write();
-
-    // Lookup Table
-    auto colors = vtkSmartPointer<vtkColorTransferFunction>::New();
-    colors->AddRGBPoint(min, 1, 0, 0);
-    colors->AddRGBPoint((max-min)/3, 1, 0.5, 0);
-    colors->AddRGBPoint((max-min)*2/3, 1, 1, 0);
-    colors->AddRGBPoint(max, 0, 1, 0);
-    colors->SetColorSpaceToRGB();
-
-    // Setup actor and mapper
-    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputData(polyData);
-    mapper->SetScalarRange(min, max);
-    mapper->SetLookupTable(colors);
-    mapper->ScalarVisibilityOn();
-
-    auto actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-
-    m_simManager->getViewer()->getCurrentRenderer()->getVtkRenderer()->AddActor(actor);
-}
 
 void
 InteractorStyle::OnTimer()
@@ -219,11 +83,25 @@ InteractorStyle::OnTimer()
 }
 
 void
+InteractorStyle::setOnCharEventHandler(vtkSlotFunctionType func, char c)
+{
+    m_charHandlerFunctionMap[c] = func;
+}
+
+void
 InteractorStyle::OnChar()
 {
     vtkRenderWindowInteractor *rwi = this->Interactor;
 
-    switch (rwi->GetKeyCode())
+    char inputChar = rwi->GetKeyCode();
+
+    if (m_charHandlerFunctionMap.find(inputChar) != m_charHandlerFunctionMap.end() &&
+        !m_charHandlerFunctionMap[inputChar](this))
+    {
+        return;
+    }
+    
+    switch (inputChar)
     {
     // Highlight picked actor
     case 'p' :
@@ -348,6 +226,7 @@ InteractorStyle::OnChar()
     case 'v':
     case 'V':
     {
+        LOG(INFO) << "=============Enable logging==============";
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         const int logFrequency = camCtrl1->getLoggerFrequency();
         if(camCtrl1)
@@ -369,6 +248,7 @@ InteractorStyle::OnChar()
     case 'c':
     case 'C':
     {
+        LOG(INFO) << "=============Disable logging==============";
         auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
         if(camCtrl1)
         {
@@ -389,23 +269,7 @@ InteractorStyle::OnChar()
     case 'e' :
     case 'E' :
     {
-        auto camCtrl1 = m_simManager->getCurrentScene()->getCamera()->getController();
-        if (camCtrl1)
-        {
-            this->displayPath("PHANToM 1");
-
-            double t = (double)camCtrl1->getLoggingTime() / 1000.0;
-            auto str = std::to_string(t);
-            str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-            str = "Time: " + str + " sec.";
-            m_simManager->getViewer()->setTextTo2DActor(str);
-        }
-
-        auto virCoupObj = std::static_pointer_cast<VirtualCouplingObject>(m_simManager->getCurrentScene()->getSceneObject("tool"));
-        if (virCoupObj)
-        {
-            this->displayPath("PHANToM 2");
-        }
+        LOG(INFO) << "=============End simulation==============";
         m_simManager->endSimulation();
     }
     break;

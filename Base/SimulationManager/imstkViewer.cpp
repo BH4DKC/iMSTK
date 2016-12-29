@@ -128,6 +128,7 @@ Viewer::startRenderingLoop()
 void
 Viewer::endRenderingLoop()
 {
+    m_vtkRenderWindow->Finalize();
     m_vtkRenderWindow->GetInteractor()->TerminateApp();
 }
 
