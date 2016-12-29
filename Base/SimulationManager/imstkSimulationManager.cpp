@@ -238,7 +238,7 @@ SimulationManager::setCurrentScene(std::string newSceneName, bool unloadCurrentS
 }
 
 void 
-SimulationManager::setCustomOnCharEventHandler(vtkSlotFunctionType func, char c)
+SimulationManager::setCustomOnCharEventHandler(vtkSlotFunctionType func, const char c)
 {
     this->getViewer()->setCustomOnCharEventHandler(func, c);
 }

@@ -137,39 +137,39 @@ public:
 
 	  ///
 	  /// \brief Returns true if one of position, orientation or scaling is modified
-	  ///
-	  bool isConfigurationModified() const { return m_configurationModified; }
+    ///
+    bool isConfigurationModified() const { return m_configurationModified; }
 
-	  ///
-	  /// \brief Sets the state of configuration modified to desired value
-	  ///
-	  void setConfigurationModified(const bool state)
-	  {
-		m_configurationModified = state;
-	  }
+    ///
+    /// \brief Sets the state of configuration modified to desired value
+    ///
+    void setConfigurationModified(const bool state)
+    {
+        m_configurationModified = state;
+    }
 
-	  ///
-	  /// \brief Reset the geometric configuration to identity
-	  ///
-	  void resetConfiguration();
+    ///
+    /// \brief Reset the geometric configuration to identity
+    ///
+    void resetConfiguration();
 
-	  ///
-	  /// \brief
-	  ///
-	  const AffineTransform3d& getEigenTransform() const
-	  {
-		return m_transform;
-	  }
+    ///
+    /// \brief
+    ///
+    const AffineTransform3d& getEigenTransform() const
+    {
+        return m_transform;
+    }
     
     ///
     /// \brief
     ///
-    void setColorProperty(double r, double g, double b, double a);
+    void setColorProperty(const double r, const double g, const double b, const double a);
 
     ///
     /// \brief
     ///
-    imstk::Color getGeometryColor()
+    imstk::Color getGeometryColor() const
     {
         return m_color;
     }
@@ -177,7 +177,7 @@ public:
     ///
     /// \brief
     ///
-    void setWireFrameMode(bool wireFrameModeOn)
+    void setWireFrameMode(const bool wireFrameModeOn)
     {
         m_wireframeMode = wireFrameModeOn;
     }
@@ -199,13 +199,13 @@ protected:
              const Quatd& orientation = Quatd::Identity()) :
         m_type(type),
         m_position(position),
-		    m_orientation(orientation), 
+        m_orientation(orientation), 
         m_transform(),
         m_color(1.,1.,1.),
         m_wireframeMode(false)
-	    {
-		    m_transform.setIdentity();
-	    }
+    {
+        m_transform.setIdentity();
+    }
 
     Type m_type; ///> Geometry type
 
@@ -213,10 +213,10 @@ protected:
     Quatd  m_orientation; ///> orientation
     double m_scaling = 1; ///> Scaling
 
-	  AffineTransform3d m_transform; ///> Compounded transform of the geometry
+    AffineTransform3d m_transform; ///> Compounded transform of the geometry
     imstk::Color    m_color;
 
-	  bool m_configurationModified = true; // true if one of position, orientation or scaling is modified
+    bool m_configurationModified = true; // true if one of position, orientation or scaling is modified
     bool m_wireframeMode;
 };
 

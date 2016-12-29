@@ -132,7 +132,7 @@ Renderer::setup(Mode mode)
 
         m_vtkRenderer->SetActiveCamera(m_defaultVtkCamera);
         m_vtkRenderer->ResetCamera();
-        m_vtkRenderer->SetUseDepthPeeling(true);
+     //   m_vtkRenderer->SetUseDepthPeeling(true);
     }
     else if ( mode == Mode::SIMULATION && m_currentMode != Mode::SIMULATION )
     {

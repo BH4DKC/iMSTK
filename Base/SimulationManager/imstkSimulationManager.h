@@ -156,7 +156,7 @@ public:
     ///
     /// \brief Set custom event handler for keypress event
     ///
-    void setCustomOnCharEventHandler(vtkSlotFunctionType func, char c);
+    void setCustomOnCharEventHandler(vtkSlotFunctionType func, const char c);
 
 private:
 

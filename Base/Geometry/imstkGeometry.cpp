@@ -180,7 +180,7 @@ Geometry::resetConfiguration()
 }
 
 void 
-Geometry::setColorProperty(double r, double g, double b, double a)
+Geometry::setColorProperty(const double r, const double g, const double b, const double a)
 {
     m_color.setValue(r, g, b, a);
 }
