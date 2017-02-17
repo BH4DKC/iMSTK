@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 
+#include "imstkCamera.h"
 #include "vtkSmartPointer.h"
 #include "vtkRenderer.h"
 #include "vtkProp.h"
@@ -85,6 +86,11 @@ public:
     /// \brief
     ///
     vtkSmartPointer<vtkRenderer> getVtkRenderer() const;
+
+    ///
+    /// \brief Update background colors for the renderer
+    ///
+    void updateBackground(imstk::Vec3d backgroundOne, imstk::Vec3d backgroundTwo = imstk::Vec3d::Zero(), bool gradientBackground = false);
 
 protected:
     ///

@@ -22,7 +22,6 @@
 #include "imstkRenderer.h"
 
 #include "imstkScene.h"
-#include "imstkCamera.h"
 #include "imstkRenderDelegate.h"
 
 #include "vtkLightActor.h"
@@ -93,6 +92,21 @@ Renderer::Renderer(std::shared_ptr<Scene> scene)
 
     this->setup(Mode::SIMULATION);
 
+}
+
+void 
+Renderer::updateBackground(imstk::Vec3d backgroundOne, imstk::Vec3d backgroundTwo /*= imstk::Vec3d::Zero()*/, bool gradientBackground /*= false*/)
+{
+    m_vtkRenderer->SetBackground(backgroundOne.x(), backgroundOne.y(), backgroundOne.z());
+    if (gradientBackground)
+    {
+        m_vtkRenderer->SetBackground2(backgroundTwo.x(), backgroundTwo.y(), backgroundTwo.z());
+        m_vtkRenderer->GradientBackgroundOn();
+    }
+    else
+    {
+        m_vtkRenderer->GradientBackgroundOff();
+    }
 }
 
 vtkSmartPointer<vtkRenderer>
