@@ -127,6 +127,8 @@ private:
     //    vtkSmartPointer<vtkFloatArray> outAccelerations,
     //    vtkSmartPointer<vtkFloatArray> outJerks);
     //void displayPath(std::string fileName);
+    friend class Viewer;
+    vtkSlotFunctionType m_onTimerFunction;
 
     //map of OnCharHandler functions for each character
     std::unordered_map<char, vtkSlotFunctionType> m_charHandlerFunctionMap;

@@ -187,6 +187,14 @@ public:
         m_interactorStyle->setOnCharEventHandler(func, c);
     }
 
+    ///
+    /// \brief Set custom event handler for timer event (every frame?)
+    ///
+    void setCustomOnTimerEventHandler(vtkSlotFunctionType func)
+    {
+        m_interactorStyle->m_onTimerFunction = func;
+    }
+
 protected:
 
     vtkSmartPointer<vtkRenderWindow> m_vtkRenderWindow = vtkSmartPointer<vtkRenderWindow>::New();

@@ -80,6 +80,10 @@ InteractorStyle::OnTimer()
 
     // Render
     this->Interactor->Render();
+
+    //Call a function lambda
+    if (m_onTimerFunction)
+        m_onTimerFunction(this);
 }
 
 void

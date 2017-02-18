@@ -244,6 +244,12 @@ SimulationManager::setCustomOnCharEventHandler(vtkSlotFunctionType func, const c
 }
 
 void
+SimulationManager::setCustomOnTimerEventHandler(vtkSlotFunctionType func)
+{
+    this->getViewer()->setCustomOnTimerEventHandler(func);
+}
+
+void
 SimulationManager::startSimulation(bool debug)
 {
     if (m_status != SimulationStatus::INACTIVE)
