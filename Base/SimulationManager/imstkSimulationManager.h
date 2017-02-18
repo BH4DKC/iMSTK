@@ -158,6 +158,10 @@ public:
     ///
     void setCustomOnCharEventHandler(vtkSlotFunctionType func, const char c);
 
+    ///
+    /// \brief Set custom event handler for timer event
+    ///
+    void setCustomOnTimerEventHandler(vtkSlotFunctionType func);
 private:
 
     void startModuleInNewThread(std::shared_ptr<Module> module);
