@@ -78,6 +78,11 @@ public:
     ///
     void updateActorTransform();
 
+    ///
+    /// \brief
+    ///
+    void updateVtkProperties();
+
 	  ///
 	  /// \brief
 	  ///

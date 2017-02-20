@@ -179,6 +179,10 @@ public:
     ///
     void setWireFrameMode(const bool wireFrameModeOn)
     {
+        if (wireFrameModeOn != m_wireframeMode)
+        {
+            m_vtkPropertyModified = true;
+        }
         m_wireframeMode = wireFrameModeOn;
     }
 
@@ -187,6 +191,19 @@ public:
     bool getWireFrameMode()
     {
         return m_wireframeMode;
+    }
+
+    ///
+    /// \brief Returns true if one of color, opacity or render mode is modified
+    ///
+    bool isVtkPropertyModified() const { return m_vtkPropertyModified; }
+
+    ///
+    /// \brief Sets the state of vtkproperty modified to desired value
+    ///
+    void seVtkPropertyModified(const bool state)
+    {
+        m_vtkPropertyModified = state;
     }
 
 protected:
@@ -217,6 +234,7 @@ protected:
     imstk::Color    m_color;
 
     bool m_configurationModified = true; // true if one of position, orientation or scaling is modified
+    bool m_vtkPropertyModified = true; // true if one of color or wireframe has been modified.
     bool m_wireframeMode;
 };
 

@@ -107,8 +107,9 @@ RenderDelegate::setActorMapper(vtkAlgorithmOutput *source)
     mapper->SetInputConnection(normalGen->GetOutputPort());
 
     m_actor->SetMapper(mapper);
-    this->setColorAndOpacity();
+    this->setColorAndOpacity(); 
     this->setWireFrameMode();
+
 }
 
 vtkSmartPointer<vtkActor>
@@ -122,6 +123,7 @@ RenderDelegate::update()
 {
     // TODO : only when rigid transform applied
     this->updateActorTransform();
+    this->updateVtkProperties();
 }
 
 void
@@ -130,6 +132,7 @@ RenderDelegate::setColorAndOpacity()
     imstk::Color geomColor = this->getGeometry()->getGeometryColor();
     this->m_actor->GetProperty()->SetColor(geomColor.r, geomColor.g, geomColor.b);
     this->m_actor->GetProperty()->SetOpacity(geomColor.a);
+    this->m_actor->Modified();
 }
 
 void 
@@ -139,6 +142,7 @@ RenderDelegate::setWireFrameMode()
         this->m_actor->GetProperty()->SetRepresentationToWireframe();
     else
         this->m_actor->GetProperty()->SetRepresentationToSurface();
+    this->m_actor->Modified();
 }
 
 void
@@ -180,7 +184,18 @@ RenderDelegate::updateActorTransform()
 		m_actor->SetUserTransform(m_transform);
 
 		this->getGeometry()->setConfigurationModified(false);
-	}    
+	} 
+}
+
+void
+RenderDelegate::updateVtkProperties()
+{
+    if (this->getGeometry()->isVtkPropertyModified())
+    {
+        this->setColorAndOpacity();
+        this->setWireFrameMode();
+        this->getGeometry()->seVtkPropertyModified(false);
+    }
 }
 
 } // imstk
