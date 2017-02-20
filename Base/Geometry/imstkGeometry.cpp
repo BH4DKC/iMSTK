@@ -182,6 +182,11 @@ Geometry::resetConfiguration()
 void 
 Geometry::setColorProperty(const double r, const double g, const double b, const double a)
 {
+    if (m_color.r != r ||
+        m_color.g != g ||
+        m_color.b != b ||
+        m_color.a != a)
+        m_vtkPropertyModified = true;
     m_color.setValue(r, g, b, a);
 }
 

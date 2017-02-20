@@ -22,6 +22,7 @@
 #include "imstkTrackingController.h"
 
 #include <utility>
+#include <chrono>
 
 #include <g3log/g3log.hpp>
 
@@ -154,7 +155,6 @@ TrackingController::enableLogging()
     m_totalLoggingTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
 
     // Success
-    //this->m_logger->log(this->getDeviceName() + " successfully initialized.");
     LOG(INFO) << this->getDeviceClient()->getDeviceName() << " successfully initialized.";
 }
 
@@ -168,7 +168,15 @@ TrackingController::disableLogging()
     }
 
     auto tPresent = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
+    auto prev = m_totalLoggingTime; //hs 
     m_totalLoggingTime = tPresent - m_totalLoggingTime;
+
+    if (m_totalLoggingTime < 0.)
+    {
+        LOG(INFO) << " NEGATIVE LOGGING TIME ENCOUNTERED!!!!!";
+        LOG(INFO) << " tpresent: " << tPresent;
+        LOG(INFO) << " Previous one: " << prev;
+    }
     m_enableLoogging = false;
     m_logger->shutdown();
 }
