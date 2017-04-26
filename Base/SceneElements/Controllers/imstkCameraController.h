@@ -34,7 +34,7 @@ namespace imstk
 ///
 /// \class CameraController
 ///
-/// \brief
+/// \brief Endoscopic camera controller
 ///
 class CameraController : public Module, public TrackingController
 {
@@ -79,6 +79,12 @@ public:
     ///
     const Quatd& getCameraRotationOffset() const;
 
+    ///
+    /// \brief Get/Set the rotation offset from the camera head
+    ///
+    void setCameraHeadAngleOffset(const double angle /*in degrees*/);
+    const double getCameraHeadAngleOffset() const;
+
 protected:
     ///
     /// \brief
@@ -97,9 +103,10 @@ protected:
 
     Camera& m_camera; ///< Camera controlled by the external device
 
-    Vec3d m_cameraTranslationOffset = WORLD_ORIGIN;     ///< Translation offset for the camera over tracking data
-    Quatd m_cameraRotationOffset = Quatd::Identity();   ///< Rotation offset for the camera over tracking data
+    Vec3d m_cameraTranslationOffset = WORLD_ORIGIN;              ///< Translation offset for the camera over tracking data
+    Quatd m_cameraTelescopeRotationOffset = Quatd::Identity();   ///< Rotation offset for the camera via telescope angulation
 
+    double m_cameraHeadAngleOffset = 0;    ///< camera head angle offset (in deg)
 };
 
 } // imstk

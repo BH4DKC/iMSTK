@@ -53,17 +53,24 @@ CameraController::runModule()
     Vec3d p;
     Quatd r;
 
+    // Retrieve the position and orientation data of the controlling device
     if (!this->computeTrackingData(p, r))
     {
         LOG(WARNING) << "CameraController::runModule warning: could not update tracking info.";
         return;
     }
 
-    // Apply Offsets
-    p = p + m_cameraTranslationOffset;
-    r *= m_cameraRotationOffset;
+    // Retrieve the camera head's current rotation angle (in degrees)
+    /*
+    this->setCameraHeadAngleOffset(headAngle);
+    */
 
-    // Set camera info
+    // Apply Offsets over the device pose
+    p = p + m_cameraTranslationOffset;      // Offset the device position
+    r *= Quatd(Eigen::AngleAxisd(m_cameraHeadAngleOffset*PI / 180., Vec3d(0., 0., 1.))); // Apply camera head rotation offset
+    r *= m_cameraTelescopeRotationOffset;   // Apply rotation offset from angulation
+
+    // Set camera pose
 	m_camera.setPosition(p);
 	m_camera.setFocalPoint((r*FORWARD_VECTOR) + p);
 	m_camera.setViewUp(r*UP_VECTOR);
@@ -72,7 +79,7 @@ CameraController::runModule()
 void
 CameraController::setCameraRotationOffset(const Quatd& r)
 {
-    m_cameraRotationOffset = r;
+    m_cameraTelescopeRotationOffset = r;
 }
 
 void
@@ -81,16 +88,28 @@ CameraController::setCameraTranslationOffset(const Vec3d& t)
     m_cameraTranslationOffset = t;
 }
 
-const imstk::Vec3d&
+const Vec3d&
 CameraController::getCameraTranslationOffset() const
 {
     return m_cameraTranslationOffset;
 }
 
-const imstk::Quatd&
+const Quatd&
 CameraController::getCameraRotationOffset() const
 {
-    return m_cameraRotationOffset;
+    return m_cameraTelescopeRotationOffset;
+}
+
+void
+CameraController::setCameraHeadAngleOffset(const double angle)
+{
+    m_cameraHeadAngleOffset = angle;
+}
+
+const double
+CameraController::getCameraHeadAngleOffset() const
+{
+    return m_cameraHeadAngleOffset;
 }
 
 } // imstk
