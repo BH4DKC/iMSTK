@@ -24,6 +24,8 @@
 
 #include "imstkGeometry.h"
 #include "imstkGraph.h"
+#include "imstkConvexHull.h"
+#include "imstkOBB.h"
 
 namespace imstk
 {
@@ -171,6 +173,20 @@ public:
     /// \brief Returns the mesh graph
     ///
     virtual Graph getMeshGraph();
+
+    convexHull computeConvexHullQuickHull() const;
+
+    ///
+    /// \brief Compute the convex hull of the points
+    /// Ref.: https://gist.github.com/msg555/4963794
+    ///
+    convexHull computeConvexHull() const;
+
+    ///
+    /// \brief Compute the oriented bounding box
+    ///
+    OBB computeOBB() const;
+    static OBB evaluateOBB(const StdVectorOfVec3d& points);
 
 protected:
 

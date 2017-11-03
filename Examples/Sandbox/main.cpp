@@ -1515,7 +1515,7 @@ void testPbdVolume()
 
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);
-    surfMesh->setRenderMaterial(material);
+    surfMesh->setRenderMaterial(material);    
 
     // d. Construct a map
 
@@ -1568,6 +1568,117 @@ void testPbdVolume()
     // print UPS
     auto ups = std::make_shared<UPSCounter>();
     apiutils::printUPS(sdk->getSceneManager(scene), ups);
+
+    sdk->setActiveScene(scene);
+    sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
+    sdk->startSimulation();
+}
+
+void testConvexHull()
+{
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("ConvexHullTest");
+    scene->getCamera()->setPosition(0, 2.0, 15.0);
+
+    // b. Load a tetrahedral mesh
+    auto mesh = MeshIO::read(iMSTK_DATA_ROOT "/Kidney/kidney.stl");
+    if (!mesh)
+    {
+        LOG(WARNING) << "Could not read mesh from file.";
+        return;
+    }
+
+    // c. Extract the surface mesh
+    auto surfMesh = std::dynamic_pointer_cast<SurfaceMesh>(mesh);
+
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);
+    surfMesh->setRenderMaterial(material);
+
+    auto meshObj = std::make_shared<VisualObject>("Dragon");
+    meshObj->setVisualGeometry(surfMesh);
+    scene->addSceneObject(meshObj);
+
+    // Extract convex hull
+    auto&& convHull = surfMesh->computeConvexHullQuickHull();
+
+    // Create render object with convex hull surface
+    auto chSurfMesh = std::make_shared<SurfaceMesh>();
+    
+    auto material2 = std::make_shared<RenderMaterial>();
+    material2->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME); 
+    material2->setLineWidth(2.0);
+    material2->setDebugColor(Color::Red);
+    
+    chSurfMesh->setRenderMaterial(material2);
+    chSurfMesh->initialize(convHull.m_vertices, convHull.m_faces, 1);
+    chSurfMesh->correctWindingOrder();
+    
+    auto chObj = std::make_shared<VisualObject>("chObj");
+    chObj->setVisualGeometry(chSurfMesh);
+    scene->addSceneObject(chObj);
+
+    // Light
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
+
+    sdk->setActiveScene(scene);
+    sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
+    sdk->startSimulation();
+}
+
+void testOBB()
+{
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("OBBTest");
+    scene->getCamera()->setPosition(0, 2.0, 15.0);
+
+    auto objMesh = MeshIO::read(iMSTK_DATA_ROOT "/textured_organs/lung.obj");
+    auto surfaceMesh = std::dynamic_pointer_cast<SurfaceMesh>(objMesh);
+
+    surfaceMesh->translate(10., 10., 10., Geometry::TransformType::ApplyToData);
+
+    auto meshObj = std::make_shared<VisualObject>("sphere");
+    meshObj->setVisualGeometry(surfaceMesh);
+    scene->addSceneObject(meshObj);
+
+    auto mat = std::make_shared<RenderMaterial>();
+    mat->setDisplayMode(RenderMaterial::DisplayMode::SURFACE);
+    surfaceMesh->setRenderMaterial(mat);
+
+    OBB obb = surfaceMesh->computeOBB();
+    obb.print();
+
+    // points
+    auto obbSurfMesh = std::make_shared<SurfaceMesh>();
+    StdVectorOfVec3d&& corners = obb.getCorners();
+    obbSurfMesh->setInitialVertexPositions(corners);
+    obbSurfMesh->setVertexPositions(corners);
+    
+    // connectivity    
+    std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 }, { 0, 2, 3 }, { 1, 5, 6 }, 
+    { 1, 6, 2 }, { 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 }, 
+    { 3, 2, 6 },{ 3, 6, 7 } ,{ 4, 5, 6 } ,{ 4, 6, 7 } };
+
+    obbSurfMesh->setTrianglesVertices(triangles);
+
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+    material->setLineWidth(1.5);
+    material->setDebugColor(Color::Red);
+    obbSurfMesh->setRenderMaterial(material);
+
+    auto obbObj = std::make_shared<VisualObject>("OBB");
+    obbObj->setVisualGeometry(obbSurfMesh);
+    scene->addSceneObject(obbObj);
+    
+    // Light
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
 
     sdk->setActiveScene(scene);
     sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
@@ -3618,7 +3729,7 @@ int main()
     ------------------*/
     //testMultiObjectWithTextures();
     //testViewer();
-    testDecals();
+    //testDecals();
     //testRendering();
     //testScreenShotUtility();
     //testCapsule();
@@ -3651,7 +3762,7 @@ int main()
     //testPbdCollision();
     //testPbdFluidBenchmarking();
     //testPbdFluid();
-    testDeformableBody();
+    //testDeformableBody();
     //testDeformableBodyCollision();
     //liverToolInteraction();
     //testPicking();
@@ -3684,7 +3795,9 @@ int main()
     //testBoneDrilling();
     //testVirtualCouplingCylinder();
     //testRigidBody();
-    testGraph();
+    //testGraph();
+    testOBB();
+    testConvexHull();
 
     return 0;
 }
