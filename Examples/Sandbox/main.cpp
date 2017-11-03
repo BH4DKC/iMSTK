@@ -1515,7 +1515,7 @@ void testPbdVolume()
 
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);
-    surfMesh->setRenderMaterial(material);
+    surfMesh->setRenderMaterial(material);    
 
     // d. Construct a map
 
@@ -1568,6 +1568,117 @@ void testPbdVolume()
     // print UPS
     auto ups = std::make_shared<UPSCounter>();
     apiutils::printUPS(sdk->getSceneManager(scene), ups);
+
+    sdk->setActiveScene(scene);
+    sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
+    sdk->startSimulation();
+}
+
+void testConvexHull()
+{
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("ConvexHullTest");
+    scene->getCamera()->setPosition(0, 2.0, 15.0);
+
+    // b. Load a tetrahedral mesh
+    auto mesh = MeshIO::read(iMSTK_DATA_ROOT "/Kidney/kidney.stl");
+    if (!mesh)
+    {
+        LOG(WARNING) << "Could not read mesh from file.";
+        return;
+    }
+
+    // c. Extract the surface mesh
+    auto surfMesh = std::dynamic_pointer_cast<SurfaceMesh>(mesh);
+
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);
+    surfMesh->setRenderMaterial(material);
+
+    auto meshObj = std::make_shared<VisualObject>("Dragon");
+    meshObj->setVisualGeometry(surfMesh);
+    scene->addSceneObject(meshObj);
+
+    // Extract convex hull
+    auto&& convHull = surfMesh->computeConvexHullQuickHull();
+
+    // Create render object with convex hull surface
+    auto chSurfMesh = std::make_shared<SurfaceMesh>();
+    
+    auto material2 = std::make_shared<RenderMaterial>();
+    material2->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME); 
+    material2->setLineWidth(2.0);
+    material2->setDebugColor(Color::Red);
+    
+    chSurfMesh->setRenderMaterial(material2);
+    chSurfMesh->initialize(convHull.m_vertices, convHull.m_faces, 1);
+    chSurfMesh->correctWindingOrder();
+    
+    auto chObj = std::make_shared<VisualObject>("chObj");
+    chObj->setVisualGeometry(chSurfMesh);
+    scene->addSceneObject(chObj);
+
+    // Light
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
+
+    sdk->setActiveScene(scene);
+    sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
+    sdk->startSimulation();
+}
+
+void testOBB()
+{
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("OBBTest");
+    scene->getCamera()->setPosition(0, 2.0, 15.0);
+
+    auto objMesh = MeshIO::read(iMSTK_DATA_ROOT "/textured_organs/lung.obj");
+    auto surfaceMesh = std::dynamic_pointer_cast<SurfaceMesh>(objMesh);
+
+    surfaceMesh->translate(10., 10., 10., Geometry::TransformType::ApplyToData);
+
+    auto meshObj = std::make_shared<VisualObject>("sphere");
+    meshObj->setVisualGeometry(surfaceMesh);
+    scene->addSceneObject(meshObj);
+
+    auto mat = std::make_shared<RenderMaterial>();
+    mat->setDisplayMode(RenderMaterial::DisplayMode::SURFACE);
+    surfaceMesh->setRenderMaterial(mat);
+
+    OBB obb = surfaceMesh->computeOBB();
+    obb.print();
+
+    // points
+    auto obbSurfMesh = std::make_shared<SurfaceMesh>();
+    StdVectorOfVec3d&& corners = obb.getCorners();
+    obbSurfMesh->setInitialVertexPositions(corners);
+    obbSurfMesh->setVertexPositions(corners);
+    
+    // connectivity    
+    std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 }, { 0, 2, 3 }, { 1, 5, 6 }, 
+    { 1, 6, 2 }, { 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 }, 
+    { 3, 2, 6 },{ 3, 6, 7 } ,{ 4, 5, 6 } ,{ 4, 6, 7 } };
+
+    obbSurfMesh->setTrianglesVertices(triangles);
+
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+    material->setLineWidth(1.5);
+    material->setDebugColor(Color::Red);
+    obbSurfMesh->setRenderMaterial(material);
+
+    auto obbObj = std::make_shared<VisualObject>("OBB");
+    obbObj->setVisualGeometry(obbSurfMesh);
+    scene->addSceneObject(obbObj);
+    
+    // Light
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
 
     sdk->setActiveScene(scene);
     sdk->getViewer()->setBackgroundColors(Vec3d(0.3285, 0.3285, 0.6525), Vec3d(0.13836, 0.13836, 0.2748), true);
@@ -3511,109 +3622,6 @@ void testRigidBody()
     sdk->startSimulation(false);
 }
 
-void testSawSound()
-{
-    // SDK and Scene
-    auto sdk = std::make_shared<SimulationManager>();
-    auto scene = sdk->createNewScene("soundControlTest");
-
-#ifdef iMSTK_USE_OPENHAPTICS
-    // Device Client
-    auto client = std::make_shared<HDAPIDeviceClient>(phantomOmni1Name);
-
-    // Device Server
-    auto server = std::make_shared<HDAPIDeviceServer>();
-    server->addDeviceClient(client);
-    sdk->addModule(server);
-#endif
-
-    // Create saw Object
-    auto sawMesh = imstk::MeshIO::read(iMSTK_DATA_ROOT "/orthognatic/saw.obj");
-    auto sawGeom = std::dynamic_pointer_cast<imstk::SurfaceMesh>(sawMesh);
-
-    // Create object and add to scene
-    auto sawSceneObject = std::make_shared<imstk::VisualObject>("saw");
-    sawSceneObject->setVisualGeometry(sawGeom);
-    scene->addSceneObject(sawSceneObject);
-
-#ifdef iMSTK_USE_OPENHAPTICS
-    auto trackCtrl = std::make_shared<DeviceTracker>(client);
-    trackCtrl->setTranslationScaling(0.1);
-    auto controller = std::make_shared<SceneObjectController>(sawSceneObject, trackCtrl);
-    scene->addObjectController(controller);
-#endif
-    
-#ifdef iMSTK_AUDIO_ENABLED
-    // Load a sound buffer from a .wav file
-    sf::SoundBuffer buffer;
-    string filename(iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav");
-    if (!buffer.loadFromFile(filename))
-    {
-        LOG(WARNING) << "testSound: Could not open the input sound file: " << filename;
-        return;
-    }
-
-    // Create a sound instance and play it
-    sf::Sound sound(buffer);
-    sound.setPosition(0., 0., 0.);
-    sound.setMinDistance(5.);
-    sound.setAttenuation(10.);
-    sound.setLoop(true);
-
-    sound.play(); 
-    sound.pause();
-
-#ifdef iMSTK_USE_OPENHAPTICS
-    auto triggerSoundFunc =
-        [&sound](Module* module)
-    {        
-        auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
-        if (serverMod)
-        {
-            // trigger this when cutting the bone
-            float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
-            sound.setPitch(pitch);
-
-            if (serverMod->getDeviceClient(0)->getButton(0))
-            {                
-                if (sound.getStatus() != sf::Sound::Playing)
-                {
-                    sound.play();
-                }
-            }
-            else
-            {
-                if (sound.getStatus() != sf::Sound::Paused)
-                {
-                    sound.pause();
-                }
-            }
-        }
-       
-    };
-    server->setPostUpdateCallback(triggerSoundFunc);
-#endif
-
-#else
-    LOG(INFO) << "testSound: Audio is supported only on windows!";
-#endif
-    
-    // Update Camera position
-    auto cam = scene->getCamera();
-    cam->setPosition(Vec3d(0, 0, 10));
-
-    // Light
-    auto light = std::make_shared<DirectionalLight>("light");
-    light->setFocalPoint(Vec3d(5, -8, -5));
-    light->setIntensity(1);
-    scene->addLight(light);
-
-    // Run
-    sdk->setActiveScene(scene);
-    sdk->startSimulation(false);
-}
-
-
 // Example modified from SFML/Examples
 void testSound(const std::string& filename)
 {
@@ -3781,7 +3789,6 @@ int main()
     Test Misc.
     ------------------*/
     //testAudio();
-    testSawSound();
     //testScenesManagement();
     //testVectorPlotters();
     //testVirtualCoupling();
@@ -3789,6 +3796,8 @@ int main()
     //testVirtualCouplingCylinder();
     //testRigidBody();
     //testGraph();
+    testOBB();
+    testConvexHull();
 
     return 0;
 }
