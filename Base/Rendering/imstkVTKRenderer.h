@@ -56,7 +56,8 @@ public:
     {
         EMPTY,
         DEBUG,
-        SIMULATION
+        SIMULATION,
+        REVIEW
     };
 
     ///
@@ -112,7 +113,7 @@ protected:
     std::vector<vtkSmartPointer<vtkLight>> m_vtkLights;
     std::vector<vtkSmartPointer<vtkProp>> m_objectVtkActors;
     std::vector<vtkSmartPointer<vtkProp>> m_debugVtkActors;
-
+	std::vector<vtkSmartPointer<vtkProp>> m_reviewVtkActors;
     std::vector<std::shared_ptr<VTKRenderDelegate>> m_renderDelegates;
 
     Mode m_currentMode = Mode::EMPTY;

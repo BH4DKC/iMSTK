@@ -79,6 +79,7 @@ VTKRenderer::VTKRenderer(std::shared_ptr<Scene> scene)
             auto lightActor = vtkSmartPointer<vtkLightActor>::New();
             lightActor->SetLight( light->getVtkLight() );
             m_debugVtkActors.push_back( lightActor );
+			m_reviewVtkActors.push_back(lightActor);
         }
     }
 
@@ -130,12 +131,20 @@ VTKRenderer::setMode(Mode mode)
         {
             this->removeActors(m_debugVtkActors);
         }
-
+		if (m_currentMode == Mode::REVIEW)
+		{
+			this->removeActors(m_reviewVtkActors);
+		}
+		
         m_vtkRenderer->SetActiveCamera(m_defaultVtkCamera);
     }
     else if( mode == Mode::DEBUG && m_currentMode != Mode::DEBUG )
     {
-        this->addActors(m_debugVtkActors);
+		if (m_currentMode == Mode::REVIEW)
+		{
+			this->removeActors(m_reviewVtkActors);
+		}
+		this->addActors(m_debugVtkActors);
 
         if( m_currentMode == Mode::EMPTY )
         {
@@ -162,10 +171,33 @@ VTKRenderer::setMode(Mode mode)
         else if( m_currentMode == Mode::DEBUG )
         {
             this->removeActors(m_debugVtkActors);
-        }
-
+		}
+		if (m_currentMode == Mode::REVIEW)
+		{
+			this->removeActors(m_reviewVtkActors);
+		}
+		
         m_vtkRenderer->SetActiveCamera(m_sceneVtkCamera);
         m_vtkRenderer->ResetCameraClippingRange();
+    }
+    else if (mode == Mode::REVIEW && m_currentMode != Mode::REVIEW)
+    {
+      if (m_currentMode == Mode::EMPTY)
+      {
+        this->addActors(m_objectVtkActors);
+        for (const auto& light : m_vtkLights)
+        {
+          m_vtkRenderer->AddLight(light);
+        }
+      }
+      else if (m_currentMode == Mode::DEBUG)
+      {
+        this->removeActors(m_debugVtkActors);
+      }
+
+	  this->addActors(m_reviewVtkActors);
+      m_vtkRenderer->SetActiveCamera(m_defaultVtkCamera);
+	  m_vtkRenderer->ResetCamera();
     }
 
     m_currentMode = mode;

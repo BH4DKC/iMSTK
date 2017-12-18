@@ -372,7 +372,7 @@ SimulationManager::endSimulation()
     }
 
     // Update Renderer
-    m_viewer->setRenderingMode(VTKRenderer::Mode::DEBUG);
+    m_viewer->setRenderingMode(VTKRenderer::Mode::REVIEW);
 
     // End modules
     for(const auto& pair : m_modulesMap)
