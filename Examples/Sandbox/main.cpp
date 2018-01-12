@@ -3622,6 +3622,109 @@ void testRigidBody()
     sdk->startSimulation(false);
 }
 
+void testSawSound()
+{
+    // SDK and Scene
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("soundControlTest");
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    // Device Client
+    auto client = std::make_shared<HDAPIDeviceClient>(phantomOmni1Name);
+
+    // Device Server
+    auto server = std::make_shared<HDAPIDeviceServer>();
+    server->addDeviceClient(client);
+    sdk->addModule(server);
+#endif
+
+    // Create saw Object
+    auto sawMesh = imstk::MeshIO::read(iMSTK_DATA_ROOT "/orthognatic/saw.obj");
+    auto sawGeom = std::dynamic_pointer_cast<imstk::SurfaceMesh>(sawMesh);
+
+    // Create object and add to scene
+    auto sawSceneObject = std::make_shared<imstk::VisualObject>("saw");
+    sawSceneObject->setVisualGeometry(sawGeom);
+    scene->addSceneObject(sawSceneObject);
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    auto trackCtrl = std::make_shared<DeviceTracker>(client);
+    trackCtrl->setTranslationScaling(0.1);
+    auto controller = std::make_shared<SceneObjectController>(sawSceneObject, trackCtrl);
+    scene->addObjectController(controller);
+#endif
+    
+#ifdef iMSTK_AUDIO_ENABLED
+    // Load a sound buffer from a .wav file
+    sf::SoundBuffer buffer;
+    string filename(iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav");
+    if (!buffer.loadFromFile(filename))
+    {
+        LOG(WARNING) << "testSound: Could not open the input sound file: " << filename;
+        return;
+    }
+
+    // Create a sound instance and play it
+    sf::Sound sound(buffer);
+    sound.setPosition(0., 0., 0.);
+    sound.setMinDistance(5.);
+    sound.setAttenuation(10.);
+    sound.setLoop(true);
+
+    sound.play(); 
+    sound.pause();
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    auto triggerSoundFunc =
+        [&sound](Module* module)
+    {        
+        auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
+        if (serverMod)
+        {
+            // trigger this when cutting the bone
+            float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
+            sound.setPitch(pitch);
+
+            if (serverMod->getDeviceClient(0)->getButton(0))
+            {                
+                if (sound.getStatus() != sf::Sound::Playing)
+                {
+                    sound.play();
+                }
+            }
+            else
+            {
+                if (sound.getStatus() != sf::Sound::Paused)
+                {
+                    sound.pause();
+                }
+            }
+        }
+       
+    };
+    server->setPostUpdateCallback(triggerSoundFunc);
+#endif
+
+#else
+    LOG(INFO) << "testSound: Audio is supported only on windows!";
+#endif
+    
+    // Update Camera position
+    auto cam = scene->getCamera();
+    cam->setPosition(Vec3d(0, 0, 10));
+
+    // Light
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
+
+    // Run
+    sdk->setActiveScene(scene);
+    sdk->startSimulation(false);
+}
+
+
 // Example modified from SFML/Examples
 void testSound(const std::string& filename)
 {
@@ -3789,6 +3892,7 @@ int main()
     Test Misc.
     ------------------*/
     //testAudio();
+    testSawSound();
     //testScenesManagement();
     //testVectorPlotters();
     //testVirtualCoupling();
