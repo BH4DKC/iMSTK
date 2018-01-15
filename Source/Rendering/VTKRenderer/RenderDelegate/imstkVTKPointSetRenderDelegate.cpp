@@ -67,14 +67,10 @@ VTKPointSetRenderDelegate::VTKPointSetRenderDelegate(std::shared_ptr<PointSet> m
 
     // Setup custom mapper
     m_mapper->SetInputConnection(glyph->GetOutputPort());
-    auto mapper = VTKCustomPolyDataMapper::SafeDownCast(m_mapper.GetPointer());
-    if (!mesh->getRenderMaterial())
+    if (mesh->getRenderMaterial())
     {
-        mesh->setRenderMaterial(std::make_shared<RenderMaterial>());
+		sphere->SetRadius(mesh->getRenderMaterial()->getSphereGlyphSize());
     }
-    sphere->SetRadius(mesh->getRenderMaterial()->getSphereGlyphSize());
-
-    mapper->setGeometry(mesh);
 }
 
 void

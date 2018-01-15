@@ -138,16 +138,9 @@ VTKRenderDelegate::setUpMapper(vtkAlgorithmOutput *source,
 
     // Disable auto Shift & Scale which is slow for deformable objects
     // as it needs to compute a bounding box at every frame
-    if(auto mapper = VTKCustomPolyDataMapper::SafeDownCast(m_mapper.GetPointer()))
+    if(auto mapper = vtkOpenGLPolyDataMapper::SafeDownCast(m_mapper.GetPointer()))
     {
-        mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
-
-        if (!geometry->getRenderMaterial())
-        {
-            geometry->setRenderMaterial(std::make_shared<RenderMaterial>());
-        }
-
-        mapper->setGeometry(geometry);
+		mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
     }
 }
 
