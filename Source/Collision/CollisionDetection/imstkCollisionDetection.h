@@ -51,7 +51,8 @@ public:
         PointSetToPlane,
         MeshToMesh,
         PointSetToCapsule,
-        PointSetToSpherePicking
+        PointSetToSpherePicking,
+        custom
     };
 
     ///

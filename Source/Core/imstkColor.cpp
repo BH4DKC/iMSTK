@@ -40,6 +40,7 @@ Color Color::Red(1.0, 0.0, 0.0, 1.0);
 Color Color::Yellow(1.0, 1.0, 0.0, 1.0);
 Color Color::Orange(1.0, 0.6, 0.0, 1.0);
 Color Color::Pink(1.0, 0.0, 1.0, 1.0);
+Color Color::Beige(0.96, 0.96, 0.8627, 1.0);
 
 Color::Color()
 {

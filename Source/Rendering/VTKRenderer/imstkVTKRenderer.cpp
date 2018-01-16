@@ -67,14 +67,14 @@ VTKRenderer::VTKRenderer(std::shared_ptr<Scene> scene)
     auto axes = vtkSmartPointer<vtkAxesActor>::New();
     axes->SetShaftType(vtkAxesActor::CYLINDER_SHAFT);
     axes->SetAxisLabels(false);
-    m_debugVtkActors.push_back( axes );
+    //m_debugVtkActors.push_back( axes );
 
     // Camera and camera actor
     m_sceneVtkCamera = vtkSmartPointer<vtkCamera>::New();
     this->updateSceneCamera(scene->getCamera());
     auto camActor = vtkSmartPointer<vtkCameraActor>::New();
     camActor->SetCamera(  m_sceneVtkCamera );
-    m_debugVtkActors.push_back( camActor );
+    //m_debugVtkActors.push_back( camActor );
 
     // Debug camera
     m_defaultVtkCamera = m_vtkRenderer->GetActiveCamera();

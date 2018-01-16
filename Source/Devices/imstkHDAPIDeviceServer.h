@@ -61,7 +61,7 @@ public:
     ///
     /// \brief Returns the device client of a given id
     ///
-    std::shared_ptr<HDAPIDeviceClient> getDeviceClient(const size_t clinetNum) 
+    std::shared_ptr<HDAPIDeviceClient> getDeviceClient(const size_t clinetNum)
     {
         return m_deviceClients[clinetNum];
     }

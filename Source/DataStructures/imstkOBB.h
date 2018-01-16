@@ -24,6 +24,7 @@
 
 #include "imstkMath.h"
 #include <Eigen/Eigenvalues>
+#include <iostream>
 
 namespace imstk
 {
@@ -49,21 +50,20 @@ struct OBB
     StdVectorOfVec3d getCorners()
     {
         StdVectorOfVec3d corners;
-        const auto hl = m_halfLengths*1.05;
+        const auto hl = m_halfLengths*1.00;
 
         corners.push_back(m_center - m_axis[0] * hl[0] - m_axis[1] * hl[1] - m_axis[2] * hl[2]);
         corners.push_back(m_center + m_axis[0] * hl[0] - m_axis[1] * hl[1] - m_axis[2] * hl[2]);
         corners.push_back(m_center + m_axis[0] * hl[0] - m_axis[1] * hl[1] + m_axis[2] * hl[2]);
         corners.push_back(m_center - m_axis[0] * hl[0] - m_axis[1] * hl[1] + m_axis[2] * hl[2]);
-        
+
         corners.push_back(m_center - m_axis[0] * hl[0] + m_axis[1] * hl[1] - m_axis[2] * hl[2]);
         corners.push_back(m_center + m_axis[0] * hl[0] + m_axis[1] * hl[1] - m_axis[2] * hl[2]);
         corners.push_back(m_center + m_axis[0] * hl[0] + m_axis[1] * hl[1] + m_axis[2] * hl[2]);
         corners.push_back(m_center - m_axis[0] * hl[0] + m_axis[1] * hl[1] + m_axis[2] * hl[2]);
 
-        return std::move(corners);        
+        return std::move(corners);
     }
-        
 };
 }
 

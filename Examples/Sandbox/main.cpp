@@ -1515,7 +1515,7 @@ void testPbdVolume()
 
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);
-    surfMesh->setRenderMaterial(material);    
+    surfMesh->setRenderMaterial(material);
 
     // d. Construct a map
 
@@ -1604,16 +1604,16 @@ void testConvexHull()
 
     // Create render object with convex hull surface
     auto chSurfMesh = std::make_shared<SurfaceMesh>();
-    
+
     auto material2 = std::make_shared<RenderMaterial>();
-    material2->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME); 
+    material2->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
     material2->setLineWidth(2.0);
     material2->setDebugColor(Color::Red);
-    
+
     chSurfMesh->setRenderMaterial(material2);
     chSurfMesh->initialize(convHull.m_vertices, convHull.m_faces, 1);
     chSurfMesh->correctWindingOrder();
-    
+
     auto chObj = std::make_shared<VisualObject>("chObj");
     chObj->setVisualGeometry(chSurfMesh);
     scene->addSceneObject(chObj);
@@ -1656,11 +1656,11 @@ void testOBB()
     StdVectorOfVec3d&& corners = obb.getCorners();
     obbSurfMesh->setInitialVertexPositions(corners);
     obbSurfMesh->setVertexPositions(corners);
-    
-    // connectivity    
-    std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 }, { 0, 2, 3 }, { 1, 5, 6 }, 
-    { 1, 6, 2 }, { 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 }, 
-    { 3, 2, 6 },{ 3, 6, 7 } ,{ 4, 5, 6 } ,{ 4, 6, 7 } };
+
+    // connectivity
+    std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 }, { 0, 2, 3 }, { 1, 5, 6 },
+                                                          { 1, 6, 2 }, { 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+                                                          { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
 
     obbSurfMesh->setTrianglesVertices(triangles);
 
@@ -1673,7 +1673,7 @@ void testOBB()
     auto obbObj = std::make_shared<VisualObject>("OBB");
     obbObj->setVisualGeometry(obbSurfMesh);
     scene->addSceneObject(obbObj);
-    
+
     // Light
     auto light = std::make_shared<DirectionalLight>("light");
     light->setFocalPoint(Vec3d(5, -8, -5));
@@ -3653,7 +3653,7 @@ void testSawSound()
     auto controller = std::make_shared<SceneObjectController>(sawSceneObject, trackCtrl);
     scene->addObjectController(controller);
 #endif
-    
+
 #ifdef iMSTK_AUDIO_ENABLED
     // Load a sound buffer from a .wav file
     sf::SoundBuffer buffer;
@@ -3671,44 +3671,43 @@ void testSawSound()
     sound.setAttenuation(10.);
     sound.setLoop(true);
 
-    sound.play(); 
+    sound.play();
     sound.pause();
 
 #ifdef iMSTK_USE_OPENHAPTICS
     auto triggerSoundFunc =
         [&sound](Module* module)
-    {        
-        auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
-        if (serverMod)
         {
-            // trigger this when cutting the bone
-            float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
-            sound.setPitch(pitch);
-
-            if (serverMod->getDeviceClient(0)->getButton(0))
-            {                
-                if (sound.getStatus() != sf::Sound::Playing)
-                {
-                    sound.play();
-                }
-            }
-            else
+            auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
+            if (serverMod)
             {
-                if (sound.getStatus() != sf::Sound::Paused)
+                // trigger this when cutting the bone
+                float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
+                sound.setPitch(pitch);
+
+                if (serverMod->getDeviceClient(0)->getButton(0))
                 {
-                    sound.pause();
+                    if (sound.getStatus() != sf::Sound::Playing)
+                    {
+                        sound.play();
+                    }
+                }
+                else
+                {
+                    if (sound.getStatus() != sf::Sound::Paused)
+                    {
+                        sound.pause();
+                    }
                 }
             }
-        }
-       
-    };
+        };
     server->setPostUpdateCallback(triggerSoundFunc);
 #endif
 
 #else
     LOG(INFO) << "testSound: Audio is supported only on windows!";
 #endif
-    
+
     // Update Camera position
     auto cam = scene->getCamera();
     cam->setPosition(Vec3d(0, 0, 10));
@@ -3820,6 +3819,182 @@ void testAudio()
     playMusic(iMSTK_DATA_ROOT "/sound/orchestral.ogg");
 }
 
+void orthognathicSurgery()
+{
+    // SDK and Scene
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("orthognathicSurgery");
+
+    // Add virtual coupling object in the scene.
+#ifdef iMSTK_USE_OPENHAPTICS
+    // Device clients
+    auto client = std::make_shared<HDAPIDeviceClient>(phantomOmni1Name);
+
+    // Device Server
+    auto server = std::make_shared<HDAPIDeviceServer>();
+    server->addDeviceClient(client);
+    sdk->addModule(server);
+
+    // Device tracker
+    auto deviceTracker = std::make_shared<DeviceTracker>(client);
+#endif
+
+    // Create mandible scene object
+    auto mandibleTetMesh = MeshIO::read(iMSTK_DATA_ROOT "/orthognatic/mandible.veg");
+    if (!mandibleTetMesh)
+    {
+        LOG(WARNING) << "Could not read mandible mesh from file ";
+        return;
+    }
+    auto mandible = std::make_shared<CollidingObject>("mandible");
+    mandible->setCollidingGeometry(mandibleTetMesh);
+    mandible->setVisualGeometry(mandibleTetMesh);
+    scene->addSceneObject(mandible);
+
+    // Create maxilla scene object (visual)
+    auto maxillaMesh = MeshIO::read(iMSTK_DATA_ROOT "/orthognatic/maxilla.vtk");
+    if (!maxillaMesh)
+    {
+        LOG(WARNING) << "Could not read maxilla mesh from file.";
+        return;
+    }
+    auto maxillaGeom = std::dynamic_pointer_cast<imstk::SurfaceMesh>(maxillaMesh);
+    auto maxilla = std::make_shared<imstk::VisualObject>("maxilla");
+    maxilla->setVisualGeometry(maxillaGeom);
+    scene->addSceneObject(maxilla);
+
+    // Create saw tool scene Object
+    auto sawMesh = imstk::MeshIO::read(iMSTK_DATA_ROOT "/orthognatic/saw.obj");
+    auto sawGeom = std::dynamic_pointer_cast<imstk::SurfaceMesh>(sawMesh);
+    auto saw = std::make_shared<imstk::VisualObject>("saw");
+    saw->setVisualGeometry(sawGeom);
+    scene->addSceneObject(saw);
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    auto trackCtrl = std::make_shared<DeviceTracker>(client);
+    trackCtrl->setTranslationScaling(0.1);
+    auto controller = std::make_shared<SceneObjectController>(saw, trackCtrl);
+    scene->addObjectController(controller);
+#endif
+
+#ifdef iMSTK_AUDIO_ENABLED
+    // Load a sound buffer from a .wav file
+    sf::SoundBuffer buffer;
+    string filename(iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav");
+    if (!buffer.loadFromFile(filename))
+    {
+        LOG(WARNING) << "testSound: Could not open the input sound file: " << filename;
+        return;
+    }
+
+    // Create a sound instance and play it
+    sf::Sound sound(buffer);
+    sound.setPosition(0., 0., 0.);
+    sound.setMinDistance(5.);
+    sound.setAttenuation(10.);
+    sound.setLoop(true);
+
+    sound.play();
+    sound.pause();
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    auto triggerSoundFunc =
+        [&sound](Module* module)
+        {
+            auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
+            if (serverMod)
+            {
+                // trigger this when cutting the bone
+                float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
+                sound.setPitch(pitch);
+
+                if (serverMod->getDeviceClient(0)->getButton(0))
+                {
+                    if (sound.getStatus() != sf::Sound::Playing)
+                    {
+                        sound.play();
+                    }
+                }
+                else
+                {
+                    if (sound.getStatus() != sf::Sound::Paused)
+                    {
+                        sound.pause();
+                    }
+                }
+            }
+        };
+    server->setPostUpdateCallback(triggerSoundFunc);
+#endif // iMSTK_USE_OPENHAPTICS
+#endif // iMSTK_AUDIO_ENABLED
+
+    // Create a virtual coupling object: Burr tool
+    auto drillVisualGeom = std::make_shared<Sphere>();
+    drillVisualGeom->setRadius(3.);
+    auto drillCollidingGeom = std::make_shared<Sphere>();
+    drillCollidingGeom->setRadius(3.);
+    auto drill = std::make_shared<CollidingObject>("Drill");
+    drill->setCollidingGeometry(drillCollidingGeom);
+    drill->setVisualGeometry(drillVisualGeom);
+    scene->addSceneObject(drill);
+
+    // Create and add virtual coupling object controller in the scene
+    auto objController = std::make_shared<SceneObjectController>(drill, deviceTracker);
+    scene->addObjectController(objController);
+
+    // Create a collision graph
+    auto graph = scene->getCollisionGraph();
+    auto pair = graph->addInteractionPair(mandible,
+        drill,
+        CollisionDetection::Type::PointSetToSphere,
+        CollisionHandling::Type::BoneDrilling,
+        CollisionHandling::Type::None);
+
+
+    OBB obb;
+    obb.m_center = Vec3d(0., 0., 0.);
+    obb.m_halfLengths = Vec3d(10., 10., 10.);
+    obb.m_axis[0] = Vec3d(1., 0., 0.);
+    obb.m_axis[1] = Vec3d(0., 1., 0.);
+    obb.m_axis[2] = Vec3d(0., 0., 1.);
+
+    // points
+    auto obbSurfMesh = std::make_shared<SurfaceMesh>();
+    StdVectorOfVec3d&& corners = obb.getCorners();
+    obbSurfMesh->setInitialVertexPositions(corners);
+    obbSurfMesh->setVertexPositions(corners);
+
+    // connectivity
+    std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
+                                                          { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+                                                          { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
+
+    obbSurfMesh->setTrianglesVertices(triangles);
+
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+    material->setLineWidth(1.5);
+    material->setDebugColor(Color::Red);
+    obbSurfMesh->setRenderMaterial(material);
+
+    auto obbObj = std::make_shared<VisualObject>("OBB");
+    obbObj->setVisualGeometry(obbSurfMesh);
+    scene->addSceneObject(obbObj);
+
+    // Lights
+    auto light = std::make_shared<DirectionalLight>("light");
+    light->setFocalPoint(Vec3d(5, -8, -5));
+    light->setIntensity(1);
+    scene->addLight(light);
+
+    // Camera
+    auto cam = scene->getCamera();
+    cam->setPosition(Vec3d(0, 0, 15));
+
+    // Action
+    sdk->setActiveScene(scene);
+    sdk->startSimulation(false);
+}
 
 int main()
 {
@@ -3892,16 +4067,17 @@ int main()
     Test Misc.
     ------------------*/
     //testAudio();
-    testSawSound();
+    //testSawSound();
     //testScenesManagement();
     //testVectorPlotters();
     //testVirtualCoupling();
-    //testBoneDrilling();
+    testBoneDrilling();
     //testVirtualCouplingCylinder();
     //testRigidBody();
     //testGraph();
-    testOBB();
-    testConvexHull();
+    //testOBB();
+    //testConvexHull();
+    //orthognathicSurgery();
 
     return 0;
 }

@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef ismtkBoneDrillingCH_h
-#define imstkBoneDrillingCH_h
+#ifndef imstkBoneSawingCH_h
+#define imstkBoneSawingCH_h
 
 // imstk
 #include "imstkCollisionHandling.h"
@@ -33,28 +33,28 @@ class CollisionData;
 class DeviceTracker;
 
 ///
-/// \class BoneDrillingCH
+/// \class BoneSawingCH
 ///
-/// \brief Implements bone drilling collision handling
+/// \brief Implements bone sawing collision handling
 ///
-class BoneDrillingCH : public CollisionHandling
+class BoneSawingCH : public CollisionHandling
 {
 public:
 
     ///
     /// \brief Constructor
     ///
-    BoneDrillingCH(const Side& side,
-                   const CollisionData& colData,
-                   std::shared_ptr<CollidingObject> bone,
-                   std::shared_ptr<CollidingObject> drill);
+    BoneSawingCH(const Side& side,
+                 const CollisionData& colData,
+                 std::shared_ptr<CollidingObject> bone,
+                 std::shared_ptr<CollidingObject> saw);
 
-    BoneDrillingCH() = delete;
+    BoneSawingCH() = delete;
 
     ///
     /// \brief Destructor
     ///
-    ~BoneDrillingCH() = default;
+    ~BoneSawingCH() = default;
 
     ///
     /// \brief Decrease the density at the nodal points and remove if the density goes below 0
@@ -80,10 +80,10 @@ public:
 
 private:
     std::shared_ptr<CollidingObject> m_bone;    ///> bone object
-    std::shared_ptr<CollidingObject> m_drill;   ///> drill object
+    std::shared_ptr<CollidingObject> m_saw;     ///> drill object
 
     double m_stiffness = 10e-01;                ///> Stiffness coefficient associated with virtual coupling object
-    double m_damping = 0.005*10;                ///> Damping coefficient associated with virtual coupling object
+    double m_damping = 0.005;                   ///> Damping coefficient associated with virtual coupling object
 
     double m_angularSpeed = 10*PI;              ///> Angular speed of the drill (rad per sec)
     double m_BoneHardness = 10;                 ///> Angular speed of the drill (rad per sec)
@@ -100,4 +100,4 @@ private:
 };
 }
 
-#endif // ifndef imstkBoneDrillingCH_h
+#endif // ifndef imstkBoneSawingCH_h

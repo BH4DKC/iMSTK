@@ -32,3 +32,4 @@ add_test(
 # Add Sandbox subdirectory
 #-----------------------------------------------------------------------------
 add_subdirectory(Sandbox)
+add_subdirectory(Orthognathic)

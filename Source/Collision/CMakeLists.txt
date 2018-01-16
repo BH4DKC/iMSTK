@@ -16,5 +16,5 @@ imstk_add_library( Collision
 #-----------------------------------------------------------------------------
 if( BUILD_TESTING )
   include(imstkAddTest)
-  imstk_add_test( Collision )
+  imstk_add_test(Collision)
 endif()
