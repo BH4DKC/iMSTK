@@ -102,6 +102,7 @@ struct Color
     static Color Pink;
     static Color Orange;
     static Color Yellow;
+    static Color Beige;
 };
 }
 #endif // ifndef imstkColor_h

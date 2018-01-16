@@ -139,11 +139,11 @@ InteractionPair::computeContactForces()
         return;
     }
 
-    if(m_colHandlingA)
+    if (m_colHandlingA)
     {
         m_colHandlingA->computeContactForces();
     }
-    if(m_colHandlingB)
+    if (m_colHandlingB)
     {
         m_colHandlingB->computeContactForces();
     }

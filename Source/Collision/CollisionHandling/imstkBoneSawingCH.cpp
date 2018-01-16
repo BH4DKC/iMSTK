@@ -19,7 +19,7 @@
 
 =========================================================================*/
 
-#include "imstkBoneDrillingCH.h"
+#include "imstkBoneSawingCH.h"
 
 #include "imstkCollidingObject.h"
 #include "imstkTetrahedralMesh.h"
@@ -29,14 +29,17 @@
 
 #include <g3log/g3log.hpp>
 
+// define this if a conservative element removal strategy is needed
+//#define TETRA_REMOVAL_STRATEGY_CONSERVATIVE
+
 namespace imstk
 {
-BoneDrillingCH::BoneDrillingCH(const Side& side,
-                               const CollisionData& colData,
-                               std::shared_ptr<CollidingObject> bone,
-                               std::shared_ptr<CollidingObject> drill) :
+BoneSawingCH::BoneSawingCH(const Side& side,
+                           const CollisionData& colData,
+                           std::shared_ptr<CollidingObject> bone,
+                           std::shared_ptr<CollidingObject> saw) :
     CollisionHandling(Type::BoneDrilling, side, colData),
-    m_drill(drill),
+    m_saw(saw),
     m_bone(bone)
 {
     auto boneMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_bone->getCollidingGeometry());
@@ -75,7 +78,7 @@ BoneDrillingCH::BoneDrillingCH(const Side& side,
 }
 
 void
-BoneDrillingCH::erodeBone()
+BoneSawingCH::erodeBone()
 {
     auto boneTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_bone->getCollidingGeometry());
 
@@ -86,8 +89,36 @@ BoneDrillingCH::erodeBone()
             continue;
         }
 
-        m_nodalDensity[cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001*70;
+        m_nodalDensity[cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001*500;
 
+#ifdef TETRA_REMOVAL_STRATEGY_CONSERVATIVE
+        if (m_nodalDensity[cd.nodeId] <= 0.2)
+        {
+            m_erodedNodes.push_back(cd.nodeId);
+            m_nodeRemovalStatus[cd.nodeId] = true;
+
+            // tag the tetra that will be removed
+            for (auto& tetId : m_nodalCardinalSet[cd.nodeId])
+            {
+                
+                auto ss = boneTetMesh->getTetrahedronVertices(tetId);
+
+                int count = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (m_nodeRemovalStatus[ss[i]])
+                    {
+                        count++;
+                    }                    
+                }
+                if (count >= 2)
+                {
+                    boneTetMesh->setTetrahedraAsRemoved(tetId);
+                    boneTetMesh->setTopologyChangedFlag(true);
+                }
+            }
+        }
+#else
         if (m_nodalDensity[cd.nodeId] <= 0.)
         {
             m_erodedNodes.push_back(cd.nodeId);
@@ -100,18 +131,23 @@ BoneDrillingCH::erodeBone()
                 boneTetMesh->setTopologyChangedFlag(true);
             }
         }
+#endif
+
     }
 }
 
 void
-BoneDrillingCH::computeContactForces()
+BoneSawingCH::computeContactForces()
 {
     // Check if any collisions
-    const auto devicePosition = m_drill->getCollidingGeometry()->getTranslation();
+    const auto collGeoPosition = m_saw->getCollidingGeometry()->getTranslation();
+
+    m_saw->getVisualGeometry()->setRotation(m_saw->getCollidingGeometry()->getRotation());
+
     if (m_colData.MAColData.empty())
     {
         // Set the visual object position same as the colliding object position
-        m_drill->getVisualGeometry()->setTranslation(devicePosition);
+        m_saw->getVisualGeometry()->setTranslation(collGeoPosition);
         return;
     }
 
@@ -133,19 +169,17 @@ BoneDrillingCH::computeContactForces()
             t = cd.penetrationVector;
         }
     }
-    m_drill->getVisualGeometry()->setTranslation(devicePosition + t);
+    m_saw->getVisualGeometry()->setTranslation(collGeoPosition + t);
 
     // Spring force
     Vec3d force = m_stiffness * t;
 
     // Damping force
     const double dt = 0.1; // Time step size to calculate the object velocity
-    force += m_initialStep ? Vec3d(0.0, 0.0, 0.0) : (-m_damping / dt)*(t - m_prevPos);
-
-    //std::cout << "Force: " << force.norm() << std::endl;
+    force += m_initialStep ? Vec3d(0.0, 0.0, 0.0) : (-m_damping / dt)*(t - m_prevPos);    
 
     // Update object contact force
-    m_drill->appendForce(force);
+    m_saw->appendForce(force);
 
     // Decrease the density at the nodal points and remove if the density goes below 0
     this->erodeBone();
@@ -154,4 +188,6 @@ BoneDrillingCH::computeContactForces()
     m_initialStep = false;
     m_prevPos = t;
 }
+
+
 }// iMSTK

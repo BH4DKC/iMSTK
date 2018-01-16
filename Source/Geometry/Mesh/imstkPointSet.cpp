@@ -340,14 +340,14 @@ PointSet::computeConvexHullQuickHull() const
 
     convexHull hull;
     // add vertices
-    for (unsigned int i=0; i<mesh.nvertices; ++i)
+    for (unsigned int i = 0; i < mesh.nvertices; ++i)
     {
         hull.m_vertices.push_back(Vec3d(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z));
     }
     // add faces
-    for (unsigned int i = 0; i < mesh.nindices; i+=3)
+    for (unsigned int i = 0; i < mesh.nindices; i += 3)
     {
-        hull.m_faces.push_back(convexHull::hullTriFace{ {mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]} });
+        hull.m_faces.push_back(convexHull::hullTriFace { {mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]} });
     }
     qh_free_mesh(mesh);
 
@@ -363,7 +363,7 @@ PointSet::computeConvexHull() const
     std::vector<std::vector<hullEdge>> E;
     E.resize(numVerts);
     for (size_t i = 0; i < numVerts; i++)
-    {        
+    {
         for (size_t j = 0; j < numVerts; j++)
         {
             E[i].push_back(hullEdge(-1, -1));
@@ -494,7 +494,7 @@ PointSet::computeConvexHull() const
 OBB
 PointSet::computeOBB() const
 {
-    return this->evaluateOBB(m_vertexPositions); 
+    return this->evaluateOBB(m_vertexPositions);
 }
 
 OBB
@@ -517,7 +517,7 @@ PointSet::evaluateOBB(const StdVectorOfVec3d& points)
     }
     mean /= numPoints;
     Vec3d mid = Vec3d(min[0], min[1], min[2]) + (Vec3d(max[0], max[1], max[2]) - Vec3d(min[0], min[1], min[2]))*0.5;
-    
+
 
     // Build the covariance matrix
     double Exx = 0., Eyy = 0., Ezz = 0., Exy = 0., Exz = 0., Eyz = 0.;
@@ -541,7 +541,7 @@ PointSet::evaluateOBB(const StdVectorOfVec3d& points)
     Eigen::SelfAdjointEigenSolver<Mat3d> eigensolver;
     eigensolver.compute(covarianceMat);
     auto ev = eigensolver.eigenvectors();
-        
+
     OBB Obb;
     Obb.m_center = mid; // assign center
 
@@ -573,5 +573,4 @@ PointSet::evaluateOBB(const StdVectorOfVec3d& points)
     }
     return Obb;
 }
-
 } // imstk
