@@ -82,8 +82,9 @@ BoneSawingCH::erodeBone()
 {
     auto boneTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_bone->getCollidingGeometry());
 
-    for (auto& cd : m_colData.MAColData)
-    {
+	for (std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
+	{
+		auto cd = m_colData.MAColData[n];
         if (m_nodeRemovalStatus[cd.nodeId])
         {
             continue;
@@ -156,19 +157,21 @@ BoneSawingCH::computeContactForces()
     // Aggregate collision data
     Vec3d t = Vec3d::Zero();
     double maxDepth = -MAX_D;
-    for (const auto& cd : m_colData.MAColData)
-    {
-        if (m_nodeRemovalStatus[cd.nodeId])
-        {
-            continue;
-        }
 
-        if (cd.penetrationVector.norm() > maxDepth)
-        {
-            maxDepth = cd.penetrationVector.norm();
-            t = cd.penetrationVector;
-        }
-    }
+	for(std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
+	{
+		auto cd = m_colData.MAColData[n];
+		if (m_nodeRemovalStatus[cd.nodeId])
+		{
+			continue;
+		}
+
+		if (cd.penetrationVector.norm() > maxDepth)
+		{
+			maxDepth = cd.penetrationVector.norm();
+			t = cd.penetrationVector;
+		}
+	}
     m_saw->getVisualGeometry()->setTranslation(collGeoPosition + t);
 
     // Spring force
