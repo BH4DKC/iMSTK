@@ -94,8 +94,10 @@ std::shared_ptr<SimulationManager> sdk;
 std::shared_ptr<Scene> scene;
 
 // Device
+#ifdef iMSTK_USE_OPENHAPTICS
 std::shared_ptr<HDAPIDeviceClient> client;
 std::shared_ptr<HDAPIDeviceServer> server;
+#endif
 std::shared_ptr<DeviceTracker> deviceTracker;
 std::shared_ptr<SceneObjectController> sawController;
 std::shared_ptr<SceneObjectController> burrController;
