@@ -70,16 +70,18 @@ PointSetToSawCD::computeCollisionData()
     Vec3d devicePosition = m_tracker->getPosition();
     Mat3d deviceOrientation = m_tracker->getRotation().toRotationMatrix();
 
-    const double cylinderRadius = 10*0.25;
-    const double bladeWidth = 10*0.1;
+    const double scalingBlade = 10.0; // should be same as in the main
+    const double cylinderRadius = scalingBlade*0.2236;
+    const double cylinderHalfLength = scalingBlade*1.0;
+    const double halfBladeWidth = scalingBlade*0.2/2;
     Vec3d bladeNormal = deviceOrientation*Vec3d(0., 1., 0.);
     bladeNormal.normalize();
     Vec3d sawAxis = deviceOrientation*Vec3d(0., 0., -1.); // Same as cylinder axis
     sawAxis.normalize();
 
     // Update OBB, its bounding box and bounding cylinder
-    auto newCenter = deviceOrientation*m_bladeOBB->m_center + devicePosition;
-    auto corners = m_bladeOBB->getCorners();
+    const Vec3d bladeCenter = deviceOrientation*m_bladeOBB->m_center + devicePosition;
+    const auto corners = m_bladeOBB->getCorners();
     Vec3d newCorners[8];
     for (int i = 0; i < 8; ++i)
     {
@@ -124,27 +126,26 @@ PointSetToSawCD::computeCollisionData()
         }
         nodeId++;
     }
-
-    // Cull points outside the bounding cylinder of the OBB
+    
+    Vec3d vecAlongWidth = deviceOrientation*Vec3d(1, 0, 0);
+    vecAlongWidth.normalize();
     for (const auto& i : pointList)
-    {
-        // Do the actual check
-        Vec3d q = vertList[i];
-        Vec3d s = q - newCenter;
-        double scale = s.dot(sawAxis);
-        Vec3d perpendicular = s - sawAxis*scale;
-
-        if (perpendicular.norm() < cylinderRadius)
+    {        
+        // Cull points outside the bounding cylinder of the OBB
+        const Vec3d s = vertList[i] - bladeCenter;
+        if (abs(s.dot(sawAxis)) < cylinderHalfLength)
         {
-            // Cull points if the distance is below certain threshold to the blade
-            double distanceToBlade = bladeNormal.dot(s);
-            if (distanceToBlade < bladeWidth / 2.)
+            const double distToAxis = (s - sawAxis*s.dot(sawAxis)).norm();
+            if (distToAxis < cylinderRadius)
             {
-                 double depth = cylinderRadius - (s - distanceToBlade*bladeNormal).norm();
-                 Vec3d dire = deviceOrientation*Vec3d(1, 0, 0);
-                 m_colData.MAColData.push_back({ i, dire*depth });
+                // Cull points if the distance is below certain threshold to the blade
+                if (abs(s.dot(bladeNormal)) < halfBladeWidth)
+                {
+                        const double depth = cylinderRadius - s.dot(vecAlongWidth);
+                        m_colData.MAColData.push_back({ i, vecAlongWidth*-depth });                                        
+                }
             }
-        }
+        }        
     }
 }
 } // imstk

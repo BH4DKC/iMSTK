@@ -86,6 +86,7 @@ const bool displayCollStructures = false;
 // Global variables
 const std::string phantomOmniName = "Phantom1";
 const std::string mandibleFileName = iMSTK_DATA_ROOT "/orthognatic/mandible.veg";
+//const std::string mandibleFileName = iMSTK_DATA_ROOT "/orthognatic/ss.vtu";
 const std::string maxillaFileName = iMSTK_DATA_ROOT "/orthognatic/maxilla.veg";
 const std::string sawFileName = iMSTK_DATA_ROOT "/orthognatic/saw.obj";
 const std::string soundFileName = iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav";
@@ -137,6 +138,7 @@ void createSkull()
         LOG(WARNING) << "Could not read mandible mesh from file ";
         return;
     }
+    //mandibleTetMesh->scale(0.1, Geometry::TransformType::ApplyToData);
     mandibleTetMesh->rotate(Vec3d(1., 0., 0.), -PI/2., Geometry::TransformType::ApplyToData);
     mandibleTetMesh->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
     mandibleTetMesh->translate(Vec3d(0., 0., -55.), Geometry::TransformType::ApplyToData);
@@ -361,7 +363,7 @@ void orthognathicSurgery()
 #endif
         // Create colliding cylinder scene object
         auto CylinderGeomVis = std::make_shared<Cylinder>();
-        CylinderGeomVis->setRadius(sawScale*0.25);
+        CylinderGeomVis->setRadius(sawScale*0.2236);
         CylinderGeomVis->setLength(sawScale*2.);
         CylinderGeomVis->rotate(rotationSaw, Geometry::TransformType::ApplyToData);
         CylinderGeomVis->rotate(Vec3d(1., 0., 0.), PI / 2., Geometry::TransformType::ApplyToData);        
@@ -438,7 +440,7 @@ void orthognathicSurgery()
 
     // Action
     sdk->setActiveScene(scene);
-    sdk->startSimulation(false);
+    sdk->startSimulation(false, true);
 }
 
 int main()

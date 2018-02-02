@@ -30,7 +30,7 @@
 #include <g3log/g3log.hpp>
 
 // define this if a conservative element removal strategy is needed
-//#define TETRA_REMOVAL_STRATEGY_CONSERVATIVE
+#define TETRA_REMOVAL_STRATEGY_CONSERVATIVE_
 
 namespace imstk
 {
@@ -90,7 +90,7 @@ BoneSawingCH::erodeBone()
             continue;
         }
 
-        m_nodalDensity[cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001*500;
+        m_nodalDensity[cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001*1000;
 
 #ifdef TETRA_REMOVAL_STRATEGY_CONSERVATIVE
         if (m_nodalDensity[cd.nodeId] <= 0.2)
@@ -120,6 +120,7 @@ BoneSawingCH::erodeBone()
             }
         }
 #else
+        bool topologyChanged = false;
         if (m_nodalDensity[cd.nodeId] <= 0.)
         {
             m_erodedNodes.push_back(cd.nodeId);
@@ -129,6 +130,10 @@ BoneSawingCH::erodeBone()
             for (auto& tetId : m_nodalCardinalSet[cd.nodeId])
             {
                 boneTetMesh->setTetrahedraAsRemoved(tetId);
+                topologyChanged = true;
+            }
+            if (topologyChanged)
+            {
                 boneTetMesh->setTopologyChangedFlag(true);
             }
         }
@@ -151,7 +156,6 @@ BoneSawingCH::computeContactForces()
         m_saw->getVisualGeometry()->setTranslation(collGeoPosition);
         return;
     }
-
     // Update visual object position
 
     // Aggregate collision data
@@ -172,6 +176,7 @@ BoneSawingCH::computeContactForces()
 			t = cd.penetrationVector;
 		}
 	}
+    //std::cout << "Max. " << maxDepth << std::endl;
     m_saw->getVisualGeometry()->setTranslation(collGeoPosition + t);
 
     // Spring force
