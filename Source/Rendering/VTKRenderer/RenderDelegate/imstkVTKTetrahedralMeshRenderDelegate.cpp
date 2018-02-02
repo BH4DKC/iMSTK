@@ -64,13 +64,13 @@ VTKTetrahedralMeshRenderDelegate::VTKTetrahedralMeshRenderDelegate(std::shared_p
     }
 
     // Create Unstructured Grid
-    m_mesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    m_mesh->SetPoints(points);
-    m_mesh->SetCells(VTK_TETRA, cells);
+    m_meshConnectivity = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    m_meshConnectivity->SetPoints(points);
+    m_meshConnectivity->SetCells(VTK_TETRA, cells);
 
     // Mapper & Actor
     auto mapper = vtkSmartPointer<vtkDataSetMapper>::New();
-    mapper->SetInputData(m_mesh);
+    mapper->SetInputData(m_meshConnectivity);
 
     // Actor
     m_actor->SetMapper(mapper);
@@ -89,31 +89,21 @@ VTKTetrahedralMeshRenderDelegate::updateDataSource()
     }
 
     if (m_geometry->getTopologyChangedFlag())
-    {
-        m_mappedVertexArray->Modified(); // TODO: only modify if vertices change
-
-        // Copy cells
+    {        
         auto& maskedTets = std::dynamic_pointer_cast<TetrahedralMesh>(m_geometry)->getRemovedTetrahedra();
 
-        auto cells = vtkSmartPointer<vtkCellArray>::New();
-        vtkIdType cell[4];
-        size_t tetId = 0;
+        auto cells = m_meshConnectivity->GetCells();
+        vtkIdType cell[4] = { 0, 0, 0, 0 };
 
-        // Assign new cells
-        for (const auto &t : m_geometry->getTetrahedraVertices())
+        // Alter the masked cells to set the connectivity to {0, 0, 0, 0}
+        for (size_t i = 0; i < m_geometry->getNumTetrahedra(); ++i)
         {
-            if (!maskedTets[tetId])
+            if (maskedTets[i])
             {
-                for (size_t i = 0; i < 4; ++i)
-                {
-                    cell[i] = t[i];
-                }
-                cells->InsertNextCell(4, cell);
+                cells->ReplaceCell(5*i, 4, cell);
             }
-
-            tetId++;
         }
-        m_mesh->SetCells(VTK_TETRA, cells);
+        m_meshConnectivity->Modified();
         m_geometry->setTopologyChangedFlag(false);
     }
 }

@@ -63,9 +63,9 @@ public:
 
 protected:
 
-    std::shared_ptr<TetrahedralMesh> m_geometry; ///> Geometry to render
-    vtkSmartPointer<vtkDoubleArray> m_mappedVertexArray; ///> Mapped array of vertices
-    vtkSmartPointer<vtkUnstructuredGrid> m_mesh; ///> Mapped tetrahedral mesh
+    std::shared_ptr<TetrahedralMesh> m_geometry;             ///> Geometry to render
+    vtkSmartPointer<vtkDoubleArray> m_mappedVertexArray;     ///> Mapped array of vertices
+    vtkSmartPointer<vtkUnstructuredGrid> m_meshConnectivity; ///> Mapped tetrahedral mesh
 };
 } // imstk
 
