@@ -80,7 +80,8 @@ VTKRenderer::VTKRenderer(std::shared_ptr<Scene> scene, bool enableVR)
     auto axes = vtkSmartPointer<vtkAxesActor>::New();
     axes->SetShaftType(vtkAxesActor::CYLINDER_SHAFT);
     axes->SetAxisLabels(false);
-    //m_debugVtkActors.push_back( axes );
+    axes->SetTotalLength(100, 100, 100);
+    m_debugVtkActors.push_back( axes );
 
     // Camera and camera actor
     if (!enableVR)
@@ -96,7 +97,7 @@ VTKRenderer::VTKRenderer(std::shared_ptr<Scene> scene, bool enableVR)
     this->updateSceneCamera(scene->getCamera());
     auto camActor = vtkSmartPointer<vtkCameraActor>::New();
     camActor->SetCamera(  m_sceneVtkCamera );
-    //m_debugVtkActors.push_back( camActor );
+    m_debugVtkActors.push_back( camActor );
 
     // Debug camera
     if (!enableVR)

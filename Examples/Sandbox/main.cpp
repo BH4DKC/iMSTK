@@ -3819,6 +3819,278 @@ void testAudio()
     playMusic(iMSTK_DATA_ROOT "/sound/orchestral.ogg");
 }
 
+void partitionUnstructuredTetMeshWithGrid()
+{
+    const unsigned int numDivisions[3] = {2, 2, 1};
+    const unsigned int numGridCells = numDivisions[0] * numDivisions[1] * numDivisions[2];
+    const bool savePartitions = true;
+    const bool printStats = true;
+    const string writeLocation(iMSTK_DATA_ROOT "/partitions");
+    const string inputMeshFineName(iMSTK_DATA_ROOT "/orthognatic/mandible.veg");
+    const string outputPartitionName("meshPar");
+
+    // SDK and Scene
+    auto sdk = std::make_shared<SimulationManager>();
+    auto scene = sdk->createNewScene("partitionTetrahedralMesh");
+
+    // Visualize the axis aligned bounding box given the extreme corners
+    auto visualizeBoundingBox = [](Vec3d minn, Vec3d maxx, std::string&& name, std::shared_ptr<Scene> scene)
+                                {
+                                    // Bounding box
+                                    auto bb = std::make_shared<OBB>();
+                                    bb->m_center = (minn + maxx)*0.5;
+                                    bb->m_halfLengths = (maxx - minn)*0.5;
+                                    bb->m_axis[0] = Vec3d(1., 0., 0.);
+                                    bb->m_axis[1] = Vec3d(0., 1., 0.);
+                                    bb->m_axis[2] = Vec3d(0., 0., 1.);
+
+                                    auto bbSurfMesh = std::make_shared<SurfaceMesh>();
+                                    StdVectorOfVec3d&& bb_corners = bb->getCorners();
+                                    bbSurfMesh->setInitialVertexPositions(bb_corners);
+                                    bbSurfMesh->setVertexPositions(bb_corners);
+
+                                    // connectivity
+                                    std::vector<SurfaceMesh::TriangleArray> bb_triangles = { { 0, 1, 1 },{ 0, 3, 3 },{ 0, 4, 4 },
+                                                                                             { 6, 2, 2 },{ 6, 5, 5 },{ 6, 7, 7 },
+                                                                                             { 7, 3, 3 },{ 1, 5, 5 },{ 4, 7, 7 },
+                                                                                             { 4, 5, 5 },{ 2, 3, 3 },{ 2, 1, 1 } };
+
+                                    bbSurfMesh->setTrianglesVertices(bb_triangles);
+
+                                    auto bbMaterial = std::make_shared<RenderMaterial>();
+                                    bbMaterial->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+                                    bbMaterial->setLineWidth(1.5);
+                                    bbMaterial->setDebugColor(Color::White);
+                                    bbSurfMesh->setRenderMaterial(bbMaterial);
+
+                                    auto obbObj = std::make_shared<VisualObject>(name);
+                                    obbObj->setVisualGeometry(bbSurfMesh);
+                                    scene->addSceneObject(obbObj);
+                                };
+
+    // Load the unstructured tetrahedral mesh
+    auto originalMesh = MeshIO::read(inputMeshFineName);
+    if (!originalMesh)
+    {
+        LOG(WARNING) << "Could not read tetrahedral mesh from file ";
+        return;
+    }
+
+    auto tetMesh = std::static_pointer_cast<TetrahedralMesh>(originalMesh);
+    tetMesh->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
+    tetMesh->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
+    tetMesh->translate(Vec3d(0., 0., -55.), Geometry::TransformType::ApplyToData);
+    auto sceneObjOrigMesh = std::make_shared<VisualObject>("originalSceneObj");
+    sceneObjOrigMesh->setVisualGeometry(tetMesh);
+
+    auto renderMat = std::make_shared<RenderMaterial>();
+    renderMat->setDiffuseColor(Color::Beige);
+    tetMesh->setRenderMaterial(renderMat);
+
+    scene->addSceneObject(sceneObjOrigMesh);
+
+    //-----
+
+    Vec3d bbMin, bbMax;
+    tetMesh->computeBoundingBox(bbMin, bbMax, 2.0);
+
+    Vec3d spacing;
+    for (int i = 0; i < 3; ++i)
+    {
+        spacing[i] = (bbMax[i] - bbMin[i])/numDivisions[i];
+    }
+
+    // Assign each point in the original mesh the cell ID it belongs to
+    std::vector<int> pointCellIds;
+    for (auto& p : tetMesh->getVertexPositions())
+    {
+        auto index = Eigen::Vector3i(trunc((p[0] - bbMin[0]) / spacing[0]), trunc((p[1] - bbMin[1]) / spacing[1]), trunc((p[2] - bbMin[2]) / spacing[2]));// starts with 1
+        pointCellIds.push_back(index[2]* numDivisions[0]* numDivisions[1] + index[1] * numDivisions[0] + index[0]);
+    }
+
+    // Based on the point cell IDs, assign each tetrahedra a cell ID
+    std::vector<int> tetCellIds;
+    for (auto& t : tetMesh->getTetrahedraVertices())
+    {
+        // all 4 IDs are equal
+        if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[0]] == pointCellIds[t[2]] &&
+            pointCellIds[t[0]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        // check if three IDs are equal
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[1]] == pointCellIds[t[2]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[1]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[0]] == pointCellIds[t[2]] && pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[1]] == pointCellIds[t[2]] && pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[1]]);
+        }
+        // check if two IDs are equal
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] || pointCellIds[t[0]] == pointCellIds[t[2]]  ||
+                 pointCellIds[t[0]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[1]] == pointCellIds[t[2]] || pointCellIds[t[1]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[1]]);
+        }
+        else if (pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[2]]);
+        }
+        // all different
+        else
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+    }
+
+    //---
+
+    // Renumber and add the nodes and elements and create mesh partitions
+    std::vector<std::shared_ptr<TetrahedralMesh>> partitionedMeshes;
+    for (size_t cellId = 0; cellId < numGridCells; cellId++)
+    {
+        auto gridPartition = std::make_shared<TetrahedralMesh>();
+        std::map<size_t, size_t> oldNewNumberingMap;
+
+        StdVectorOfVec3d points;
+        std::vector<TetrahedralMesh::TetraArray> tetra;
+
+        size_t tetIdGlobal = 0;
+        size_t pointIdLocal = 0;
+        for (const auto& t : tetMesh->getTetrahedraVertices())
+        {
+            if (tetCellIds[tetIdGlobal] == cellId)
+            {
+                TetrahedralMesh::TetraArray thisTet;
+                for (int i = 0; i < 4; ++i)
+                {
+                    auto search = oldNewNumberingMap.find(t[i]);
+                    if (search == oldNewNumberingMap.end())
+                    {
+                        oldNewNumberingMap[t[i]] = pointIdLocal;
+                        thisTet[i] = pointIdLocal;
+
+                        // add point
+                        points.push_back(tetMesh->getVertexPosition(t[i]));
+
+                        pointIdLocal++;
+                    }
+                    else
+                    {
+                        thisTet[i] = search->second;
+                    }
+                }
+
+                // add the current element
+                tetra.push_back(thisTet);
+            }
+            tetIdGlobal++;
+        }
+
+        gridPartition->initialize(points, tetra, false);
+        partitionedMeshes.push_back(gridPartition);
+    }
+
+    //---
+
+    // Move the partitions apart and render for inspection
+    for (size_t i = 0; i < numGridCells; i++)
+    {
+        size_t z = (i - i % (numDivisions[0] * numDivisions[1])) / (numDivisions[0] * numDivisions[1]);
+
+        size_t y = i - z*(numDivisions[0] * numDivisions[1]);
+        y = (y - y % numDivisions[0]) / numDivisions[0];
+
+        size_t x = i - z*(numDivisions[0] * numDivisions[1]) - y*numDivisions[0];
+
+        if (partitionedMeshes[i]->getNumVertices() != 0)
+        {
+            partitionedMeshes[i]->translate(Vec3d(x * 10, y * 10, z * 10), Geometry::TransformType::ConcatenateToTransform);
+
+            partitionedMeshes[i]->translate(Vec3d(1.5*(bbMax[0] - bbMin[0]), 0., 0.), Geometry::TransformType::ConcatenateToTransform);
+
+            auto partitionSceneObject = std::make_shared<VisualObject>("partitionObj " + std::to_string(i));
+            partitionSceneObject->setVisualGeometry(partitionedMeshes[i]);
+
+            auto materialPar = std::make_shared<RenderMaterial>();
+            materialPar->setDiffuseColor(Color::Orange);
+            partitionedMeshes[i]->setRenderMaterial(materialPar);
+
+            scene->addSceneObject(partitionSceneObject);
+        }
+        Vec3d minCorner(bbMin + Vec3d(x*spacing[0], y*spacing[1], z*spacing[2]));
+        visualizeBoundingBox(minCorner, minCorner + spacing, "grid " + std::to_string(i), scene);
+    }
+
+    // save the partitions
+    if (savePartitions)
+    {
+        size_t parNum = 0;
+        for (const auto& parMesh : partitionedMeshes)
+        {
+            if (parMesh->getNumVertices() != 0)
+            {
+                MeshIO::write(parMesh, std::string(writeLocation + "\\" + outputPartitionName + "_" + std::to_string(parNum)) + ".vtu");
+            }
+            parNum++;
+        }
+    }
+
+    // Print the info about the partitions
+    if (printStats)
+    {
+        size_t partNum = 0;
+
+        LOG(INFO) << "---------------------------------";
+        LOG(INFO) << "Partition    Verts    Elements";
+        LOG(INFO) << "---------------------------------";
+        for (const auto& parMesh : partitionedMeshes)
+        {
+            if (parMesh->getNumVertices() != 0)
+            {
+                LOG(INFO) << partNum << "      " << parMesh->getMaxNumVertices()
+                          << "     " << parMesh->getNumTetrahedra();
+            }
+            partNum++;
+        }
+        LOG(INFO) << "---------------------------------";
+    }
+
+    // Lights
+    auto light1 = std::make_shared<DirectionalLight>("light1");
+    light1->setFocalPoint(Vec3d(5, -8, -5));
+    light1->setIntensity(0.6);
+
+    auto light2 = std::make_shared<DirectionalLight>("light2");
+    light2->setFocalPoint(Vec3d(-5, -8, -5));
+    light2->setIntensity(0.6);
+
+    scene->addLight(light1);
+    scene->addLight(light2);
+
+    // Camera
+    auto camera = scene->getCamera();
+    camera->setPosition(Vec3d(0, 10, 70));
+    camera->setFocalPoint(Vec3d(0., 0., 0.));
+
+    // Action
+    sdk->setActiveScene(scene);
+    sdk->startSimulation(false, true);
+}
+
 int main()
 {
     std::cout << "****************\n"
@@ -3894,12 +4166,13 @@ int main()
     //testScenesManagement();
     //testVectorPlotters();
     //testVirtualCoupling();
-    testBoneDrilling();
+    //testBoneDrilling();
     //testVirtualCouplingCylinder();
     //testRigidBody();
     //testGraph();
     //testOBB();
     //testConvexHull();
+    partitionUnstructuredTetMeshWithGrid();
 
     return 0;
 }
