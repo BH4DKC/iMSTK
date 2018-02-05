@@ -171,7 +171,7 @@ void createSawTool()
     // Create saw tool scene Object
     auto sawMesh = MeshIO::read(sawFileName);
     auto sawGeom = std::dynamic_pointer_cast<SurfaceMesh>(sawMesh);
-    sawGeom->rotate(rotationSaw, Geometry::TransformType::ApplyToData);    
+    sawGeom->rotate(rotationSaw, Geometry::TransformType::ApplyToData);
     sawGeom->scale(sawScale, Geometry::TransformType::ApplyToData);
     saw = std::make_shared<CollidingObject>("saw");
     saw->setVisualGeometry(sawGeom);
@@ -267,7 +267,7 @@ void orthognathicSurgery()
     // SDK and Scene
     sdk = std::make_shared<SimulationManager>();
     scene = sdk->createNewScene("orthognathicSurgery");
-    
+
     createDeviceClient();
     createSkull();
 
@@ -278,14 +278,14 @@ void orthognathicSurgery()
     else
     {
         createBurrTool();
-    }       
-    
+    }
+
     auto obb = std::make_shared<OBB>();
     auto bb = std::make_shared<OBB>();
     std::shared_ptr<SurfaceMesh> obbSurfMesh;
     std::shared_ptr<SurfaceMesh> bbSurfMesh;
     if (useSawTool)
-    {        
+    {
         obb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
         obb->m_halfLengths = sawScale*Vec3d(0.2, 0.1, 1.0);
         obb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
@@ -300,8 +300,8 @@ void orthognathicSurgery()
 
         // connectivity
         std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
-        { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
-        { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
+                                                              { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+                                                              { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
 
         obbSurfMesh->setTrianglesVertices(triangles);
 
@@ -335,8 +335,8 @@ void orthognathicSurgery()
 
         // connectivity
         std::vector<SurfaceMesh::TriangleArray> bb_triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
-        { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
-        { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
+                                                                 { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+                                                                 { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
 
         bbSurfMesh->setTrianglesVertices(bb_triangles);
 
@@ -366,9 +366,9 @@ void orthognathicSurgery()
         CylinderGeomVis->setRadius(sawScale*0.2236);
         CylinderGeomVis->setLength(sawScale*2.);
         CylinderGeomVis->rotate(rotationSaw, Geometry::TransformType::ApplyToData);
-        CylinderGeomVis->rotate(Vec3d(1., 0., 0.), PI / 2., Geometry::TransformType::ApplyToData);        
-        CylinderGeomVis->translate(rotationSaw*Vec3d(0., 0., sawScale*-6.5), Geometry::TransformType::ApplyToData);
-        
+        CylinderGeomVis->rotate(Vec3d(1., 0., 0.), PI / 2., Geometry::TransformType::ApplyToData);
+        CylinderGeomVis->translate(rotationSaw*Vec3d(0., 0., sawScale* -6.5), Geometry::TransformType::ApplyToData);
+
         auto cylinderMaterial = std::make_shared<RenderMaterial>();
         cylinderMaterial->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
         cylinderMaterial->setLineWidth(1.5);
@@ -393,7 +393,7 @@ void orthognathicSurgery()
         }
 #endif
     }
-    
+
     // Create a collision graph
     auto graph = scene->getCollisionGraph();
 
@@ -402,12 +402,12 @@ void orthognathicSurgery()
         if (mandible && saw)
         {
             CollisionData colData;
-                    auto pointsMandible = std::dynamic_pointer_cast<PointSet>(mandible->getCollidingGeometry());
-                    auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
-                    auto CHA = std::make_shared<BoneSawingCH>(CollisionHandling::Side::A, colData, mandible, saw);
+            auto pointsMandible = std::dynamic_pointer_cast<PointSet>(mandible->getCollidingGeometry());
+            auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
+            auto CHA = std::make_shared<BoneSawingCH>(CollisionHandling::Side::A, colData, mandible, saw);
 
-                    graph->addInteractionPair(mandible, saw, CD, nullptr, CHA);
-        }        
+            graph->addInteractionPair(mandible, saw, CD, nullptr, CHA);
+        }
     }
     else
     {
@@ -418,7 +418,7 @@ void orthognathicSurgery()
                 CollisionDetection::Type::PointSetToSphere,
                 CollisionHandling::Type::BoneDrilling,
                 CollisionHandling::Type::None);
-        }            
+        }
     }
 
     // Lights
@@ -429,7 +429,7 @@ void orthognathicSurgery()
     auto light2 = std::make_shared<DirectionalLight>("light2");
     light2->setFocalPoint(Vec3d(-5, -8, -5));
     light2->setIntensity(0.6);
-    
+
     scene->addLight(light1);
     scene->addLight(light2);
 

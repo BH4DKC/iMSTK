@@ -89,7 +89,7 @@ VTKTetrahedralMeshRenderDelegate::updateDataSource()
     }
 
     if (m_geometry->getTopologyChangedFlag())
-    {        
+    {
         auto& maskedTets = std::dynamic_pointer_cast<TetrahedralMesh>(m_geometry)->getRemovedTetrahedra();
 
         auto cells = m_meshConnectivity->GetCells();

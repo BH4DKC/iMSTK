@@ -29,8 +29,7 @@
 
 namespace imstk
 {
-
-void 
+void
 PointSetToSawCD::updateBB(Vec3d& maxx, Vec3d& minn)
 {
     Vec3d hl(maxx[0]-minn[0], maxx[1] - minn[1], maxx[2] - minn[2]);
@@ -126,11 +125,11 @@ PointSetToSawCD::computeCollisionData()
         }
         nodeId++;
     }
-    
+
     Vec3d vecAlongWidth = deviceOrientation*Vec3d(1, 0, 0);
     vecAlongWidth.normalize();
     for (const auto& i : pointList)
-    {        
+    {
         // Cull points outside the bounding cylinder of the OBB
         const Vec3d s = vertList[i] - bladeCenter;
         if (abs(s.dot(sawAxis)) < cylinderHalfLength)
@@ -141,11 +140,11 @@ PointSetToSawCD::computeCollisionData()
                 // Cull points if the distance is below certain threshold to the blade
                 if (abs(s.dot(bladeNormal)) < halfBladeWidth)
                 {
-                        const double depth = cylinderRadius - s.dot(vecAlongWidth);
-                        m_colData.MAColData.push_back({ i, vecAlongWidth*-depth });                                        
+                    const double depth = cylinderRadius - s.dot(vecAlongWidth);
+                    m_colData.MAColData.push_back({ i, vecAlongWidth* -depth });
                 }
             }
-        }        
+        }
     }
 }
 } // imstk

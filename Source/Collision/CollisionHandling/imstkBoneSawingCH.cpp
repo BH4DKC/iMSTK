@@ -82,9 +82,9 @@ BoneSawingCH::erodeBone()
 {
     auto boneTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_bone->getCollidingGeometry());
 
-	for (std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
-	{
-		auto cd = m_colData.MAColData[n];
+    for (std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
+    {
+        auto cd = m_colData.MAColData[n];
         if (m_nodeRemovalStatus[cd.nodeId])
         {
             continue;
@@ -101,7 +101,6 @@ BoneSawingCH::erodeBone()
             // tag the tetra that will be removed
             for (auto& tetId : m_nodalCardinalSet[cd.nodeId])
             {
-                
                 auto ss = boneTetMesh->getTetrahedronVertices(tetId);
 
                 int count = 0;
@@ -110,7 +109,7 @@ BoneSawingCH::erodeBone()
                     if (m_nodeRemovalStatus[ss[i]])
                     {
                         count++;
-                    }                    
+                    }
                 }
                 if (count >= 2)
                 {
@@ -138,7 +137,6 @@ BoneSawingCH::erodeBone()
             }
         }
 #endif
-
     }
 }
 
@@ -162,20 +160,20 @@ BoneSawingCH::computeContactForces()
     Vec3d t = Vec3d::Zero();
     double maxDepth = -MAX_D;
 
-	for(std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
-	{
-		auto cd = m_colData.MAColData[n];
-		if (m_nodeRemovalStatus[cd.nodeId])
-		{
-			continue;
-		}
+    for(std::vector<MeshToAnalyticalCollisionData>::size_type n = 0; n < m_colData.MAColData.size(); n++)
+    {
+        auto cd = m_colData.MAColData[n];
+        if (m_nodeRemovalStatus[cd.nodeId])
+        {
+            continue;
+        }
 
-		if (cd.penetrationVector.norm() > maxDepth)
-		{
-			maxDepth = cd.penetrationVector.norm();
-			t = cd.penetrationVector;
-		}
-	}
+        if (cd.penetrationVector.norm() > maxDepth)
+        {
+            maxDepth = cd.penetrationVector.norm();
+            t = cd.penetrationVector;
+        }
+    }
     //std::cout << "Max. " << maxDepth << std::endl;
     m_saw->getVisualGeometry()->setTranslation(collGeoPosition + t);
 
@@ -184,7 +182,7 @@ BoneSawingCH::computeContactForces()
 
     // Damping force
     const double dt = 0.1; // Time step size to calculate the object velocity
-    force += m_initialStep ? Vec3d(0.0, 0.0, 0.0) : (-m_damping / dt)*(t - m_prevPos);    
+    force += m_initialStep ? Vec3d(0.0, 0.0, 0.0) : (-m_damping / dt)*(t - m_prevPos);
 
     // Update object contact force
     m_saw->appendForce(force);
@@ -196,6 +194,4 @@ BoneSawingCH::computeContactForces()
     m_initialStep = false;
     m_prevPos = t;
 }
-
-
 }// iMSTK
