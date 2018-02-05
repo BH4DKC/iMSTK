@@ -317,4 +317,111 @@ TetrahedralMesh::getMeshGraph()
     }
     return std::move(gMesh);
 }
+
+void
+TetrahedralMesh::optimizeForDataLocality()
+{
+    const size_t numVertices = this->getNumVertices();
+    const size_t numTetrahedra = this->getNumTetrahedra();
+
+    // First find the list of tetrahedra a given vertex is part of
+    std::vector<std::vector<size_t>> vertexNeighbors;
+    vertexNeighbors.resize(this->getNumVertices());
+    size_t tetraId = 0;
+    for (const auto &tetra : this->getTetrahedraVertices())
+    {
+        vertexNeighbors[tetra[0]].push_back(tetraId);
+        vertexNeighbors[tetra[1]].push_back(tetraId);
+        vertexNeighbors[tetra[2]].push_back(tetraId);
+        vertexNeighbors[tetra[3]].push_back(tetraId);
+
+        tetraId++;
+    }
+
+    std::vector<TetraArray> optimizedConnectivity;
+    std::vector<size_t> optimallyOrderedNodes;
+    std::list<size_t> tetraUnderConsideration;
+    std::vector<bool> isNodeAdded(numVertices, false);
+    std::vector<bool> isTetraAdded(numTetrahedra, false);
+    std::list<size_t> newlyAddedNodes;
+
+    // A. Initialize
+    optimallyOrderedNodes.push_back(0);
+    isNodeAdded.at(0) = true;
+    for (const auto &neighTetraId : vertexNeighbors[0])
+    {
+        tetraUnderConsideration.push_back(neighTetraId);
+    }
+
+    // B. Iterate till all the nodes are added to optimized mesh
+    size_t vertId[4];
+    auto connectivity = this->getTetrahedraVertices();
+    while (tetraUnderConsideration.size() != 0)
+    {
+        // B.1 Add new nodes and triangles
+        for (const auto &tetraId : tetraUnderConsideration)
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                if (!isNodeAdded.at(connectivity.at(tetraId)[i]))
+                {
+                    optimallyOrderedNodes.push_back(connectivity.at(tetraId)[i]);
+                    isNodeAdded.at(connectivity.at(tetraId)[i]) = true;
+                    newlyAddedNodes.push_back(connectivity.at(tetraId)[i]);
+                }
+                vertId[i] = *std::find(optimallyOrderedNodes.begin(),
+                    optimallyOrderedNodes.end(),
+                    connectivity.at(tetraId)[i]);
+            }
+            TetraArray tmpTetra = { { vertId[0], vertId[1], vertId[2], vertId[3] } };
+            optimizedConnectivity.push_back(tmpTetra);
+            isTetraAdded.at(tetraId) = true;
+        }
+
+        // B.2 Setup tetrahedra to be considered for next iteration
+        tetraUnderConsideration.clear();
+        for (const auto &newNodes : newlyAddedNodes)
+        {
+            for (const auto &neighTetraId : vertexNeighbors[newNodes])
+            {
+                if (!isTetraAdded[neighTetraId])
+                {
+                    tetraUnderConsideration.push_back(neighTetraId);
+                }
+            }
+        }
+        tetraUnderConsideration.sort();
+        tetraUnderConsideration.unique();
+
+        newlyAddedNodes.clear();
+    }
+
+    // C. Initialize this mesh with the newly computed ones
+    StdVectorOfVec3d optimallyOrderedNodalPos;
+    std::vector<TetraArray> optConnectivityRenumbered;
+
+    // C.1 Get the positions
+    for (const auto &nodalId : optimallyOrderedNodes)
+    {
+        optimallyOrderedNodalPos.push_back(this->getInitialVertexPosition(nodalId));
+    }
+
+    // C.2 Get the renumbered connectivity
+    for (size_t i = 0; i < numTetrahedra; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            vertId[j] = (std::find(optimallyOrderedNodes.begin(),
+                optimallyOrderedNodes.end(),
+                optimizedConnectivity.at(i)[j]) -
+                optimallyOrderedNodes.begin());
+        }
+
+        TetraArray tmpTriArray = { { vertId[0], vertId[1], vertId[2], vertId[3] } };
+        optConnectivityRenumbered.push_back(tmpTriArray);
+    }
+
+    // D. Assign the rewired mesh data to the mesh
+    this->initialize(optimallyOrderedNodalPos, optConnectivityRenumbered);
+}
 } // imstk

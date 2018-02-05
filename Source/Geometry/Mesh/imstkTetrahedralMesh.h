@@ -132,6 +132,12 @@ public:
     ///
     Graph getMeshGraph() override;
 
+    ///
+    /// \brief Rewire the node order and tetrahedral connectivity to optimize for memory layout
+    ///  The intended use is for large meshes that doesn't fit into CPU/GPU memory.
+    ///  TODO: Further optimization to find a 1-d uninterrupted sub-graph at each iteration.
+    ///
+    void optimizeForDataLocality();
 protected:
 
     friend class VTKTetrahedralMeshRenderDelegate;

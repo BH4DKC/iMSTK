@@ -4001,6 +4001,7 @@ void partitionUnstructuredTetMeshWithGrid()
         }
 
         gridPartition->initialize(points, tetra, false);
+        gridPartition->optimizeForDataLocality();
         partitionedMeshes.push_back(gridPartition);
     }
 
