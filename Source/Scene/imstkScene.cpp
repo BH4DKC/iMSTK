@@ -49,19 +49,10 @@ Scene::isObjectRegistered(const std::string& sceneObjectName) const
     return m_sceneObjectsMap.find(sceneObjectName) != m_sceneObjectsMap.end();
 }
 
-const std::vector<std::shared_ptr<SceneObject>>
-Scene::getSceneObjects() const
-{
-    std::vector<std::shared_ptr<SceneObject>> v;
-
-    for (auto it = m_sceneObjectsMap.begin();
-         it != m_sceneObjectsMap.end();
-         ++it)
-    {
-        v.push_back(it->second);
-    }
-
-    return v;
+const std::vector<std::shared_ptr<SceneObject>>&
+Scene::getSceneObjects()
+{    
+    return m_sceneObjVec;
 }
 
 const std::vector<std::shared_ptr<SceneObjectControllerBase>>
@@ -83,6 +74,20 @@ Scene::getSceneObject(const std::string& sceneObjectName) const
     return m_sceneObjectsMap.at(sceneObjectName);
 }
 
+void 
+Scene::updateSceneObjectList()
+{
+    m_sceneObjVec.resize(m_sceneObjectsMap.size());
+
+    int count = 0;
+    for (auto it = m_sceneObjectsMap.begin();
+        it != m_sceneObjectsMap.end();
+        ++it, ++count)
+    {
+        m_sceneObjVec[count] = it->second;
+    }
+}
+
 void
 Scene::addSceneObject(std::shared_ptr<SceneObject> newSceneObject)
 {
@@ -96,6 +101,9 @@ Scene::addSceneObject(std::shared_ptr<SceneObject> newSceneObject)
     }
 
     m_sceneObjectsMap[newSceneObjectName] = newSceneObject;
+
+    this->updateSceneObjectList();
+
     LOG(INFO) << newSceneObjectName << " object added to " << m_name;
 }
 
@@ -110,6 +118,9 @@ Scene::removeSceneObject(const std::string& sceneObjectName)
     }
 
     m_sceneObjectsMap.erase(sceneObjectName);
+
+    this->updateSceneObjectList();
+
     LOG(INFO) << sceneObjectName << " object removed from " << m_name;
 }
 

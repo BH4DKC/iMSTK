@@ -72,7 +72,7 @@ public:
     /// \brief Return a vector of shared pointers to the scene objects
     /// NOTE: A separate list might be efficient as this is called runtime
     ///
-    const std::vector<std::shared_ptr<SceneObject>> getSceneObjects() const;
+    const std::vector<std::shared_ptr<SceneObject>>& getSceneObjects();
 
     ///
     /// \brief Get the scene object controllers
@@ -83,7 +83,7 @@ public:
     /// \brief Get a scene object of a specific name
     ///
     std::shared_ptr<SceneObject> getSceneObject(const std::string& sceneObjectName) const;
-
+   
     ///
     /// \brief Add/remove a scene object
     ///
@@ -153,6 +153,11 @@ public:
 
 protected:
 
+    ///
+    /// \brief Update the scene object vector
+    ///
+    void updateSceneObjectList();
+
     std::string m_name; ///> Name of the scene
     NamedMap<SceneObject> m_sceneObjectsMap;
     NamedMap<Light> m_lightsMap;
@@ -160,6 +165,8 @@ protected:
     std::shared_ptr<CollisionGraph> m_collisionGraph = std::make_shared<CollisionGraph>();
     std::vector<std::shared_ptr<SolverBase>> m_solvers;     ///> List of non-linear solvers
     std::vector<std::shared_ptr<SceneObjectControllerBase>> m_objectControllers; ///> List of controllers
+
+    std::vector<std::shared_ptr<SceneObject>> m_sceneObjVec; ///> vector of scene objects
 
     bool m_isInitialized = false;
 };
