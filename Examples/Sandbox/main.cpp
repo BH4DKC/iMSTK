@@ -3821,13 +3821,14 @@ void testAudio()
 
 void partitionUnstructuredTetMeshWithGrid()
 {
-    const unsigned int numDivisions[3] = {2, 2, 1};
+    const unsigned int numDivisions[3] = {4, 20, 20};
     const unsigned int numGridCells = numDivisions[0] * numDivisions[1] * numDivisions[2];
-    const bool savePartitions = true;
+    const bool savePartitions = false;
     const bool printStats = true;
     const string writeLocation(iMSTK_DATA_ROOT "/partitions");
-    const string inputMeshFineName(iMSTK_DATA_ROOT "/orthognatic/mandible.veg");
+    const string inputMeshFineName(iMSTK_DATA_ROOT "/center.vtu");
     const string outputPartitionName("meshPar");
+    const bool displayPartitions = 1;
 
     // SDK and Scene
     auto sdk = std::make_shared<SimulationManager>();
@@ -4001,7 +4002,7 @@ void partitionUnstructuredTetMeshWithGrid()
         }
 
         gridPartition->initialize(points, tetra, false);
-        gridPartition->optimizeForDataLocality();
+        //gridPartition->optimizeForDataLocality();
         partitionedMeshes.push_back(gridPartition);
     }
 
@@ -4019,7 +4020,8 @@ void partitionUnstructuredTetMeshWithGrid()
 
         if (partitionedMeshes[i]->getNumVertices() != 0)
         {
-            partitionedMeshes[i]->translate(Vec3d(x * 10, y * 10, z * 10), Geometry::TransformType::ConcatenateToTransform);
+            double moveby = (bbMax - bbMin).norm() / 10.;
+            partitionedMeshes[i]->translate(Vec3d(x * moveby, y * moveby, z * moveby), Geometry::TransformType::ConcatenateToTransform);
 
             partitionedMeshes[i]->translate(Vec3d(1.5*(bbMax[0] - bbMin[0]), 0., 0.), Geometry::TransformType::ConcatenateToTransform);
 
@@ -4030,10 +4032,13 @@ void partitionUnstructuredTetMeshWithGrid()
             materialPar->setDiffuseColor(Color::Orange);
             partitionedMeshes[i]->setRenderMaterial(materialPar);
 
-            scene->addSceneObject(partitionSceneObject);
+            if (displayPartitions)
+            {
+                scene->addSceneObject(partitionSceneObject);
+            }
         }
         Vec3d minCorner(bbMin + Vec3d(x*spacing[0], y*spacing[1], z*spacing[2]));
-        visualizeBoundingBox(minCorner, minCorner + spacing, "grid " + std::to_string(i), scene);
+        //visualizeBoundingBox(minCorner, minCorner + spacing, "grid " + std::to_string(i), scene);
     }
 
     // save the partitions
@@ -4054,6 +4059,8 @@ void partitionUnstructuredTetMeshWithGrid()
     if (printStats)
     {
         size_t partNum = 0;
+        size_t maxNodes = 0;
+        size_t maxElements = 0;
 
         LOG(INFO) << "---------------------------------";
         LOG(INFO) << "Partition    Verts    Elements";
@@ -4062,13 +4069,20 @@ void partitionUnstructuredTetMeshWithGrid()
         {
             if (parMesh->getNumVertices() != 0)
             {
-                LOG(INFO) << partNum << "      " << parMesh->getMaxNumVertices()
-                          << "     " << parMesh->getNumTetrahedra();
+                auto nbNodes = parMesh->getMaxNumVertices();
+                auto nbtet = parMesh->getNumTetrahedra();
+                LOG(INFO) << partNum << "      " << nbNodes << "     " << nbtet;
+
+                maxNodes = maxNodes < nbNodes ? nbNodes : maxNodes;
+                maxElements = maxElements < nbtet ? nbtet : maxElements;
             }
             partNum++;
         }
+        LOG(INFO) << "\nMax. Verts: " << maxNodes << "  Max. elements: " << maxElements ;
         LOG(INFO) << "---------------------------------";
     }
+
+    LOG(INFO) << "Num. of SO: " << scene->getSceneObjects().size();
 
     // Lights
     auto light1 = std::make_shared<DirectionalLight>("light1");
