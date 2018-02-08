@@ -68,45 +68,51 @@ SceneManager::runModule()
     wwt.start();
 
     // Reset Contact forces to 0
-    for (auto obj : m_scene->getSceneObjects())
+    for (auto& obj : m_scene->getSceneObjects())
     {
-        if (auto defObj = std::dynamic_pointer_cast<DeformableObject>(obj))
+        if (obj->getType() == SceneObject::Type::Visual)
         {
+            continue;
+        }
+        else if (obj->getType() == SceneObject::Type::FEMDeformable)
+        {
+            auto defObj = std::dynamic_pointer_cast<DeformableObject>(obj);
             defObj->getContactForce().setConstant(0.0);
         }
-        else if (auto collidingObj = std::dynamic_pointer_cast<CollidingObject>(obj))
+        else if (obj->getType() == SceneObject::Type::Colliding)
         {
+            auto collidingObj = std::dynamic_pointer_cast<CollidingObject>(obj);
             collidingObj->resetForce();
         }
         // todo: refactor pbd
         // description: so that the transform obtained from device can be applied
-        if (auto virtualCouplingPBD = std::dynamic_pointer_cast<VirtualCouplingPBDObject>(obj))
+        else  if (auto virtualCouplingPBD = std::dynamic_pointer_cast<VirtualCouplingPBDObject>(obj))
         {
             virtualCouplingPBD->resetCollidingGeometry();
         }
     }
 
     // Update objects controlled by the device controllers
-    for (auto controller : m_scene->getSceneObjectControllers())
+    for (auto& controller : m_scene->getSceneObjectControllers())
     {
         controller->updateControlledObjects();
     }
 
     // Compute collision data per interaction pair
-    for (auto intPair : m_scene->getCollisionGraph()->getInteractionPairList())
+    for (auto& intPair : m_scene->getCollisionGraph()->getInteractionPairList())
     {
         intPair->computeCollisionData();
         intPair->computeContactForces();
     }
 
     // Apply forces on device
-    for (auto controller : m_scene->getSceneObjectControllers())
+    for (auto& controller : m_scene->getSceneObjectControllers())
     {
         controller->applyForces();
     }
 
     // Update the solvers
-    for (auto solvers : m_scene->getSolvers())
+    for (auto& solvers : m_scene->getSolvers())
     {
         solvers->solve();
 
@@ -114,13 +120,13 @@ SceneManager::runModule()
     }
 
     // Apply the geometry and apply maps to all the objects
-    for (auto obj : m_scene->getSceneObjects())
+    for (auto& obj : m_scene->getSceneObjects())
     {
         obj->updateGeometries();
     }
 
     // Do collision detection and response for pbd objects
-    for (auto intPair : m_scene->getCollisionGraph()->getPbdPairList())
+    for (auto& intPair : m_scene->getCollisionGraph()->getPbdPairList())
     {
         intPair->resetConstraints();
         if (intPair->doBroadPhaseCollision())
@@ -131,16 +137,17 @@ SceneManager::runModule()
     }
 
     // Update velocity of PBD objects
-    for (auto obj : m_scene->getSceneObjects())
+    for (auto& obj : m_scene->getSceneObjects())
     {
-        if (auto pbdObj = std::dynamic_pointer_cast<PbdObject>(obj))
+        if (obj->getType() == SceneObject::Type::Pbd)
         {
+            auto pbdObj = std::dynamic_pointer_cast<PbdObject>(obj);
             pbdObj->updateVelocity();
         }
     }
 
     // Set the trackers of virtual coupling PBD objects to out-of-date
-    for (auto obj : m_scene->getSceneObjects())
+    for (auto& obj : m_scene->getSceneObjects())
     {
         if (auto virtualCouplingPBD = std::dynamic_pointer_cast<VirtualCouplingPBDObject>(obj))
         {
@@ -149,7 +156,7 @@ SceneManager::runModule()
     }
 
     // Set the trackers of the scene object controllers to out-of-date
-    for (auto controller : m_scene->getSceneObjectControllers())
+    for (auto& controller : m_scene->getSceneObjectControllers())
     {
         controller->setTrackerToOutOfDate();
     }
@@ -157,7 +164,7 @@ SceneManager::runModule()
     auto timeElapsed = wwt.getTimeElapsed(StopWatch::TimeUnitType::seconds);
 
     // Update time step size of the dynamic objects
-    for (auto obj : m_scene->getSceneObjects())
+    for (auto& obj : m_scene->getSceneObjects())
     {
         if (obj->getType() == SceneObject::Type::Pbd)
         {
