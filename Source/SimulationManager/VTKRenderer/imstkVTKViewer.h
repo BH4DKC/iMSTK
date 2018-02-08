@@ -34,7 +34,7 @@
 #include "imstkViewer.h"
 #include "imstkVTKRenderDelegate.h"
 #include "vtkSmartPointer.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
 //Screenshot utility
@@ -81,6 +81,7 @@ public:
             m_vtkRenderWindow = vtkSmartPointer<vtkRenderWindow>::New();
             m_vtkRenderWindow->SetInteractor(vtkInteractor);
             m_vtkRenderWindow->SetSize(1000, 800);
+            // static_cast<vtkOpenGLRenderWindow *>(m_vtkRenderWindow.Get())->SetSwapControl(0);
 
             // Screen capture
             m_screenCapturer = std::make_shared<VTKScreenCaptureUtility>(m_vtkRenderWindow);
