@@ -47,24 +47,34 @@ public:
     ///
     /// \brief Constructor
     ///
-    PointSetToSawCD(std::shared_ptr<PointSet> pointSet,
+    PointSetToSawCD(std::vector<std::shared_ptr<PointSet>>& pointSet,
                     std::shared_ptr<DeviceTracker> tracker,
                     std::shared_ptr<OBB> baldeOBB,
                     std::shared_ptr<SurfaceMesh> baldeBB,
                     CollisionData& colData) :
         CollisionDetection(CollisionDetection::Type::custom,
                            colData),
-        m_pointSet(pointSet),
         m_bladeOBB(baldeOBB),
         m_bladeBB(baldeBB),
-        m_tracker(tracker){}
+        m_tracker(tracker)
+    {
+        m_pointSet = pointSet;
+        m_BBmin.resize(m_pointSet.size());
+        m_BBmax.resize(m_pointSet.size());
+        m_BBOverlapped.resize(m_pointSet.size());
+
+        for (int i = 0; i < m_pointSet.size(); ++i)
+        {
+            m_pointSet[i]->computeBoundingBox(m_BBmin[i], m_BBmax[i]);
+        }
+    }
 
     ///
     /// \brief Destructor
     ///
     ~PointSetToSawCD() = default;
 
-    void updateBB(Vec3d& maxx, Vec3d& minn);
+    void updateToolBoundingBox(Vec3d& maxx, Vec3d& minn);
 
     ///
     /// \brief Detect collision and compute collision data
@@ -72,10 +82,14 @@ public:
     void computeCollisionData() override;
 
 private:
-    std::shared_ptr<PointSet> m_pointSet;       ///> PointSet
-    std::shared_ptr<OBB> m_bladeOBB;            ///> OBB the sphere in the rest configuration
-    std::shared_ptr<SurfaceMesh> m_bladeBB;            ///> BB of the OBB
-    std::shared_ptr<DeviceTracker> m_tracker;   ///> Sphere
+    std::vector<Vec3d> m_BBmin;
+    std::vector<Vec3d> m_BBmax;
+    std::vector<bool> m_BBOverlapped;
+
+    std::vector<shared_ptr<PointSet>> m_pointSet;       ///> Vector of PointSet data
+    std::shared_ptr<OBB> m_bladeOBB;                    ///> OBB the sphere in the rest configuration
+    std::shared_ptr<SurfaceMesh> m_bladeBB;             ///> BB of the OBB
+    std::shared_ptr<DeviceTracker> m_tracker;           ///> Sphere
 };
 }
 

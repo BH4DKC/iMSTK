@@ -21,7 +21,7 @@ project(Orthognathic)
 #-----------------------------------------------------------------------------
 # Create executable
 #-----------------------------------------------------------------------------
-add_executable(${PROJECT_NAME} orthognathic.cpp imstkPointSetToSawCD.h imstkPointSetToSawCD.cpp)
+add_executable(${PROJECT_NAME} orthognathic.cpp imstkPointSetToSawCD.h imstkPointSetToSawCD.cpp imstkMultiMeshBoneSawingCH.h imstkMultiMeshBoneSawingCH.cpp)
 
 #-----------------------------------------------------------------------------
 # Link libraries to executable

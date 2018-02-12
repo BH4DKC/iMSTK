@@ -55,6 +55,7 @@
 #include "imstkVirtualCouplingCH.h"
 #include "imstkBoneDrillingCH.h"
 #include "imstkBoneSawingCH.h"
+#include "imstkMultiMeshBoneSawingCH.h"
 
 // logger
 #include "g3log/g3log.hpp"
@@ -80,17 +81,26 @@
 
 using namespace imstk;
 
+// settings
 const bool useSawTool = true;
 const bool displayCollStructures = false;
+const bool useMandiblePartitions = true;
 
 // Global variables
 const std::string phantomOmniName = "Phantom1";
-const std::string mandibleFileName = iMSTK_DATA_ROOT "/orthognatic/mandible.veg";
-//const std::string mandibleFileName = iMSTK_DATA_ROOT "/orthognatic/ss.vtu";
+const std::string mandibleWholeFileName = iMSTK_DATA_ROOT "/orthognatic/mandible.veg";
 const std::string maxillaFileName = iMSTK_DATA_ROOT "/orthognatic/maxilla.veg";
 const std::string sawFileName = iMSTK_DATA_ROOT "/orthognatic/saw.obj";
 const std::string soundFileName = iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav";
+const std::string mandibleLeftRightFileName[2] = { iMSTK_DATA_ROOT "/orthognatic/Mandible-left-surface.stl",
+iMSTK_DATA_ROOT "/orthognatic/Mandible-right-surface.stl" };
 
+// partitions
+const unsigned int numDivisions[3] = { 4, 20, 20 };
+const string mandibleCenterFileName(iMSTK_DATA_ROOT "/center.vtu");
+std::vector<std::shared_ptr<TetrahedralMesh>> partitionedMeshes;
+
+//
 std::shared_ptr<SimulationManager> sdk;
 std::shared_ptr<Scene> scene;
 
@@ -104,7 +114,9 @@ std::shared_ptr<SceneObjectController> sawController;
 std::shared_ptr<SceneObjectController> burrController;
 
 // Scene objects
-std::shared_ptr<CollidingObject> mandible;
+std::vector<std::shared_ptr<CollidingObject>> mandibleCenterPartitions;
+std::shared_ptr<CollidingObject> mandibleWhole;
+std::shared_ptr<VisualObject> mandibleLeftRight[2];
 std::shared_ptr<VisualObject> maxilla;
 std::shared_ptr<CollidingObject> saw;
 std::shared_ptr<CollidingObject> burr;
@@ -129,30 +141,244 @@ void createDeviceClient()
 #endif
 }
 
-void createSkull()
+void createMandible()
 {
     // Create mandible scene object
-    auto mandibleTetMesh = MeshIO::read(mandibleFileName);
+    auto mandibleTetMesh = MeshIO::read(mandibleWholeFileName);
     if (!mandibleTetMesh)
     {
         LOG(WARNING) << "Could not read mandible mesh from file ";
         return;
     }
     //mandibleTetMesh->scale(0.1, Geometry::TransformType::ApplyToData);
-    mandibleTetMesh->rotate(Vec3d(1., 0., 0.), -PI/2., Geometry::TransformType::ApplyToData);
+    mandibleTetMesh->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
     mandibleTetMesh->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
     mandibleTetMesh->translate(Vec3d(0., 0., -55.), Geometry::TransformType::ApplyToData);
-    mandible = std::make_shared<CollidingObject>("mandible");
-    mandible->setCollidingGeometry(mandibleTetMesh);
-    mandible->setVisualGeometry(mandibleTetMesh);
+
+    mandibleWhole = std::make_shared<CollidingObject>("mandibleWhole");
+    mandibleWhole->setCollidingGeometry(mandibleTetMesh);
+    mandibleWhole->setVisualGeometry(mandibleTetMesh);
 
     auto materialMandible = std::make_shared<RenderMaterial>();
     materialMandible->setDiffuseColor(Color::Beige);
     mandibleTetMesh->setRenderMaterial(materialMandible);
 
+    scene->addSceneObject(mandibleWhole);
+           
+}
 
-    scene->addSceneObject(mandible);
+void partitionUnstructuredTetMeshWithGrid()
+{    
+    const unsigned int numGridCells = numDivisions[0] * numDivisions[1] * numDivisions[2];      
 
+    // Load the unstructured tetrahedral mesh
+    auto originalMesh = MeshIO::read(mandibleCenterFileName);
+    if (!originalMesh)
+    {
+        LOG(WARNING) << "Could not read tetrahedral mesh from file ";
+        return;
+    }
+    auto tetMesh = std::static_pointer_cast<TetrahedralMesh>(originalMesh);   
+
+    //-----
+
+    Vec3d bbMin, bbMax;
+    tetMesh->computeBoundingBox(bbMin, bbMax, 2.0);
+
+    Vec3d spacing;
+    for (int i = 0; i < 3; ++i)
+    {
+        spacing[i] = (bbMax[i] - bbMin[i]) / numDivisions[i];
+    }
+
+    // Assign each point in the original mesh the cell ID it belongs to
+    std::vector<int> pointCellIds;
+    for (auto& p : tetMesh->getVertexPositions())
+    {
+        auto index = Eigen::Vector3i(trunc((p[0] - bbMin[0]) / spacing[0]), trunc((p[1] - bbMin[1]) / spacing[1]), trunc((p[2] - bbMin[2]) / spacing[2]));// starts with 1
+        pointCellIds.push_back(index[2] * numDivisions[0] * numDivisions[1] + index[1] * numDivisions[0] + index[0]);
+    }
+
+    // Based on the point cell IDs, assign each tetrahedra a cell ID
+    std::vector<int> tetCellIds;
+    for (auto& t : tetMesh->getTetrahedraVertices())
+    {
+        // all 4 IDs are equal
+        if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[0]] == pointCellIds[t[2]] &&
+            pointCellIds[t[0]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        // check if three IDs are equal
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[1]] == pointCellIds[t[2]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] && pointCellIds[t[1]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[0]] == pointCellIds[t[2]] && pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[1]] == pointCellIds[t[2]] && pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[1]]);
+        }
+        // check if two IDs are equal
+        else if (pointCellIds[t[0]] == pointCellIds[t[1]] || pointCellIds[t[0]] == pointCellIds[t[2]] ||
+            pointCellIds[t[0]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+        else if (pointCellIds[t[1]] == pointCellIds[t[2]] || pointCellIds[t[1]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[1]]);
+        }
+        else if (pointCellIds[t[2]] == pointCellIds[t[3]])
+        {
+            tetCellIds.push_back(pointCellIds[t[2]]);
+        }
+        // all different
+        else
+        {
+            tetCellIds.push_back(pointCellIds[t[0]]);
+        }
+    }
+
+    //---
+
+    // Renumber and add the nodes and elements and create mesh partitions
+    for (size_t cellId = 0; cellId < numGridCells; cellId++)
+    {
+        auto gridPartition = std::make_shared<TetrahedralMesh>();
+        std::map<size_t, size_t> oldNewNumberingMap;
+
+        StdVectorOfVec3d points;
+        std::vector<TetrahedralMesh::TetraArray> tetra;
+
+        size_t tetIdGlobal = 0;
+        size_t pointIdLocal = 0;
+        for (const auto& t : tetMesh->getTetrahedraVertices())
+        {
+            if (tetCellIds[tetIdGlobal] == cellId)
+            {
+                TetrahedralMesh::TetraArray thisTet;
+                for (int i = 0; i < 4; ++i)
+                {
+                    auto search = oldNewNumberingMap.find(t[i]);
+                    if (search == oldNewNumberingMap.end())
+                    {
+                        oldNewNumberingMap[t[i]] = pointIdLocal;
+                        thisTet[i] = pointIdLocal;
+
+                        // add point
+                        points.push_back(tetMesh->getVertexPosition(t[i]));
+
+                        pointIdLocal++;
+                    }
+                    else
+                    {
+                        thisTet[i] = search->second;
+                    }
+                }
+
+                // add the current element
+                tetra.push_back(thisTet);
+            }
+            tetIdGlobal++;
+        }
+
+        if (points.size() != 0)
+        {
+            gridPartition->initialize(points, tetra, false);
+            partitionedMeshes.push_back(gridPartition);
+        }
+    }
+
+    if (0)
+    {
+        size_t partNum = 0;
+        size_t maxNodes = 0;
+        size_t maxElements = 0;
+
+        LOG(INFO) << "---------------------------------";
+        LOG(INFO) << "Partition    Verts    Elements";
+        LOG(INFO) << "---------------------------------";
+        for (const auto& parMesh : partitionedMeshes)
+        {
+            if (parMesh->getNumVertices() != 0)
+            {
+                auto nbNodes = parMesh->getMaxNumVertices();
+                auto nbtet = parMesh->getNumTetrahedra();
+                LOG(INFO) << partNum << "      " << nbNodes << "     " << nbtet;
+
+                maxNodes = maxNodes < nbNodes ? nbNodes : maxNodes;
+                maxElements = maxElements < nbtet ? nbtet : maxElements;
+            }
+            partNum++;
+        }
+        LOG(INFO) << "\nMax. Verts: " << maxNodes << "  Max. elements: " << maxElements;
+        LOG(INFO) << "---------------------------------";
+    }
+}
+
+void createMandibleWithPartitions()
+{    
+    // First create left and right pieces
+    for (int i = 0; i < 2; ++i)
+    {
+        std::string name = "left";
+        if (i == 1) { name = "right"; }
+
+        // Create mandible scene object
+        auto mandibleTetMesh = MeshIO::read(mandibleLeftRightFileName[i]);
+        if (!mandibleTetMesh)
+        {
+            LOG(WARNING) << "Could not read mandible mesh from file for " << name << "piece";
+            return;
+        }
+        mandibleTetMesh->scale(0.1, Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->translate(Vec3d(0., 20., -15.), Geometry::TransformType::ApplyToData);
+
+        mandibleLeftRight[i] = std::make_shared<VisualObject>("mandible_" + name);
+        mandibleLeftRight[i]->setVisualGeometry(mandibleTetMesh);
+
+        auto materialMandible = std::make_shared<RenderMaterial>();
+        materialMandible->setDiffuseColor(Color(0.96, 0.96, 0.8627, 1.0));
+        mandibleTetMesh->setRenderMaterial(materialMandible);
+
+        scene->addSceneObject(mandibleLeftRight[i]);
+    }
+
+    // add scene objects from the partitions of the center piece
+    partitionUnstructuredTetMeshWithGrid();
+
+    mandibleCenterPartitions.resize(partitionedMeshes.size());
+    for (auto i = 0; i < partitionedMeshes.size(); ++i)
+    {
+        partitionedMeshes[i]->scale(0.1, Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->translate(Vec3d(0., 20., -15.), Geometry::TransformType::ApplyToData);
+
+        mandibleCenterPartitions[i] = std::make_shared<CollidingObject>("mandibleCenterpart_" + std::to_string(i));
+        mandibleCenterPartitions[i]->setVisualGeometry(partitionedMeshes[i]);
+        mandibleCenterPartitions[i]->setCollidingGeometry(partitionedMeshes[i]);
+
+        auto materialMandible = std::make_shared<RenderMaterial>();
+        materialMandible->setDiffuseColor(Color::Beige);
+        partitionedMeshes[i]->setRenderMaterial(materialMandible);
+
+        scene->addSceneObject(mandibleCenterPartitions[i]);
+    }
+}
+
+void createMaxilla()
+{
     // Create maxilla scene object (visual)
     auto maxillaMesh = MeshIO::read(maxillaFileName);
     if (!maxillaMesh)
@@ -269,7 +495,15 @@ void orthognathicSurgery()
     scene = sdk->createNewScene("orthognathicSurgery");
 
     createDeviceClient();
-    createSkull();
+    if (useMandiblePartitions)
+    {
+        createMandibleWithPartitions();
+    }
+    else
+    {
+        createMandible();
+    }
+    //createMaxilla();
 
     if (useSawTool)
     {
@@ -399,21 +633,38 @@ void orthognathicSurgery()
 
     if (useSawTool)
     {
-        if (mandible && saw)
-        {
-            CollisionData colData;
-            auto pointsMandible = std::dynamic_pointer_cast<PointSet>(mandible->getCollidingGeometry());
-            auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
-            auto CHA = std::make_shared<BoneSawingCH>(CollisionHandling::Side::A, colData, mandible, saw);
+        if (useMandiblePartitions && saw)
+        {            
+            std::vector<std::shared_ptr<PointSet>> pointsMandible;
+            for (auto i = 0; i < partitionedMeshes.size(); ++i)
+            {
+                pointsMandible.push_back(std::dynamic_pointer_cast<PointSet>(partitionedMeshes[i]));
+            }
 
-            graph->addInteractionPair(mandible, saw, CD, nullptr, CHA);
+            CollisionData colData;
+            auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
+            auto CHA = std::make_shared<MultiMeshBoneSawingCH>(CollisionHandling::Side::A, colData, mandibleCenterPartitions, saw);
+            graph->addInteractionPair(mandibleCenterPartitions[0], saw, CD, nullptr, CHA);
         }
+        else
+        {
+            if (mandibleWhole && saw)
+            {
+                CollisionData colData;
+                std::vector<std::shared_ptr<PointSet>> pointsMandible;
+                pointsMandible.push_back(std::dynamic_pointer_cast<PointSet>(mandibleWhole->getCollidingGeometry()));
+
+                auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
+                auto CHA = std::make_shared<BoneSawingCH>(CollisionHandling::Side::A, colData, mandibleWhole, saw);
+                graph->addInteractionPair(mandibleWhole, saw, CD, nullptr, CHA);
+            }
+        }        
     }
     else
     {
-        if (mandible && burr)
+        if (mandibleWhole && burr)
         {
-            auto pair = graph->addInteractionPair(mandible,
+            auto pair = graph->addInteractionPair(mandibleWhole,
                 burr,
                 CollisionDetection::Type::PointSetToSphere,
                 CollisionHandling::Type::BoneDrilling,

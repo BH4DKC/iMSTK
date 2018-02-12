@@ -4029,7 +4029,7 @@ void partitionUnstructuredTetMeshWithGrid()
             partitionSceneObject->setVisualGeometry(partitionedMeshes[i]);
 
             auto materialPar = std::make_shared<RenderMaterial>();
-            materialPar->setDiffuseColor(Color::Orange);
+            materialPar->setDiffuseColor(Color((double)x / numDivisions[0], (double)y / numDivisions[1], (double)z / numDivisions[2], 1.0));
             partitionedMeshes[i]->setRenderMaterial(materialPar);
 
             if (displayPartitions)

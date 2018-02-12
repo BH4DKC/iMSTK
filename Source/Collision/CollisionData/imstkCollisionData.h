@@ -54,6 +54,18 @@ struct MeshToAnalyticalCollisionData
 };
 
 ///
+/// \struct MeshToAnalyticalCollisionData
+///
+/// \brief Mesh to analytical point-penetration depth collision data
+///
+struct MeshGroupToAnalyticalCollisionData
+{
+    size_t meshId;
+    size_t nodeId;
+    Vec3d penetrationVector;
+};
+
+///
 /// \struct VertexTriangleCollisionData
 ///
 /// \brief Vertex-triangle collision data
@@ -156,6 +168,7 @@ public:
         MAColData.clear();
         PTColData.clear();
         NodePickData.clear();
+        MGAColData.clear();
     }
 
     std::vector<PositionDirectionCollisionData> PDColData; ///< Position Direction collision data
@@ -163,6 +176,7 @@ public:
     std::vector<TriangleVertexCollisionData> TVColData;    ///< Triangle Vertex collision data
     std::vector<EdgeEdgeCollisionData> EEColData;          ///< Edge Edge collision data
     std::vector<MeshToAnalyticalCollisionData> MAColData;  ///< Mesh to analytical collision data
+    std::vector<MeshGroupToAnalyticalCollisionData> MGAColData;
     std::vector<PointTetrahedronCollisionData> PTColData;  ///< Point Tetrahedron collision data
     std::vector<PickingCollisionData> NodePickData;        ///< List of points that are picked
 };

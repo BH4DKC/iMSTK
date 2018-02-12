@@ -30,7 +30,7 @@
 namespace imstk
 {
 void
-PointSetToSawCD::updateBB(Vec3d& maxx, Vec3d& minn)
+PointSetToSawCD::updateToolBoundingBox(Vec3d& maxx, Vec3d& minn)
 {
     Vec3d hl(maxx[0]-minn[0], maxx[1] - minn[1], maxx[2] - minn[2]);
     hl = 0.5*hl;
@@ -105,46 +105,69 @@ PointSetToSawCD::computeCollisionData()
         }
     }
 
-    //updateBB(bbMax, bbMin);
+    //updateToolBoundingBox(bbMax, bbMin);
 
-    // Cull points outside the bounding box of the OBB
-    size_t nodeId = 0;
-    std::vector<size_t> pointList;
-    auto vertList = m_pointSet->getVertexPositions();
-    for (const auto& p : vertList)
+    // Check the BB of the tool with the BB of the parts
+    for (size_t i = 0; i < m_pointSet.size(); ++i)
     {
-        if (p[0] > bbMin[0] && p[0] < bbMax[0])
-        {
-            if (p[1] > bbMin[1] && p[1] < bbMax[1])
-            {
-                if (p[2] > bbMin[2] && p[2] < bbMax[2])
-                {
-                    pointList.push_back(nodeId);
-                }
-            }
-        }
-        nodeId++;
+        m_BBOverlapped[i] = false;
+
+        if (m_BBmax[i][0] < bbMin[0]) { continue; }
+        if (m_BBmin[i][0] > bbMax[0]) { continue; }
+        
+        if (m_BBmax[i][1] < bbMin[1]) { continue; }
+        if (m_BBmin[i][1] > bbMax[1]) { continue; }
+        
+        if (m_BBmax[i][2] < bbMin[2]) { continue; }
+        if (m_BBmin[i][2] > bbMax[2]) { continue; }
+
+        m_BBOverlapped[i] = true;
     }
 
-    Vec3d vecAlongWidth = deviceOrientation*Vec3d(1, 0, 0);
-    vecAlongWidth.normalize();
-    for (const auto& i : pointList)
+    // Cull points outside the bounding box of the OBB
+    for (size_t i = 0; i < m_pointSet.size(); ++i)
     {
-        // Cull points outside the bounding cylinder of the OBB
-        const Vec3d s = vertList[i] - bladeCenter;
-        if (abs(s.dot(sawAxis)) < cylinderHalfLength)
+        if (m_BBOverlapped[i])
         {
-            const double distToAxis = (s - sawAxis*s.dot(sawAxis)).norm();
-            if (distToAxis < cylinderRadius)
+            size_t nodeId = 0;
+            std::vector<size_t> pointList;
+            auto vertList = m_pointSet[i]->getVertexPositions();
+            for (const auto& p : vertList)
             {
-                // Cull points if the distance is below certain threshold to the blade
-                if (abs(s.dot(bladeNormal)) < halfBladeWidth)
+                if (p[0] > bbMin[0] && p[0] < bbMax[0])
                 {
-                    const double depth = cylinderRadius - s.dot(vecAlongWidth);
-                    m_colData.MAColData.push_back({ i, vecAlongWidth* -depth });
+                    if (p[1] > bbMin[1] && p[1] < bbMax[1])
+                    {
+                        if (p[2] > bbMin[2] && p[2] < bbMax[2])
+                        {
+                            pointList.push_back(nodeId);
+                        }
+                    }
+                }
+                nodeId++;
+            }
+
+            Vec3d vecAlongWidth = deviceOrientation*Vec3d(1, 0, 0);
+            vecAlongWidth.normalize();
+            for (const auto& pid : pointList)
+            {
+                // Cull points outside the bounding cylinder of the OBB
+                const Vec3d s = vertList[pid] - bladeCenter;
+                if (abs(s.dot(sawAxis)) < cylinderHalfLength)
+                {
+                    const double distToAxis = (s - sawAxis*s.dot(sawAxis)).norm();
+                    if (distToAxis < cylinderRadius)
+                    {
+                        // Cull points if the distance is below certain threshold to the blade
+                        if (abs(s.dot(bladeNormal)) < halfBladeWidth)
+                        {
+                            const double depth = cylinderRadius - s.dot(vecAlongWidth);
+                            m_colData.MGAColData.push_back({ i, pid, vecAlongWidth* -depth });
+                        }
+                    }
                 }
             }
-        }
+        }        
     }
 }
 } // imstk
