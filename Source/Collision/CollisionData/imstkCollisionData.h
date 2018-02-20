@@ -63,6 +63,7 @@ struct MeshGroupToAnalyticalCollisionData
     size_t meshId;
     size_t nodeId;
     Vec3d penetrationVector;
+    double distToBlade;
 };
 
 ///

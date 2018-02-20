@@ -83,8 +83,8 @@ private:
     std::vector<std::shared_ptr<CollidingObject>> m_bone;    ///> bone object
     std::shared_ptr<CollidingObject> m_saw;     ///> drill object
 
-    double m_stiffness = 10e-01;                ///> Stiffness coefficient associated with virtual coupling object
-    double m_damping = 0.005;                   ///> Damping coefficient associated with virtual coupling object
+    double m_stiffness = 10e-01*2;                ///> Stiffness coefficient associated with virtual coupling object
+    double m_damping = 0.005*10;                   ///> Damping coefficient associated with virtual coupling object
 
     double m_angularSpeed = 10*PI;              ///> Angular speed of the drill (rad per sec)
     double m_BoneHardness = 10;                 ///> Angular speed of the drill (rad per sec)

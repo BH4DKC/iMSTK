@@ -72,7 +72,7 @@ PointSetToSawCD::computeCollisionData()
     const double scalingBlade = 10.0; // should be same as in the main
     const double cylinderRadius = scalingBlade*0.2236;
     const double cylinderHalfLength = scalingBlade*1.0;
-    const double halfBladeWidth = scalingBlade*0.2/2;
+    const double halfBladeWidth = scalingBlade*0.01;// 0.2 / 2 / 10;
     Vec3d bladeNormal = deviceOrientation*Vec3d(0., 1., 0.);
     bladeNormal.normalize();
     Vec3d sawAxis = deviceOrientation*Vec3d(0., 0., -1.); // Same as cylinder axis
@@ -105,7 +105,7 @@ PointSetToSawCD::computeCollisionData()
         }
     }
 
-    //updateToolBoundingBox(bbMax, bbMin);
+    updateToolBoundingBox(bbMax, bbMin);
 
     // Check the BB of the tool with the BB of the parts
     for (size_t i = 0; i < m_pointSet.size(); ++i)
@@ -159,15 +159,22 @@ PointSetToSawCD::computeCollisionData()
                     if (distToAxis < cylinderRadius)
                     {
                         // Cull points if the distance is below certain threshold to the blade
-                        if (abs(s.dot(bladeNormal)) < halfBladeWidth)
+                        double distToBlade = abs(s.dot(bladeNormal));
+                        if (distToBlade < halfBladeWidth)
                         {
-                            const double depth = cylinderRadius - s.dot(vecAlongWidth);
-                            m_colData.MGAColData.push_back({ i, pid, vecAlongWidth* -depth });
+                            double depth = cylinderRadius - s.dot(vecAlongWidth);
+                            /*if (abs(depth) > 0.4)
+                            {
+                                depth = 0.4*depth / abs(depth);
+                            }*/
+                            m_colData.MGAColData.push_back({ i, pid, vecAlongWidth* -depth, distToBlade });
                         }
                     }
                 }
             }
         }        
     }
+
+    //std::cout << "|------->" << m_colData.MGAColData.size() << std::endl;
 }
 } // imstk

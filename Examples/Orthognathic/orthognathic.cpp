@@ -83,7 +83,7 @@ using namespace imstk;
 
 // settings
 const bool useSawTool = true;
-const bool displayCollStructures = false;
+const bool displayCollPrimitives = false;
 const bool useMandiblePartitions = true;
 
 // Global variables
@@ -100,7 +100,7 @@ const unsigned int numDivisions[3] = { 4, 20, 20 };
 const string mandibleCenterFileName(iMSTK_DATA_ROOT "/center.vtu");
 std::vector<std::shared_ptr<TetrahedralMesh>> partitionedMeshes;
 
-//
+// scene and simulation manager
 std::shared_ptr<SimulationManager> sdk;
 std::shared_ptr<Scene> scene;
 
@@ -120,6 +120,12 @@ std::shared_ptr<VisualObject> mandibleLeftRight[2];
 std::shared_ptr<VisualObject> maxilla;
 std::shared_ptr<CollidingObject> saw;
 std::shared_ptr<CollidingObject> burr;
+
+// collision primitives
+std::shared_ptr<OBB> obb;
+std::shared_ptr<OBB> bb;
+std::shared_ptr<SurfaceMesh> obbSurfMesh;
+std::shared_ptr<SurfaceMesh> bbSurfMesh;
 
 const double sawScale = 10.0;
 const Mat3d rotationSaw = Mat3d::Identity();//Eigen::AngleAxis<double>(PI / 2, Vec3d(1., 0., 0.)).toRotationMatrix();//*Eigen::AngleAxis<double>(PI, Vec3d(0., 1., 0.)).toRotationMatrix();
@@ -416,12 +422,12 @@ void createSawTool()
     scene->addObjectController(sawController);
 #endif
 
-#ifdef iMSTK_AUDIO_ENABLED_
+#ifdef iMSTK_AUDIO_ENABLED
     // Load a sound buffer from a .wav file
     sf::SoundBuffer buffer;
     if (!buffer.loadFromFile(soundFileName))
     {
-        LOG(WARNING) << "testSound: Could not open the input sound file: " << soundFileName;
+        LOG(WARNING) << "createSawTool: Could not open the input sound file: " << soundFileName;
         return;
     }
 
@@ -488,6 +494,121 @@ void createBurrTool()
 #endif
 }
 
+void displayCollisionPrimitives()
+{
+    obb = std::make_shared<OBB>();
+    bb = std::make_shared<OBB>();
+    if (useSawTool)
+    {
+        obb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
+        obb->m_halfLengths = sawScale*Vec3d(0.2, 0.1/10, 1.0);
+        obb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
+        obb->m_axis[1] = rotationSaw*Vec3d(0., 1., 0.);
+        obb->m_axis[2] = rotationSaw*Vec3d(0., 0., 1.);
+
+        // points
+        obbSurfMesh = std::make_shared<SurfaceMesh>();
+        StdVectorOfVec3d&& corners = obb->getCorners();
+        obbSurfMesh->setInitialVertexPositions(corners);
+        obbSurfMesh->setVertexPositions(corners);
+
+        // connectivity
+        std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
+        { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+        { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
+
+        obbSurfMesh->setTrianglesVertices(triangles);
+
+        auto material = std::make_shared<RenderMaterial>();
+        material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+        material->setLineWidth(1.5);
+        material->setDebugColor(Color::Red);
+        obbSurfMesh->setRenderMaterial(material);
+
+        auto obbObj = std::make_shared<VisualObject>("OBB");
+        obbObj->setVisualGeometry(obbSurfMesh);
+
+        if (displayCollPrimitives)
+        {
+            scene->addSceneObject(obbObj);
+        }
+
+        //-----
+
+        bb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
+        bb->m_halfLengths = sawScale*Vec3d(0.2, 0.1, 1.0);
+        bb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
+        bb->m_axis[1] = rotationSaw*Vec3d(0., 1., 0.);
+        bb->m_axis[2] = rotationSaw*Vec3d(0., 0., 1.);
+
+        // points
+        bbSurfMesh = std::make_shared<SurfaceMesh>();
+        StdVectorOfVec3d&& bb_corners = bb->getCorners();
+        bbSurfMesh->setInitialVertexPositions(bb_corners);
+        bbSurfMesh->setVertexPositions(bb_corners);
+
+        // connectivity
+        std::vector<SurfaceMesh::TriangleArray> bb_triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
+        { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
+        { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
+
+        bbSurfMesh->setTrianglesVertices(bb_triangles);
+
+        auto bb_material = std::make_shared<RenderMaterial>();
+        bb_material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+        bb_material->setLineWidth(1.5);
+        bb_material->setDebugColor(Color::Yellow);
+        bbSurfMesh->setRenderMaterial(bb_material);
+
+        auto bbObj = std::make_shared<VisualObject>("BB");
+        bbObj->setVisualGeometry(bbSurfMesh);
+        if (displayCollPrimitives)
+        {
+            scene->addSceneObject(bbObj);
+        }
+
+#ifdef iMSTK_USE_OPENHAPTICS
+        if (displayCollPrimitives)
+        {
+            auto obbController = std::make_shared<SceneObjectController>(obbObj, deviceTracker);
+            scene->addObjectController(obbController);
+        }
+
+#endif
+        // Create colliding cylinder scene object
+        auto CylinderGeomVis = std::make_shared<Cylinder>();
+        CylinderGeomVis->setRadius(sawScale*0.2236);
+        CylinderGeomVis->setLength(sawScale*2.);
+        CylinderGeomVis->rotate(rotationSaw, Geometry::TransformType::ApplyToData);
+        CylinderGeomVis->rotate(Vec3d(1., 0., 0.), PI / 2., Geometry::TransformType::ApplyToData);
+        CylinderGeomVis->translate(rotationSaw*Vec3d(0., 0., sawScale* -6.5), Geometry::TransformType::ApplyToData);
+
+        auto cylinderMaterial = std::make_shared<RenderMaterial>();
+        cylinderMaterial->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
+        cylinderMaterial->setLineWidth(1.5);
+        cylinderMaterial->setDebugColor(Color::Green);
+        CylinderGeomVis->setRenderMaterial(cylinderMaterial);
+
+        auto CylinderObj = std::make_shared<CollidingObject>("Cylinder");
+        CylinderObj->setVisualGeometry(CylinderGeomVis);
+        CylinderObj->setCollidingGeometry(CylinderGeomVis);
+
+        if (displayCollPrimitives)
+        {
+            scene->addSceneObject(CylinderObj);
+        }
+
+#ifdef iMSTK_USE_OPENHAPTICS
+        if (displayCollPrimitives)
+        {
+            // Create and add virtual coupling object controller in the scene
+            auto cylinderController = std::make_shared<SceneObjectController>(CylinderObj, deviceTracker);
+            scene->addObjectController(cylinderController);
+        }
+#endif
+    }
+}
+
 void orthognathicSurgery()
 {
     // SDK and Scene
@@ -514,119 +635,7 @@ void orthognathicSurgery()
         createBurrTool();
     }
 
-    auto obb = std::make_shared<OBB>();
-    auto bb = std::make_shared<OBB>();
-    std::shared_ptr<SurfaceMesh> obbSurfMesh;
-    std::shared_ptr<SurfaceMesh> bbSurfMesh;
-    if (useSawTool)
-    {
-        obb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
-        obb->m_halfLengths = sawScale*Vec3d(0.2, 0.1, 1.0);
-        obb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
-        obb->m_axis[1] = rotationSaw*Vec3d(0., 1., 0.);
-        obb->m_axis[2] = rotationSaw*Vec3d(0., 0., 1.);
-
-        // points
-        obbSurfMesh = std::make_shared<SurfaceMesh>();
-        StdVectorOfVec3d&& corners = obb->getCorners();
-        obbSurfMesh->setInitialVertexPositions(corners);
-        obbSurfMesh->setVertexPositions(corners);
-
-        // connectivity
-        std::vector<SurfaceMesh::TriangleArray> triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
-                                                              { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
-                                                              { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
-
-        obbSurfMesh->setTrianglesVertices(triangles);
-
-        auto material = std::make_shared<RenderMaterial>();
-        material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
-        material->setLineWidth(1.5);
-        material->setDebugColor(Color::Red);
-        obbSurfMesh->setRenderMaterial(material);
-
-        auto obbObj = std::make_shared<VisualObject>("OBB");
-        obbObj->setVisualGeometry(obbSurfMesh);
-
-        if (displayCollStructures)
-        {
-            scene->addSceneObject(obbObj);
-        }
-
-        //-----
-
-        bb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
-        bb->m_halfLengths = sawScale*Vec3d(0.2, 0.1, 1.0);
-        bb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
-        bb->m_axis[1] = rotationSaw*Vec3d(0., 1., 0.);
-        bb->m_axis[2] = rotationSaw*Vec3d(0., 0., 1.);
-
-        // points
-        bbSurfMesh = std::make_shared<SurfaceMesh>();
-        StdVectorOfVec3d&& bb_corners = bb->getCorners();
-        bbSurfMesh->setInitialVertexPositions(bb_corners);
-        bbSurfMesh->setVertexPositions(bb_corners);
-
-        // connectivity
-        std::vector<SurfaceMesh::TriangleArray> bb_triangles = { { 0, 1, 2 },{ 0, 2, 3 },{ 1, 5, 6 },
-                                                                 { 1, 6, 2 },{ 0, 1, 5 },{ 0, 5, 4 },{ 0, 4, 7 },{ 0, 7, 3 },
-                                                                 { 3, 2, 6 },{ 3, 6, 7 },{ 4, 5, 6 },{ 4, 6, 7 } };
-
-        bbSurfMesh->setTrianglesVertices(bb_triangles);
-
-        auto bb_material = std::make_shared<RenderMaterial>();
-        bb_material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
-        bb_material->setLineWidth(1.5);
-        bb_material->setDebugColor(Color::Yellow);
-        bbSurfMesh->setRenderMaterial(bb_material);
-
-        auto bbObj = std::make_shared<VisualObject>("BB");
-        bbObj->setVisualGeometry(bbSurfMesh);
-        if (displayCollStructures)
-        {
-            scene->addSceneObject(bbObj);
-        }
-
-#ifdef iMSTK_USE_OPENHAPTICS
-        if (displayCollStructures)
-        {
-            auto obbController = std::make_shared<SceneObjectController>(obbObj, deviceTracker);
-            scene->addObjectController(obbController);
-        }
-
-#endif
-        // Create colliding cylinder scene object
-        auto CylinderGeomVis = std::make_shared<Cylinder>();
-        CylinderGeomVis->setRadius(sawScale*0.2236);
-        CylinderGeomVis->setLength(sawScale*2.);
-        CylinderGeomVis->rotate(rotationSaw, Geometry::TransformType::ApplyToData);
-        CylinderGeomVis->rotate(Vec3d(1., 0., 0.), PI / 2., Geometry::TransformType::ApplyToData);
-        CylinderGeomVis->translate(rotationSaw*Vec3d(0., 0., sawScale* -6.5), Geometry::TransformType::ApplyToData);
-
-        auto cylinderMaterial = std::make_shared<RenderMaterial>();
-        cylinderMaterial->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME);
-        cylinderMaterial->setLineWidth(1.5);
-        cylinderMaterial->setDebugColor(Color::Green);
-        CylinderGeomVis->setRenderMaterial(cylinderMaterial);
-
-        auto CylinderObj = std::make_shared<CollidingObject>("Cylinder");
-        CylinderObj->setVisualGeometry(CylinderGeomVis);
-        CylinderObj->setCollidingGeometry(CylinderGeomVis);
-
-        if (displayCollStructures)
-        {
-            scene->addSceneObject(CylinderObj);
-        }
-
-#ifdef iMSTK_USE_OPENHAPTICS
-        if (displayCollStructures)
-        {
-            // Create and add virtual coupling object controller in the scene
-            auto cylinderController = std::make_shared<SceneObjectController>(CylinderObj, deviceTracker);
-            scene->addObjectController(cylinderController);
-        }
-#endif
-    }
+    displayCollisionPrimitives();
 
     // Create a collision graph
     auto graph = scene->getCollisionGraph();

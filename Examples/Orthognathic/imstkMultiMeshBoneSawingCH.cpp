@@ -99,7 +99,7 @@ MultiMeshBoneSawingCH::erodeBone()
             continue;
         }
 
-        m_nodalDensity[cd.meshId][cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001 * 1000;
+        m_nodalDensity[cd.meshId][cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001 * 900;
 
 #ifdef TETRA_REMOVAL_STRATEGY_CONSERVATIVE
         if (m_nodalDensity[cd.meshId][cd.nodeId] <= 0.2)
@@ -182,7 +182,7 @@ MultiMeshBoneSawingCH::computeContactForces()
             continue;
         }
 
-        if (cd.penetrationVector.norm() > maxDepth)
+        if (cd.penetrationVector.norm() > maxDepth)// && cd.distToBlade < 0.01
         {
             maxDepth = cd.penetrationVector.norm();
             t = cd.penetrationVector;
