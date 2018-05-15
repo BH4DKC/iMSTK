@@ -617,8 +617,11 @@ void testTwoOmnis()
 
     // Device Server
     auto server = std::make_shared<HDAPIDeviceServer>();
-    server->addDeviceClient(client0);
-    server->addDeviceClient(client1);
+    if (client0) 
+        server->addDeviceClient(client0);
+
+    if (client1) 
+        server->addDeviceClient(client1);
     sdk->addModule(server);
 
     // Plane
@@ -629,19 +632,25 @@ void testTwoOmnis()
     auto sphere0Obj = apiutils::createCollidingAnalyticalSceneObject(
         Geometry::Type::Sphere, scene, "Sphere0", 1., Vec3d(2, 2.5, 0));
 
-    auto trackCtrl0 = std::make_shared<DeviceTracker>(client0);
-    trackCtrl0->setTranslationScaling(0.05);
-    auto controller0 = std::make_shared<SceneObjectController>(sphere0Obj, trackCtrl0);
-    scene->addObjectController(controller0);
+    if (client0)
+    {
+        auto trackCtrl0 = std::make_shared<DeviceTracker>(client0);
+        trackCtrl0->setTranslationScaling(0.05);
+        auto controller0 = std::make_shared<SceneObjectController>(sphere0Obj, trackCtrl0);
+        scene->addObjectController(controller0);
+    }
 
     // Sphere1
     auto sphere1Obj = apiutils::createCollidingAnalyticalSceneObject(
         Geometry::Type::Sphere, scene, "Sphere1", 1., Vec3d(-2, 2.5, 0));
 
-    auto trackCtrl1 = std::make_shared<DeviceTracker>(client1);
-    trackCtrl1->setTranslationScaling(0.05);
-    auto controller1 = std::make_shared<SceneObjectController>(sphere1Obj, trackCtrl1);
-    scene->addObjectController(controller1);
+    if (client1)
+    {
+        auto trackCtrl1 = std::make_shared<DeviceTracker>(client1);
+        trackCtrl1->setTranslationScaling(0.05);
+        auto controller1 = std::make_shared<SceneObjectController>(sphere1Obj, trackCtrl1);
+        scene->addObjectController(controller1);
+    }
 
     // Update Camera position
     auto cam = scene->getCamera();
@@ -801,7 +810,7 @@ void testReadMesh()
 void testViewer()
 {
     // SDK and Scene
-    auto sdk = std::make_shared<SimulationManager>();
+    auto sdk = std::make_shared<SimulationManager>(true);
     auto sceneTest = sdk->createNewScene("ViewerTest");
 
     // Plane
@@ -3825,8 +3834,8 @@ void partitionUnstructuredTetMeshWithGrid()
     const unsigned int numGridCells = numDivisions[0] * numDivisions[1] * numDivisions[2];
     const bool savePartitions = false;
     const bool printStats = true;
-    const string writeLocation(iMSTK_DATA_ROOT "/partitions");
-    const string inputMeshFineName(iMSTK_DATA_ROOT "/center.vtu");
+    const string writeLocation(iMSTK_DATA_ROOT "/orthognatic /partitions");
+    const string inputMeshFineName(iMSTK_DATA_ROOT "/orthognatic/center.vtu");
     const string outputPartitionName("meshPar");
     const bool displayPartitions = 1;
 

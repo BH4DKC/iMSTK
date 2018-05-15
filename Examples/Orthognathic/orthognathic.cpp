@@ -85,6 +85,7 @@ using namespace imstk;
 const bool useSawTool = true;
 const bool displayCollPrimitives = false;
 const bool useMandiblePartitions = true;
+const bool displayInVRMode = false;
 
 // Global variables
 const std::string phantomOmniName = "Phantom1";
@@ -97,7 +98,7 @@ iMSTK_DATA_ROOT "/orthognatic/Mandible-right-surface.stl" };
 
 // partitions
 const unsigned int numDivisions[3] = { 4, 20, 20 };
-const string mandibleCenterFileName(iMSTK_DATA_ROOT "/center.vtu");
+const string mandibleCenterFileName(iMSTK_DATA_ROOT "/orthognatic/center.vtu");
 std::vector<std::shared_ptr<TetrahedralMesh>> partitionedMeshes;
 
 // scene and simulation manager
@@ -143,6 +144,7 @@ void createDeviceClient()
 
     // Device tracker
     deviceTracker = std::make_shared<DeviceTracker>(client);
+    deviceTracker->setTranslationOffset(Vec3d(50.0, .0, .0));
     //deviceTracker->setTranslationScaling(0.1);
 #endif
 }
@@ -500,8 +502,8 @@ void displayCollisionPrimitives()
     bb = std::make_shared<OBB>();
     if (useSawTool)
     {
-        obb->m_center = sawScale*rotationSaw*Vec3d(0., 0., -6.5);
-        obb->m_halfLengths = sawScale*Vec3d(0.2, 0.1/10, 1.0);
+        obb->m_center = sawScale*rotationSaw*Vec3d(0.1, 0., -6.5);
+        obb->m_halfLengths = sawScale*Vec3d(0.2/5, 0.1/20, 1.0);
         obb->m_axis[0] = rotationSaw*Vec3d(1., 0., 0.);
         obb->m_axis[1] = rotationSaw*Vec3d(0., 1., 0.);
         obb->m_axis[2] = rotationSaw*Vec3d(0., 0., 1.);
@@ -612,7 +614,7 @@ void displayCollisionPrimitives()
 void orthognathicSurgery()
 {
     // SDK and Scene
-    sdk = std::make_shared<SimulationManager>();
+    sdk = std::make_shared<SimulationManager>(displayInVRMode);
     scene = sdk->createNewScene("orthognathicSurgery");
 
     createDeviceClient();
