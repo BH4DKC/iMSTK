@@ -86,15 +86,18 @@ const bool useSawTool = true;
 const bool displayCollPrimitives = false;
 const bool useMandiblePartitions = true;
 const bool displayInVRMode = false;
+const bool recordData = false;
 
 // Global variables
-const std::string phantomOmniName = "Phantom1";
+const std::string phantomOmniName = "Default Device";
 const std::string mandibleWholeFileName = iMSTK_DATA_ROOT "/orthognatic/mandible.veg";
-const std::string maxillaFileName = iMSTK_DATA_ROOT "/orthognatic/maxilla.veg";
+//const std::string maxillaFileName = iMSTK_DATA_ROOT "/orthognatic/maxilla2.vtk";
 const std::string sawFileName = iMSTK_DATA_ROOT "/orthognatic/saw.obj";
 const std::string soundFileName = iMSTK_DATA_ROOT "/orthognatic/Dentistdrill3.wav";
 const std::string mandibleLeftRightFileName[2] = { iMSTK_DATA_ROOT "/orthognatic/Mandible-left-surface.stl",
 iMSTK_DATA_ROOT "/orthognatic/Mandible-right-surface.stl" };
+
+const std::string maxillaFileName = iMSTK_DATA_ROOT "/orthognatic/maxillaAndRest.stl";
 
 // partitions
 const unsigned int numDivisions[3] = { 4, 20, 20 };
@@ -128,7 +131,7 @@ std::shared_ptr<OBB> bb;
 std::shared_ptr<SurfaceMesh> obbSurfMesh;
 std::shared_ptr<SurfaceMesh> bbSurfMesh;
 
-const double sawScale = 10.0;
+const double sawScale = 10.0 / 5;
 const Mat3d rotationSaw = Mat3d::Identity();//Eigen::AngleAxis<double>(PI / 2, Vec3d(1., 0., 0.)).toRotationMatrix();//*Eigen::AngleAxis<double>(PI, Vec3d(0., 1., 0.)).toRotationMatrix();
 
 void createDeviceClient()
@@ -347,16 +350,17 @@ void createMandibleWithPartitions()
             LOG(WARNING) << "Could not read mandible mesh from file for " << name << "piece";
             return;
         }
-        mandibleTetMesh->scale(0.1, Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->scale(0.1/5, Geometry::TransformType::ApplyToData);
         mandibleTetMesh->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
         mandibleTetMesh->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
-        mandibleTetMesh->translate(Vec3d(0., 20., -15.), Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->rotate(Vec3d(1., 0., 0.), PI / 6, Geometry::TransformType::ApplyToData);
+        mandibleTetMesh->translate(Vec3d(0., -8.5+15, -15. - 13), Geometry::TransformType::ApplyToData);
 
         mandibleLeftRight[i] = std::make_shared<VisualObject>("mandible_" + name);
         mandibleLeftRight[i]->setVisualGeometry(mandibleTetMesh);
 
         auto materialMandible = std::make_shared<RenderMaterial>();
-        materialMandible->setDiffuseColor(Color(0.96, 0.96, 0.8627, 1.0));
+        materialMandible->setDiffuseColor(Color(238. / 255, 232. / 255, 170. / 255, 1.0));
         mandibleTetMesh->setRenderMaterial(materialMandible);
 
         scene->addSceneObject(mandibleLeftRight[i]);
@@ -368,24 +372,25 @@ void createMandibleWithPartitions()
     mandibleCenterPartitions.resize(partitionedMeshes.size());
     for (auto i = 0; i < partitionedMeshes.size(); ++i)
     {
-        partitionedMeshes[i]->scale(0.1, Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->scale(0.1/5, Geometry::TransformType::ApplyToData);
         partitionedMeshes[i]->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
         partitionedMeshes[i]->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
-        partitionedMeshes[i]->translate(Vec3d(0., 20., -15.), Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->rotate(Vec3d(1., 0., 0.), PI/6, Geometry::TransformType::ApplyToData);
+        partitionedMeshes[i]->translate(Vec3d(0., -8.5+15, -15.-13.), Geometry::TransformType::ApplyToData);
 
         mandibleCenterPartitions[i] = std::make_shared<CollidingObject>("mandibleCenterpart_" + std::to_string(i));
         mandibleCenterPartitions[i]->setVisualGeometry(partitionedMeshes[i]);
         mandibleCenterPartitions[i]->setCollidingGeometry(partitionedMeshes[i]);
 
         auto materialMandible = std::make_shared<RenderMaterial>();
-        materialMandible->setDiffuseColor(Color::Beige);
+        materialMandible->setDiffuseColor(Color(238. / 255, 232. / 255, 170. / 255, 1.0));
         partitionedMeshes[i]->setRenderMaterial(materialMandible);
 
         scene->addSceneObject(mandibleCenterPartitions[i]);
     }
 }
 
-void createMaxilla()
+void createMaxillaAndOthers()
 {
     // Create maxilla scene object (visual)
     auto maxillaMesh = MeshIO::read(maxillaFileName);
@@ -397,6 +402,18 @@ void createMaxilla()
     auto maxillaGeom = std::dynamic_pointer_cast<SurfaceMesh>(maxillaMesh);
     maxilla = std::make_shared<VisualObject>("maxilla");
     maxilla->setVisualGeometry(maxillaGeom);
+
+    maxillaGeom->scale(0.2, Geometry::TransformType::ApplyToData);
+    maxillaGeom->rotate(Vec3d(1., 0., 0.), -PI / 2., Geometry::TransformType::ApplyToData);
+    maxillaGeom->rotate(Vec3d(0., 1., 0.), PI, Geometry::TransformType::ApplyToData);
+    //maxillaGeom->rotate(Vec3d(1., 0., 0.), -PI/6, Geometry::TransformType::ApplyToData);
+    maxillaGeom->translate(Vec3d(0.5, -5.+15, -32.), Geometry::TransformType::ApplyToData);
+    
+    auto materialMaxilla = std::make_shared<RenderMaterial>();
+    //materialMaxilla->setDiffuseColor(Color(0.96, 0.96, 0.8627, 1.0));
+    materialMaxilla->setDiffuseColor(Color(238./255, 232./255, 170./255, 1.0));
+    maxillaGeom->setRenderMaterial(materialMaxilla);
+    
     scene->addSceneObject(maxilla);
 }
 
@@ -611,6 +628,53 @@ void displayCollisionPrimitives()
     }
 }
 
+void setupLogger(std::shared_ptr<MultiMeshBoneSawingCH> cr, std::string filename)
+{
+    Logger* logger;
+    auto initLogger =
+        [&logger](Module* module)
+    {
+        logger = new Logger(module->getName());
+    };
+
+    auto doLog =
+        [&cr, &logger](Module* module)
+    {
+        // Print position & velocity
+        auto client = static_cast<VRPNDeviceClient*>(module);
+        auto& listOfErodedNodes = cr->getCurrentErodedNodes();
+
+        for (auto &p : listOfErodedNodes)
+        {
+            std::string message =
+                "(" + std::to_string(p[0])
+                + ", " + std::to_string(p[1])
+                + ", " + std::to_string(p[2]) + ")\n";
+
+            logger->log(message, false);
+        }
+        if (listOfErodedNodes.size() > 0)
+        {
+            std::string message = "\n\n";
+            logger->log(message, false);
+            logger->updateLogTime();
+        }        
+    };
+
+
+    auto cleanupLogger =
+        [&logger](Module* module)
+    {
+        logger->shutdown();
+        delete logger;
+    };
+    
+    auto sceneMan = sdk->getSceneManager(scene);
+    sceneMan->setPostInitCallback(initLogger);
+    sceneMan->setPostUpdateCallback(doLog);
+    sceneMan->setPostCleanUpCallback(cleanupLogger);
+}
+
 void orthognathicSurgery()
 {
     // SDK and Scene
@@ -626,7 +690,7 @@ void orthognathicSurgery()
     {
         createMandible();
     }
-    //createMaxilla();
+    createMaxillaAndOthers();
 
     if (useSawTool)
     {
@@ -656,6 +720,11 @@ void orthognathicSurgery()
             auto CD = std::make_shared<PointSetToSawCD>(pointsMandible, deviceTracker, obb, bbSurfMesh, colData);
             auto CHA = std::make_shared<MultiMeshBoneSawingCH>(CollisionHandling::Side::A, colData, mandibleCenterPartitions, saw);
             graph->addInteractionPair(mandibleCenterPartitions[0], saw, CD, nullptr, CHA);
+
+            if (recordData)
+            {
+                setupLogger(CHA, "logPos.txt");
+            }            
         }
         else
         {

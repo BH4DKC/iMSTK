@@ -112,7 +112,7 @@
 #endif
 
 // global variables
-const std::string phantomOmni1Name = "Phantom1";
+const std::string phantomOmni1Name = "Default Device";
 const std::string phantomOmni2Name = "Phantom2";
 const std::string novintFalcon1Name = "device0";
 const std::string novintFalcon2Name = "device1";
@@ -4176,7 +4176,7 @@ int main()
     /*------------------
     Test devices, controllers
     ------------------*/
-    //testObjectController();
+    testObjectController();
     //testTwoFalcons();
     //testCameraController();
     //testTwoOmnis();

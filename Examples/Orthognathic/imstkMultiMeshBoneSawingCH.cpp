@@ -91,6 +91,8 @@ MultiMeshBoneSawingCH::MultiMeshBoneSawingCH(const Side& side,
 void
 MultiMeshBoneSawingCH::erodeBone()
 {
+    m_posOfRemovedNodes.clear();
+
     for (auto n = 0; n < m_colData.MGAColData.size(); ++n)
     {
         auto cd = m_colData.MGAColData[n];
@@ -131,13 +133,15 @@ MultiMeshBoneSawingCH::erodeBone()
         }
 #else
         bool topologyChanged = false;
-        if (m_nodalDensity[cd.meshId][cd.nodeId] <= 0.)
+        if (m_nodalDensity[cd.meshId][cd.nodeId] <= 0. && !m_nodeRemovalStatus[cd.meshId][cd.nodeId])
         {
             m_erodedNodes[cd.meshId].push_back(cd.nodeId);
-            m_nodeRemovalStatus[cd.meshId][cd.nodeId] = true;
+            m_nodeRemovalStatus[cd.meshId][cd.nodeId] = true;            
             
             if (auto boneTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_bone[cd.meshId]->getCollidingGeometry()))
             {
+                m_posOfRemovedNodes.push_back(boneTetMesh->getVertexPosition(cd.nodeId));
+
                 // tag the tetra that will be removed
                 for (auto& tetId : m_nodalCardinalSet[cd.meshId][cd.nodeId])
                 {
@@ -185,7 +189,7 @@ MultiMeshBoneSawingCH::computeContactForces()
         if (cd.penetrationVector.norm() > maxDepth)// && cd.distToBlade < 0.01
         {
             maxDepth = cd.penetrationVector.norm();
-            t = cd.penetrationVector;
+            t = 0.2*cd.penetrationVector;
         }
     }
     //std::cout << "Max. " << maxDepth << std::endl;
@@ -199,14 +203,14 @@ MultiMeshBoneSawingCH::computeContactForces()
     force += m_initialStep ? Vec3d(0.0, 0.0, 0.0) : (-m_damping / dt)*(t - m_prevPos);
 
     // Update object contact force
-    m_saw->appendForce(force);
+    m_saw->appendForce(1.0*force);
 
     // Decrease the density at the nodal points and remove if the density goes below 0
     this->erodeBone();
-    
-
+   
     // Housekeeping
     m_initialStep = false;
     m_prevPos = t;
 }
+
 }// iMSTK

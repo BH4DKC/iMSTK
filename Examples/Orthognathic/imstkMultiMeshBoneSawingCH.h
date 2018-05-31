@@ -79,6 +79,8 @@ public:
     inline const double getDamping() const { return m_damping; }
     inline void setDamping(const double d) { m_damping = d; }
 
+    std::vector<Vec3d>& getCurrentErodedNodes() { return m_posOfRemovedNodes; }
+
 private:
     std::vector<std::shared_ptr<CollidingObject>> m_bone;    ///> bone object
     std::shared_ptr<CollidingObject> m_saw;     ///> drill object
@@ -98,6 +100,8 @@ private:
 
     bool m_initialStep = true;                  ///> Number of times steps
     Vec3d m_prevPos;                            ///> Previous position of the colliding object
+
+    std::vector<Vec3d> m_posOfRemovedNodes;
 };
 }
 
