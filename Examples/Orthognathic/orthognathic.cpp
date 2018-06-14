@@ -417,6 +417,109 @@ void createMaxillaAndOthers()
     scene->addSceneObject(maxilla);
 }
 
+// Example modified from SFML/Examples
+void testSound(const std::string& filename)
+{
+#ifdef iMSTK_AUDIO_ENABLED
+    // Load a sound buffer from a .wav file
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromFile(filename))
+    {
+        LOG(WARNING) << "testSound: Could not open the input sound file: " << filename;
+        return;
+    }
+
+    // Display sound informations
+    std::cout << filename << std::endl;
+    std::cout << " " << buffer.getDuration().asSeconds() << " seconds" << std::endl;
+    std::cout << " " << buffer.getSampleRate() << " samples / sec" << std::endl;
+    std::cout << " " << buffer.getChannelCount() << " channels" << std::endl;
+
+    // Create a sound instance and play it
+    sf::Sound sound(buffer);
+    sound.setPosition(0., 0., 0.);
+    sound.setMinDistance(5.);
+    sound.setAttenuation(10.);
+
+    sound.play();
+
+    Vec3d listnerPos(-5., -5., -5.);
+    // Loop while the sound is playing
+    while (sound.getStatus() == sf::Sound::Playing)
+    {
+        // Leave some CPU time for other processes
+        sf::sleep(sf::milliseconds(100));
+
+        // Move the listener away
+        listnerPos += Vec3d(.2, .2, .2);
+        sf::Listener::setPosition(listnerPos.x(), listnerPos.y(), listnerPos.z());
+
+        // Display the playing position
+        std::cout << "\rPlaying... " << sound.getPlayingOffset().asSeconds() << " sec        ";
+        std::cout << std::flush;
+    }
+    std::cout << "\n" << std::endl;
+#else
+    LOG(INFO) << "testSound: Audio is supported only on windows!";
+#endif
+}
+
+
+void createSoundEffect()
+{
+#ifdef iMSTK_AUDIO_ENABLED
+    // Load a sound buffer from a .wav file
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromFile(soundFileName))
+    {
+        LOG(WARNING) << "createSoundEffect: Could not open the input sound file: " << soundFileName;
+        return;
+    }
+
+    // Create a sound instance and play it
+    sf::Sound sound(buffer);
+    sound.setPosition(0., 0., 0.);
+    sound.setMinDistance(5.);
+    sound.setAttenuation(10.);
+    sound.setLoop(true);
+
+    sound.play();
+    //sound.pause();
+
+    while (sound.getStatus() == sf::Sound::Playing)
+    {
+        // Leave some CPU time for other processes
+        sf::sleep(sf::milliseconds(100));
+    }
+
+#ifdef iMSTK_USE_OPENHAPTICS
+    auto triggerSoundFunc =
+        [&sound](Module* module)
+    {
+        auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
+        while (sound.getStatus() == sf::Sound::Playing)
+        {
+            if (serverMod->getDeviceClient(0)->getButton(1))
+            {
+                sound.pause();
+            }
+
+            // Leave some CPU time for other processes
+            sf::sleep(sf::milliseconds(100));
+        }
+
+        if (sound.getStatus() == sf::Sound::Paused && !serverMod->getDeviceClient(0)->getButton(0))
+        {
+            sound.play();
+        }       
+    };
+    server->setPostUpdateCallback(triggerSoundFunc);
+
+#endif // iMSTK_USE_OPENHAPTICS
+
+#endif // iMSTK_AUDIO_ENABLED
+}
+
 void createSawTool()
 {
     // Create saw tool scene Object
@@ -441,57 +544,7 @@ void createSawTool()
     scene->addObjectController(sawController);
 #endif
 
-#ifdef iMSTK_AUDIO_ENABLED
-    // Load a sound buffer from a .wav file
-    sf::SoundBuffer buffer;
-    if (!buffer.loadFromFile(soundFileName))
-    {
-        LOG(WARNING) << "createSawTool: Could not open the input sound file: " << soundFileName;
-        return;
-    }
-
-    // Create a sound instance and play it
-    sf::Sound sound(buffer);
-    sound.setPosition(0., 0., 0.);
-    sound.setMinDistance(5.);
-    sound.setAttenuation(10.);
-    sound.setLoop(true);
-
-    sound.play();
-    sound.pause();
-
-#ifdef iMSTK_USE_OPENHAPTICS
-    auto triggerSoundFunc =
-        [&sound](Module* module)
-        {
-            auto serverMod = dynamic_cast<HDAPIDeviceServer*>(module);
-            if (serverMod)
-            {
-                // trigger this when cutting the bone
-                float pitch = serverMod->getDeviceClient(0)->getButton(1) ? 0.5 : 1.0;
-                sound.setPitch(pitch);
-
-                if (serverMod->getDeviceClient(0)->getButton(0))
-                {
-                    if (sound.getStatus() != sf::Sound::Playing)
-                    {
-                        sound.play();
-                    }
-                }
-                else
-                {
-                    if (sound.getStatus() != sf::Sound::Paused)
-                    {
-                        sound.pause();
-                    }
-                }
-            }
-        };
-    server->setPostUpdateCallback(triggerSoundFunc);
-
-#endif // iMSTK_USE_OPENHAPTICS
-
-#endif // iMSTK_AUDIO_ENABLED
+    //createSoundEffect();
 }
 
 void createBurrTool()

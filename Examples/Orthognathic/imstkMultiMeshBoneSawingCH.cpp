@@ -101,7 +101,7 @@ MultiMeshBoneSawingCH::erodeBone()
             continue;
         }
 
-        m_nodalDensity[cd.meshId][cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001 * 900;
+        m_nodalDensity[cd.meshId][cd.nodeId] -= 0.001*(m_angularSpeed / m_BoneHardness)*m_stiffness*cd.penetrationVector.norm()*0.001 * 50;
 
 #ifdef TETRA_REMOVAL_STRATEGY_CONSERVATIVE
         if (m_nodalDensity[cd.meshId][cd.nodeId] <= 0.2)
@@ -193,10 +193,10 @@ MultiMeshBoneSawingCH::computeContactForces()
         }
     }
     //std::cout << "Max. " << maxDepth << std::endl;
-    m_saw->getVisualGeometry()->setTranslation(collGeoPosition + t);
+    m_saw->getVisualGeometry()->setTranslation(collGeoPosition + 0.2*t);
 
     // Spring force
-    Vec3d force = m_stiffness * t;
+    Vec3d force = m_stiffness * t*1.0;
 
     // Damping force
     const double dt = 0.1; // Time step size to calculate the object velocity

@@ -112,7 +112,7 @@
 #endif
 
 // global variables
-const std::string phantomOmni1Name = "Default Device";
+const std::string phantomOmni1Name = "Phantom1";
 const std::string phantomOmni2Name = "Phantom2";
 const std::string novintFalcon1Name = "device0";
 const std::string novintFalcon2Name = "device1";
@@ -3327,7 +3327,7 @@ void testPicking()
     dynaModel->setModelGeometry(volTetMesh);
 
     // Create and add Backward Euler time integrator
-    auto timeIntegrator = std::make_shared<BackwardEuler>(0.01);
+    auto timeIntegrator = std::make_shared<BackwardEuler>(0.001);
     dynaModel->setTimeIntegrator(timeIntegrator);
 
     // Configure Scene Object
@@ -3349,6 +3349,7 @@ void testPicking()
     {
         linProj.push_back(LinearProjectionConstraint(id, true));
     }
+    linProj.push_back(LinearProjectionConstraint(0, true));
     nlSystem->setUnknownVector(dynaModel->getUnknownVec());
     nlSystem->setUpdateFunction(dynaModel->getUpdateFunction());
     nlSystem->setUpdatePreviousStatesFunction(dynaModel->getUpdatePrevStateFunction());
@@ -3369,7 +3370,7 @@ void testPicking()
 #ifdef iMSTK_USE_OPENHAPTICS
 
     // Device clients
-    auto client = std::make_shared<HDAPIDeviceClient>(phantomOmni1Name);
+    auto client = std::make_shared<HDAPIDeviceClient>("Default Device");
 
     // Device Server
     auto server = std::make_shared<HDAPIDeviceServer>();
@@ -4162,7 +4163,7 @@ int main()
     //testDeformableBody();
     //testDeformableBodyCollision();
     //liverToolInteraction();
-    //testPicking();
+    testPicking();
 
 
     /*------------------
@@ -4176,7 +4177,7 @@ int main()
     /*------------------
     Test devices, controllers
     ------------------*/
-    testObjectController();
+    //testObjectController();
     //testTwoFalcons();
     //testCameraController();
     //testTwoOmnis();
@@ -4196,7 +4197,7 @@ int main()
     //testGraph();
     //testOBB();
     //testConvexHull();
-    partitionUnstructuredTetMeshWithGrid();
+    //partitionUnstructuredTetMeshWithGrid();
 
     return 0;
 }
