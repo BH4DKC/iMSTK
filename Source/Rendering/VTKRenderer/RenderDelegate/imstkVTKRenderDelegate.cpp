@@ -231,6 +231,7 @@ VTKRenderDelegate::updateActorProperties()
     actorProperty->SetLineWidth(material->m_lineWidth);
     actorProperty->SetPointSize(material->m_pointSize);
     actorProperty->SetBackfaceCulling(material->m_backfaceCulling);
+    actorProperty->SetOpacity(diffuseColor.a);
 
     // Material state is now up to date
     material->m_stateModified = false;
