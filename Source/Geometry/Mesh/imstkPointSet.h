@@ -188,6 +188,9 @@ public:
     OBB computeOBB() const;
     static OBB evaluateOBB(const StdVectorOfVec3d& points);
 
+    std::vector<double> getNodalScalarData() { return m_scalarData; };
+    void setNodalScalarData(std::vector<double>& data) { m_scalarData = data; }
+
 protected:
 
     friend class VTKPointSetRenderDelegate;
@@ -208,6 +211,8 @@ protected:
     StdVectorOfVec3d m_initialVertexPositions;       ///> Initial positions of vertices
     StdVectorOfVec3d m_vertexPositions;              ///> Current positions of vertices
     StdVectorOfVec3d m_vertexPositionsPostTransform; ///> Positions of vertices after transform
+
+    std::vector<double> m_scalarData;
 
     std::map<std::string, StdVectorOfVectorf> m_pointDataMap; ///> vector of data arrays per vertice
 

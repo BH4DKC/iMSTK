@@ -138,6 +138,12 @@ public:
     ///  TODO: Further optimization to find a 1-d uninterrupted sub-graph at each iteration.
     ///
     void optimizeForDataLocality();
+
+    ///
+    /// \brief Render with scalars or not
+    ///
+    bool renderScalarData() { return m_useScalarDataForRendering; }
+    void setRenderScalarData(const bool renderWScalars) { m_useScalarDataForRendering = renderWScalars; }
 protected:
 
     friend class VTKTetrahedralMeshRenderDelegate;
@@ -145,6 +151,8 @@ protected:
     std::vector<TetraArray> m_tetrahedraVertices;///< vertices of the tetrahedra
 
     std::vector<bool> m_removedMeshElems;
+
+    bool m_useScalarDataForRendering = false;
 };
 }
 

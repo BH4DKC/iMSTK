@@ -4163,7 +4163,7 @@ int main()
     //testDeformableBody();
     //testDeformableBodyCollision();
     //liverToolInteraction();
-    testPicking();
+    //testPicking();
 
 
     /*------------------
@@ -4197,7 +4197,7 @@ int main()
     //testGraph();
     //testOBB();
     //testConvexHull();
-    //partitionUnstructuredTetMeshWithGrid();
+    partitionUnstructuredTetMeshWithGrid();
 
     return 0;
 }

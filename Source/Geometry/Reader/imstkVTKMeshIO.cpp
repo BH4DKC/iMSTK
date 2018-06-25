@@ -179,6 +179,7 @@ VTKMeshIO::readVtkUnstructuredGrid(const std::string& filePath)
     reader->Update();
 
     vtkUnstructuredGrid* vtkMesh = reader->GetOutput();
+
     return VTKMeshIO::convertVtkUnstructuredGridToVolumetricMesh(vtkMesh);
 }
 
@@ -316,7 +317,7 @@ VTKMeshIO::convertVtkUnstructuredGridToVolumetricMesh(vtkUnstructuredGrid* vtkMe
     if( cellType == VTK_TETRA )
     {
         std::vector<TetrahedralMesh::TetraArray> cells;
-        VTKMeshIO::copyCellsFromVtk<4>(vtkMesh->GetCells(), cells);
+        VTKMeshIO::copyCellsFromVtk<4>(vtkMesh->GetCells(), cells);        
 
         auto mesh = std::make_shared<TetrahedralMesh>();
         mesh->initialize(vertices, cells, false);

@@ -33,6 +33,8 @@
 #include <vtkPointData.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
+#include <vtkLookupTable.h>
+#include <vtkColorSeries.h>
 
 namespace imstk
 {
@@ -63,14 +65,62 @@ VTKTetrahedralMeshRenderDelegate::VTKTetrahedralMeshRenderDelegate(std::shared_p
         cells->InsertNextCell(4,cell);
     }
 
+
+
     // Create Unstructured Grid
     m_meshConnectivity = vtkSmartPointer<vtkUnstructuredGrid>::New();
     m_meshConnectivity->SetPoints(points);
     m_meshConnectivity->SetCells(VTK_TETRA, cells);
 
+    //---------------------------------------------------------------------------
+
+    vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
+    if(m_geometry->renderScalarData())
+    {
+        // Create scalar data to associate with the vertices of the sphere
+        auto scalarData = m_geometry->getNodalScalarData();
+        auto numPts = scalarData.size();
+        scalars->SetNumberOfValues(numPts);
+        for (int i = 0; i < numPts; ++i)
+        {
+            scalars->SetValue(i, scalarData[i]);
+        }
+        m_meshConnectivity->GetPointData()->SetScalars(scalars);
+
+        
+    }
+    
+    //---------------------------------------------------------------------------
+
     // Mapper & Actor
     auto mapper = vtkSmartPointer<vtkDataSetMapper>::New();
     mapper->SetInputData(m_meshConnectivity);
+
+    if (m_geometry->renderScalarData())
+    {
+        vtkSmartPointer<vtkLookupTable> hueLut = vtkSmartPointer<vtkLookupTable>::New();        
+        auto *ran = scalars->GetRange();
+        hueLut->SetTableRange(ran[0], ran[1]);
+
+        vtkSmartPointer<vtkColorSeries> colSer = vtkSmartPointer<vtkColorSeries>::New();
+        colSer->SetColorScheme(vtkColorSeries::BREWER_SEQUENTIAL_BLUE_GREEN_3);
+        colSer->BuildLookupTable(hueLut);
+
+        hueLut->SetNumberOfTableValues(3);
+        hueLut->SetTableValue(0, 0.95, 0.95, 0.95, 1.);
+        hueLut->SetTableValue(1, 34. / 255., 139. / 255., 34. / 255., 1.);
+        hueLut->SetTableValue(2, 1., 127./255., 80./255., 1.);
+
+
+        //hueLut->Build();
+        hueLut->SetAnnotation(vtkVariant{ 1 }, "1");
+        hueLut->SetAnnotation(vtkVariant{ 3 }, "3");
+        hueLut->SetAnnotation(vtkVariant{ 4 }, "4");
+
+        mapper->SetLookupTable(hueLut);
+
+        mapper->SetUseLookupTableScalarRange(1);
+    }
 
     // Actor
     m_actor->SetMapper(mapper);
