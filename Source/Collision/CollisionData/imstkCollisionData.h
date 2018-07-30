@@ -138,6 +138,13 @@ struct PickingCollisionData
     bool touchStatus;
 };
 
+struct NeedleCollisionData
+{    
+    size_t nodeId;
+    Vec3d pointOnNeedle;
+    Vec3d axis;
+};
+
 ///
 /// \struct CollisionData
 ///
@@ -156,6 +163,7 @@ public:
         MAColData.clear();
         PTColData.clear();
         NodePickData.clear();
+        NeedleColData.clear();
     }
 
     std::vector<PositionDirectionCollisionData> PDColData; ///< Position Direction collision data
@@ -165,6 +173,7 @@ public:
     std::vector<MeshToAnalyticalCollisionData> MAColData;  ///< Mesh to analytical collision data
     std::vector<PointTetrahedronCollisionData> PTColData;  ///< Point Tetrahedron collision data
     std::vector<PickingCollisionData> NodePickData;        ///< List of points that are picked
+    std::vector<NeedleCollisionData> NeedleColData;             ///< List of points in contact with needle
 };
 }
 
