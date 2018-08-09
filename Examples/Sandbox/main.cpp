@@ -4187,7 +4187,7 @@ int main()
     Test Misc.
     ------------------*/
     //testAudio();
-    //testSawSound();
+    testSawSound();
     //testScenesManagement();
     //testVectorPlotters();
     //testVirtualCoupling();

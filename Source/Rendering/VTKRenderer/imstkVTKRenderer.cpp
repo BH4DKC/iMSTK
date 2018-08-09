@@ -164,7 +164,7 @@ VTKRenderer::VTKRenderer(std::shared_ptr<Scene> scene, bool enableVR)
         m_camPos[1].PhysicalViewDirection[1] = 0.0;
         m_camPos[1].PhysicalViewDirection[2] = 0.0;
 
-        m_camPos[1].Distance = 1.0; // room scale factor of 1 meter
+        m_camPos[1].Distance = 1.; // room scale factor of 1 meter
 
         m_camPos[1].Translation[0] = 0.0;
         m_camPos[1].Translation[1] = 0.0;

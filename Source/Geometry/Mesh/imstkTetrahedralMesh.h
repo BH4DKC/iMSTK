@@ -61,6 +61,20 @@ public:
                     const std::vector<TetraArray>& tetrahedra,
                     bool computeAttachedSurfaceMesh = false);
 
+
+    ///
+    /// \brief Flip the normals of the vertices
+    ///
+    void TetrahedralMesh::flipNormals()
+    {
+        for (auto& tet : m_tetrahedraVertices)
+        {
+            auto temp = tet[0];
+            tet[0] = tet[1];
+            tet[1] = temp;
+        }
+    }
+
     ///
     /// \brief Clear all the mesh data
     ///
