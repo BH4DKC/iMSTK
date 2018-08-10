@@ -188,8 +188,14 @@ public:
     OBB computeOBB() const;
     static OBB evaluateOBB(const StdVectorOfVec3d& points);
 
-    std::vector<double> getNodalScalarData() { return m_scalarData; };
-    void setNodalScalarData(std::vector<double>& data) { m_scalarData = data; }
+    std::vector<float> getNodalScalarData() { return m_scalarData; };
+    void setNodalScalarData(std::vector<float>& data) { m_scalarData = data; }
+
+    void setNodeScalarData(const unsigned int nodeId, const float val) 
+    {
+        m_scalarData.at(nodeId) = val;
+        m_dataModified = true;
+    }
 
 protected:
 
@@ -212,7 +218,7 @@ protected:
     StdVectorOfVec3d m_vertexPositions;              ///> Current positions of vertices
     StdVectorOfVec3d m_vertexPositionsPostTransform; ///> Positions of vertices after transform
 
-    std::vector<double> m_scalarData;
+    std::vector<float> m_scalarData;
 
     std::map<std::string, StdVectorOfVectorf> m_pointDataMap; ///> vector of data arrays per vertice
 

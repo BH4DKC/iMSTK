@@ -86,7 +86,6 @@ VTKTetrahedralMeshRenderDelegate::VTKTetrahedralMeshRenderDelegate(std::shared_p
             scalars->SetValue(i, scalarData[i]);
         }
         m_meshConnectivity->GetPointData()->SetScalars(scalars);
-
         
     }
     
@@ -155,6 +154,18 @@ VTKTetrahedralMeshRenderDelegate::updateDataSource()
         }
         m_meshConnectivity->Modified();
         m_geometry->setTopologyChangedFlag(false);
+
+        /*auto scalars = vtkSmartPointer<vtkFloatArray>::New();
+        auto scalarData = m_geometry->getNodalScalarData();
+        for (size_t i = 0; i < m_geometry->getNumVertices(); ++i)
+        {
+            if (scalarData[i] != 4)
+            {
+                scalarData[i] = 1;
+            }
+        }
+        scalars->SetArray(scalarData.data(), scalarData.size(), 1);
+        m_meshConnectivity->GetPointData()->SetScalars(scalars);*/
     }
 }
 
