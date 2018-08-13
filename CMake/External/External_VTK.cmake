@@ -12,7 +12,7 @@ endif(${${PROJECT_NAME}_ENABLE_VR})
 include(imstkAddExternalProject)
 imstk_add_external_project( VTK
   GIT_REPOSITORY https://gitlab.kitware.com/vtk/vtk.git
-  GIT_TAG v8.1.1
+  GIT_TAG 10e8cdc30ea2b7dc4eca2c019073821c5750fb1f
   INSTALL_COMMAND ${SKIP_STEP_COMMAND}
   CMAKE_ARGS
       -DBUILD_EXAMPLES:BOOL=OFF
