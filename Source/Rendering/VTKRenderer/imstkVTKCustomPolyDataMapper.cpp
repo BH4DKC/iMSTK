@@ -217,7 +217,7 @@ VTKCustomPolyDataMapper::SetMapperShaderParameters(
         auto diffuseTexture = material->getTexture(Texture::DIFFUSE);
         if (diffuseTexture->getPath() != "" && textureCount < textures.size())
         {
-            auto texture = (vtkOpenGLTexture*)textures[currentTexture];
+            auto texture = (vtkOpenGLTexture*)textures[currentTexture].first;
             helper.Program->SetUniformi("diffuseTexture", texture->GetTextureUnit());
             renderWindow->DeactivateTexture(texture->GetTextureObject());
             currentTexture++;
@@ -226,7 +226,7 @@ VTKCustomPolyDataMapper::SetMapperShaderParameters(
         auto cubemapTexture = material->getTexture(Texture::CUBEMAP);
         if (cubemapTexture->getPath() != "" && textureCount < textures.size())
         {
-            auto texture = (vtkOpenGLTexture*)textures[currentTexture];
+            auto texture = (vtkOpenGLTexture*)textures[currentTexture].first;
             helper.Program->SetUniformi("cubemapTexture", texture->GetTextureUnit());
             renderWindow->DeactivateTexture(texture->GetTextureObject());
             currentTexture++;

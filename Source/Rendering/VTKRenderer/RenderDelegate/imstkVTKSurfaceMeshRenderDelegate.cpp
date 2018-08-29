@@ -193,7 +193,7 @@ VTKSurfaceMeshRenderDelegate::initializeTextures(TextureManager<VTKTextureDelega
         */
 
         // Set texture
-        m_actor->GetProperty()->SetTexture(currentUnit, textureDelegate->getTexture());
+        m_actor->GetProperty()->SetTexture(std::to_string(currentUnit).c_str(), textureDelegate->getTexture());
         currentUnit++;
     }
 }
