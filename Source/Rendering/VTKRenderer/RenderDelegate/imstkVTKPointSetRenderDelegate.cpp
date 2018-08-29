@@ -28,6 +28,7 @@
 #include <vtkSphereSource.h>
 #include <vtkGlyph3D.h>
 
+
 namespace imstk
 {
 VTKPointSetRenderDelegate::VTKPointSetRenderDelegate(std::shared_ptr<PointSet> mesh) :
@@ -53,13 +54,9 @@ VTKPointSetRenderDelegate::VTKPointSetRenderDelegate(std::shared_ptr<PointSet> m
 
     auto glyph = vtkSmartPointer<vtkGlyph3D>::New();
 
-#if VTK_MAJOR_VERSION <= 5
-    glyph->SetSource(sphere->GetOutput());
-    glyph->SetInput(selectPoints->GetOutput());
-#else
+
     glyph->SetSourceConnection(sphere->GetOutputPort());
     glyph->SetInputData(pointsPolydata);
-#endif
     m_geometry->m_dataModified = false;
 
     // Update Transform, Render Properties
