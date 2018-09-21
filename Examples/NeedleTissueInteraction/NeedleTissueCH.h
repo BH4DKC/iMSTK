@@ -47,9 +47,11 @@ public:
     NeedleTissueInteraction(const Side& side,
         const CollisionData& colData,
         std::vector<LinearProjectionConstraint>* constraints, 
+        std::shared_ptr<CollidingObject> needle,
         std::shared_ptr<DeformableObject> femBody) :
         CollisionHandling(Type::BoneDrilling, side, colData), 
         m_projConstraints(constraints),
+        m_needle(needle),
         m_deformableBody(femBody){}
 
     NeedleTissueInteraction() = delete;
@@ -58,6 +60,14 @@ public:
     /// \brief Destructor
     ///
     ~NeedleTissueInteraction() = default;
+
+    ///
+    /// \brief Set the scaling factor for the force
+    ///
+    void setScalingFactor(const double scaleFac)
+    {
+        m_scalingFactor = scaleFac;
+    }
 
     ///
     /// \brief Compute forces based on collision data
@@ -96,12 +106,28 @@ public:
             s.setValue(deltaVProj);
             
             m_projConstraints->push_back(s);
-        } 
+        }
+
+        // compute forces
+        Vec3d force(0., 0., 0.);
+        for (auto& colData : m_colData.NeedleColData)
+        {           
+            auto nodalDisp = physicsTetMesh->getVertexPosition(colData.nodeId) -
+                physicsTetMesh->getInitialVertexPosition(colData.nodeId);
+
+            force += -nodalDisp*m_scalingFactor;
+        }
+
+        // Update object contact force
+        m_needle->appendForce(force);
     }
 
 private:
     std::vector<LinearProjectionConstraint>* m_projConstraints;   ///> needle projection constraints
     std::shared_ptr<DeformableObject> m_deformableBody;
+    std::shared_ptr<CollidingObject> m_needle;
+
+    double m_scalingFactor = 1.0e-1;
 };
 }
 

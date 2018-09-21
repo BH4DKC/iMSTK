@@ -95,10 +95,10 @@ public:
             double perpendicularDist = (lineToPoint - distanceAlongLine *needleAxisNormalized).norm();
 
             // add new node to the list of it enters the needle path
-            if (!m_isInContactWithNeedle[i] &&  perpendicularDist <= needleLength *0.02) 
+            if (!m_isInContactWithNeedle[i] &&  perpendicularDist <= needleLength *0.01) 
             {
                 // Check if the projected point is on the needle
-                if (distanceAlongLine >= 0 && distanceAlongLine < needleLength && distanceAlongLine / needleLength > 0.7)
+                if (distanceAlongLine >= 0 && distanceAlongLine < needleLength && distanceAlongLine / needleLength > 0.95)
                 {                      
                     NeedleCollisionData d;
                     d.nodeId = i;

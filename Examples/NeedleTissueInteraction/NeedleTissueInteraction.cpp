@@ -66,24 +66,18 @@ namespace NTISimulationConfig
     const std::string kidneyBCFilename(iMSTK_DATA_ROOT "/kidney/kidney.bou");
 
     const Vec3d centeringTransform(70., 30., -70.);
-    const double scalingFactor = 1.;
+    const double geoScalingFactor = 1.;
+    const double solverTolerance = 1.0e-6;
+    const double forceScalingFactor = 1.0e-1;
 
     const double timeStep = 0.04;
-
-    // Sample one tetrahedra mesh for testing
-    /*const std::string kidneyMeshFilename(iMSTK_DATA_ROOT "/oneTet/oneTet.veg");
-    const std::string kidneyConfigFilename(iMSTK_DATA_ROOT "/oneTet/oneTet.config");
-    const std::string kidneyBCFilename(iMSTK_DATA_ROOT "/oneTet/oneTet.bou");
-
-    const Vec3d centeringTransform(0., 0., 0.);
-    const double scalingFactor = 10.;*/
 
     const Vec3d bgColor1(0.3285, 0.3285, 0.6525);
     const Vec3d bgColor2(0.1152, 0.1152, 0.2289);
 
     const bool dispayFPS = false;
-
     const bool runSimWithoutRendering = false;
+    const bool renderDebugInfo = false;
 }
 
 // Create a needle object that is controlled by an external device
@@ -165,7 +159,7 @@ int main()
     g_scene = g_sdk->createNewScene("NeedleTissueInteraction");
     g_scene->getCamera()->setPosition(0, 2.0, 15.0);
 
-    // Load a tetrahedral mesh
+    // Load a kidney mesh
     auto tetMesh = MeshIO::read(NTISimulationConfig::kidneyMeshFilename);
     if (!tetMesh)
     {
@@ -177,7 +171,7 @@ int main()
     auto surfMesh = std::make_shared<SurfaceMesh>();
     auto volTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(tetMesh);
 
-    volTetMesh->scale(NTISimulationConfig::scalingFactor, Geometry::TransformType::ApplyToData);
+    volTetMesh->scale(NTISimulationConfig::geoScalingFactor, Geometry::TransformType::ApplyToData);
     volTetMesh->translate(NTISimulationConfig::centeringTransform, Geometry::TransformType::ApplyToData);
     if (!volTetMesh)
     {
@@ -204,6 +198,7 @@ int main()
 
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);    
+    material->setPointSize(4.0);
     material->setLineWidth(2.0);
     surfMesh->setRenderMaterial(material);
 
@@ -236,10 +231,11 @@ int main()
 
     // create a linear solver
     auto linSolver = std::make_shared<ConjugateGradient>();
+    linSolver->setTolerance(NTISimulationConfig::solverTolerance);
+    linSolver->setLinearProjectors(&projList);
 
     // create a non-linear solver and add to the scene
     auto nlSolver = std::make_shared<NewtonSolver>();
-    linSolver->setLinearProjectors(&projList);
     nlSolver->setLinearSolver(linSolver);
     nlSolver->setSystem(nlSystem);
     g_scene->addNonlinearSolver(nlSolver);
@@ -267,7 +263,10 @@ int main()
         auto CHA = std::make_shared<NeedleTissueInteraction>(CollisionHandling::Side::A,
             colData,
             &needleProjList,
+            needleObject,
             deformableObj);
+
+        CHA->setScalingFactor(NTISimulationConfig::forceScalingFactor);
 
         // Add the interaction pair to the scene
         g_scene->getCollisionGraph()->addInteractionPair(std::dynamic_pointer_cast<CollidingObject>(deformableObj),
@@ -282,7 +281,42 @@ int main()
     {
         auto ups = std::make_shared<UPSCounter>();
         apiutils::printUPS(g_sdk->getSceneManager(g_scene), ups);
-    }    
+    }
+
+    // render debug info
+    if (NTISimulationConfig::renderDebugInfo)
+    {
+        auto constrainedNodesDisplay = std::make_shared<PointSet>();
+        StdVectorOfVec3d dbgPointList(400, Vec3d(0., 0., 0.));
+        constrainedNodesDisplay->initialize(dbgPointList);
+
+        auto dbgMaterial = std::make_shared<RenderMaterial>();
+        dbgMaterial->setDisplayMode(RenderMaterial::DisplayMode::POINTS);
+        dbgMaterial->setPointSize(6.0);
+        dbgMaterial->setColor(imstk::Color::Pink);
+        constrainedNodesDisplay->setRenderMaterial(dbgMaterial);
+
+        auto constrainedNodesObj = std::make_shared<VisualObject>("debugDisplayObj");
+        constrainedNodesObj->setVisualGeometry(constrainedNodesDisplay);
+        g_scene->addSceneObject(constrainedNodesObj);
+
+        auto udpdateConstrNodes = [&](Module* module)
+        {
+            if (colData.NeedleColData.size() != 0)
+            {
+                for (auto& c : colData.NeedleColData)
+                {
+                    constrainedNodesDisplay->setVertexPosition(c.nodeId, volTetMesh->getVertexPosition(c.nodeId));
+                }
+
+                for (int i = colData.NeedleColData.size(); i < dbgPointList.size(); ++i)
+                {
+                    constrainedNodesDisplay->setVertexPosition(i, Vec3d(0., 0., 0.));
+                }
+            }
+        };
+        g_sdk->getSceneManager(g_scene)->setPostUpdateCallback(udpdateConstrNodes);
+    }
 
     // Set up Light
     auto light = std::make_shared<DirectionalLight>("light1");    
