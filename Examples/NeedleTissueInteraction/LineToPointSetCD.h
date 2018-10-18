@@ -94,8 +94,10 @@ public:
             double distanceAlongLine = lineToPoint.dot(needleAxisNormalized);
             double perpendicularDist = (lineToPoint - distanceAlongLine *needleAxisNormalized).norm();
 
+            double tol = m_isSurfaceNode[i]? 0.035 : 0.02;
+            
             // add new node to the list of it enters the needle path
-            if (!m_isInContactWithNeedle[i] &&  perpendicularDist <= needleLength *0.01) 
+            if (!m_isInContactWithNeedle[i] &&  perpendicularDist <= needleLength*tol && m_colData.NeedleColData.size()<1)
             {
                 // Check if the projected point is on the needle
                 if (distanceAlongLine >= 0 && distanceAlongLine < needleLength && distanceAlongLine / needleLength > 0.95)
@@ -111,7 +113,7 @@ public:
             }
 
             // If the node is in the contact list and falls outside the needle, remove from contact list
-            if (m_isInContactWithNeedle[i] && (distanceAlongLine < 0 || distanceAlongLine > needleLength))
+            if (m_isInContactWithNeedle[i] && (distanceAlongLine < 0 || distanceAlongLine > needleLength*1.01))
             {
                 int count = 0;
                 for (const auto&contacts : m_colData.NeedleColData)
@@ -140,12 +142,21 @@ public:
         //std::cout << "Num. of collisions: " << m_colData.NeedleColData.size() << std::endl;
     }
 
+    ///
+    /// \brief Set the vector with information whether a node is on surface or not
+    ///
+    void setSurfaceNodeList(vector<bool>& onSurfaceStatus)
+    {
+        m_isSurfaceNode = onSurfaceStatus;
+    }
+
 private:
     Vec3d m_startPoint, m_endPoint;
     Vec3d m_currentStartPoint, m_currentEndPoint;
     std::shared_ptr<PointSet> m_pointSet;               ///> Vector of PointSet data
 	std::shared_ptr<DeviceTracker> m_tracker;           ///> Sphere
     vector<bool> m_isInContactWithNeedle;
+    vector<bool> m_isSurfaceNode;
 };
 }
 

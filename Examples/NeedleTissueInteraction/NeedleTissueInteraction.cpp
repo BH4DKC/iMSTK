@@ -39,6 +39,7 @@
 #include "LineToPointSetCD.h"
 #include "NeedleTissueCH.h"
 #include "imstkAPIUtilities.h"
+#include "imstkMath.h"
 
 using namespace imstk;
 
@@ -68,7 +69,7 @@ namespace NTISimulationConfig
     const Vec3d centeringTransform(70., 30., -70.);
     const double geoScalingFactor = 1.;
     const double solverTolerance = 1.0e-6;
-    const double forceScalingFactor = 1.0e-1;
+    const double forceScalingFactor = 1.0e-1*1.2;
 
     const double timeStep = 0.04;
 
@@ -103,6 +104,7 @@ createNeedle()
 
     auto lineMeshMaterial = std::make_shared<RenderMaterial>();
     lineMeshMaterial->setLineWidth(3);
+    lineMeshMaterial->setColor(imstk::Color::Orange);
     lineMesh->setRenderMaterial(lineMeshMaterial);
 
     auto lineObject = std::make_shared<CollidingObject>("needleMesh");
@@ -173,12 +175,14 @@ int main()
 
     volTetMesh->scale(NTISimulationConfig::geoScalingFactor, Geometry::TransformType::ApplyToData);
     volTetMesh->translate(NTISimulationConfig::centeringTransform, Geometry::TransformType::ApplyToData);
+    //volTetMesh->rotate(Vec3d(0, 0, 1.), PI, Geometry::TransformType::ApplyToData);
     if (!volTetMesh)
     {
         LOG(WARNING) << "Dynamic pointer cast from PointSet to TetrahedralMesh failed!";
         return 1;
     }
     volTetMesh->extractSurfaceMesh(surfMesh, true);
+    surfMesh->flipNormals();
 
     // Construct one to one nodal map based on the above meshes
     auto oneToOneNodalMap = std::make_shared<OneToOneMap>();
@@ -197,10 +201,12 @@ int main()
     dynaModel->setTimeIntegrator(timeIntegrator);
 
     auto material = std::make_shared<RenderMaterial>();
-    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);    
-    material->setPointSize(4.0);
-    material->setLineWidth(2.0);
+    material->setDisplayMode(RenderMaterial::DisplayMode::WIREFRAME_SURFACE);  
+    material->setColor(Color::DarkGray);
+    material->setPointSize(8.0);
+    material->setLineWidth(2.0);    
     surfMesh->setRenderMaterial(material);
+    volTetMesh->setRenderMaterial(material);
 
     // Scene Object
     auto deformableObj = std::make_shared<DeformableObject>("Kidney");
@@ -251,13 +257,20 @@ int main()
     colData.NeedleColData.reserve(400);
 
     if (g_deviceTracker)
-    {
+    {        
         // create collision detection
         auto CD = std::make_shared<LineToPointSetCD>(std::dynamic_pointer_cast<PointSet>(volTetMesh),
             g_deviceTracker,
             NTISimulationConfig::needleStartPoint,
             NTISimulationConfig::needleEndPoint,
             colData);
+
+        vector<bool> surfaceStatus(volTetMesh->getNumVertices(), false);
+        for (unsigned int i = 0; i < surfMesh->getNumVertices(); ++i)
+        {
+            surfaceStatus[oneToOneNodalMap->getMapIdx(i)] = true;
+        }
+        CD->setSurfaceNodeList(surfaceStatus);
 
         // collision handling
         auto CHA = std::make_shared<NeedleTissueInteraction>(CollisionHandling::Side::A,
@@ -287,7 +300,7 @@ int main()
     if (NTISimulationConfig::renderDebugInfo)
     {
         auto constrainedNodesDisplay = std::make_shared<PointSet>();
-        StdVectorOfVec3d dbgPointList(400, Vec3d(0., 0., 0.));
+        StdVectorOfVec3d dbgPointList(300, Vec3d(0., 0., 0.));
         constrainedNodesDisplay->initialize(dbgPointList);
 
         auto dbgMaterial = std::make_shared<RenderMaterial>();
