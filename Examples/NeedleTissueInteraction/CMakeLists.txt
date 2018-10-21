@@ -21,7 +21,7 @@ project(Example-NeedleTissueInteraction)
 #-----------------------------------------------------------------------------
 # Create executable
 #-----------------------------------------------------------------------------
-add_executable(${PROJECT_NAME} NeedleTissueInteraction.cpp)
+add_executable(${PROJECT_NAME} NeedleTissueInteraction.cpp LineToPointSetCD.h LineToPointSetCD.cpp NeedleTissueCH.h NeedleTissueCH.cpp)
 
 #-----------------------------------------------------------------------------
 # Link libraries to executable

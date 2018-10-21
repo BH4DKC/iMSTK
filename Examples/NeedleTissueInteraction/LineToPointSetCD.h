@@ -22,16 +22,30 @@
 #ifndef imstkPointSetToNeedleCD_h
 #define imstkPointSetToNeedleCD_h
 
-#include <memory>
+#include <vector>
 
 #include "imstkCollisionDetection.h"
-#include "imstkDeviceTracker.h"
+#include "imstkCollisionData.h"
+#include "imstkPointSet.h"
+#include "imstkMath.h"
 
 namespace imstk
 {
-class PointSet;
 class DeviceTracker;
-class CollisionData;
+
+enum slipState
+{
+    sliding,
+    sticking
+};
+
+struct constrainedNode
+{
+    Vec3d prevPos;
+    double greyScaleValue;
+    slipState slipStatus;
+    bool isPiercingNode;
+};
 
 ///
 /// \class LineToPointSet
@@ -71,81 +85,12 @@ public:
 	///
 	/// \brief Detect collision and compute collision data
 	///
-    void
-    LineToPointSetCD::computeCollisionData() override
-    {
-        Vec3d devicePosition = m_tracker->getPosition();
-        Mat3d deviceOrientation = m_tracker->getRotation().toRotationMatrix();
-
-        m_currentStartPoint = deviceOrientation*m_startPoint + devicePosition;
-        m_currentEndPoint = deviceOrientation*m_endPoint + devicePosition;
-
-        const Vec3d needleAxis = m_currentEndPoint - m_currentStartPoint;
-        const Vec3d needleAxisNormalized = needleAxis / needleAxis.norm();
-        const double needleLength = (m_endPoint - m_startPoint).norm();        
-
-        //nodeDofToIdMap.clear();
-        for (int i = 0; i < m_pointSet->getNumVertices(); ++i)
-        {
-            //if (M.fixed[i]) { continue; }
-
-            Vec3d lineToPoint = m_pointSet->getVertexPosition(i) - m_currentStartPoint; 
-                        
-            double distanceAlongLine = lineToPoint.dot(needleAxisNormalized);
-            double perpendicularDist = (lineToPoint - distanceAlongLine *needleAxisNormalized).norm();
-
-            double tol = m_isSurfaceNode[i]? 0.035 : 0.02;
-            
-            // add new node to the list of it enters the needle path
-            if (!m_isInContactWithNeedle[i] &&  perpendicularDist <= needleLength*tol && m_colData.NeedleColData.size()<1)
-            {
-                // Check if the projected point is on the needle
-                if (distanceAlongLine >= 0 && distanceAlongLine < needleLength && distanceAlongLine / needleLength > 0.95)
-                {                      
-                    NeedleCollisionData d;
-                    d.nodeId = i;
-                    d.pointOnNeedle = m_currentStartPoint + needleAxisNormalized*distanceAlongLine;
-                    d.axis = needleAxisNormalized;
-                    m_colData.NeedleColData.push_back(d);
-
-                    m_isInContactWithNeedle[i] = true;                    
-                }
-            }
-
-            // If the node is in the contact list and falls outside the needle, remove from contact list
-            if (m_isInContactWithNeedle[i] && (distanceAlongLine < 0 || distanceAlongLine > needleLength*1.01))
-            {
-                int count = 0;
-                for (const auto&contacts : m_colData.NeedleColData)
-                {
-                    if (contacts.nodeId == i)
-                    {
-                        m_colData.NeedleColData.erase(m_colData.NeedleColData.begin() + count);
-                        break;
-                    }
-                    count++;
-                }
-                m_isInContactWithNeedle[i] = false;
-            }
-            else // projected point still on the needle, so update the projection point
-            {
-                for (auto&contacts : m_colData.NeedleColData)
-                {
-                    if (contacts.nodeId == i)
-                    {
-                        contacts.pointOnNeedle = m_currentStartPoint + needleAxisNormalized*distanceAlongLine;
-                        break;
-                    }
-                }
-            }
-        }
-        //std::cout << "Num. of collisions: " << m_colData.NeedleColData.size() << std::endl;
-    }
+    void computeCollisionData();
 
     ///
     /// \brief Set the vector with information whether a node is on surface or not
     ///
-    void setSurfaceNodeList(vector<bool>& onSurfaceStatus)
+    void setSurfaceNodeList(std::vector<bool>& onSurfaceStatus)
     {
         m_isSurfaceNode = onSurfaceStatus;
     }
@@ -155,8 +100,8 @@ private:
     Vec3d m_currentStartPoint, m_currentEndPoint;
     std::shared_ptr<PointSet> m_pointSet;               ///> Vector of PointSet data
 	std::shared_ptr<DeviceTracker> m_tracker;           ///> Sphere
-    vector<bool> m_isInContactWithNeedle;
-    vector<bool> m_isSurfaceNode;
+    std::vector<bool> m_isInContactWithNeedle;
+    std::vector<bool> m_isSurfaceNode;
 };
 }
 

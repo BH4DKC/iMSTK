@@ -142,6 +142,7 @@ struct NeedleCollisionData
 {    
     size_t nodeId;
     Vec3d pointOnNeedle;
+    Vec3d prevPos;
     Vec3d axis;
 };
 

@@ -25,6 +25,7 @@
 // imstk
 #include "imstkCollisionHandling.h"
 #include "imstkFEMDeformableBodyModel.h"
+#include "imstkDeformableObject.h"
 
 namespace imstk
 {
@@ -72,55 +73,7 @@ public:
     ///
     /// \brief Compute forces based on collision data
     ///
-    void computeContactForces() override
-    {
-        // clear constraints from previous frame
-        m_projConstraints->clear(); 
-
-        // return if no collisions are detected in the current frame
-        if (m_colData.NeedleColData.size() == 0)
-        {
-            return;
-        }
-        
-        // set up displacements for next timestep
-        auto dynaModel = m_deformableBody->getDynamicalModel();
-        auto uPrev = m_deformableBody->getDisplacements();
-        auto vPrev = m_deformableBody->getVelocities();
-
-        const auto physicsTetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_deformableBody->getPhysicsGeometry());
-        const auto nodePositions = physicsTetMesh->getVertexPositions();
-        const auto dt = dynaModel->getTimeStep();
-
-        // set up constraints
-        for (auto& colData : m_colData.NeedleColData)
-        {   
-            auto _3i = colData.nodeId * 3;
-            Vec3d uPrevNode(uPrev(_3i), uPrev(_3i + 1), uPrev(_3i + 2));
-            Vec3d vPrevNode(vPrev(_3i), vPrev(_3i + 1), vPrev(_3i + 2));            
-            auto deltaV = (colData.pointOnNeedle - physicsTetMesh->getInitialVertexPosition(colData.nodeId) - uPrevNode) / dt - vPrevNode;
-            auto deltaVProj = deltaV - deltaV.dot(colData.axis)*colData.axis;
-
-            LinearProjectionConstraint s(colData.nodeId, true);
-            s.setProjectionToLine(colData.nodeId, colData.axis);            
-            s.setValue(deltaVProj);
-            
-            m_projConstraints->push_back(s);
-        }
-
-        // compute forces
-        Vec3d force(0., 0., 0.);
-        for (auto& colData : m_colData.NeedleColData)
-        {           
-            auto nodalDisp = physicsTetMesh->getVertexPosition(colData.nodeId) -
-                physicsTetMesh->getInitialVertexPosition(colData.nodeId);
-
-            force += -nodalDisp*m_scalingFactor;
-        }
-
-        // Update object contact force
-        m_needle->appendForce(force);
-    }
+    void computeContactForces() override;
 
 private:
     std::vector<LinearProjectionConstraint>* m_projConstraints;   ///> needle projection constraints
@@ -128,6 +81,7 @@ private:
     std::shared_ptr<CollidingObject> m_needle;
 
     double m_scalingFactor = 1.0e-1;
+    double m_scalingFactorSliding = 6.0e-1;
 };
 }
 
