@@ -287,7 +287,16 @@ int main()
             CD,
             nullptr,
             CHA);
+
+        // Rotate the dragon every frame
+        auto communicateNeedleAxisAndState = [&CHA, &CD](Module* module)
+        {
+            CHA->updateNeedleAxis(CD->getNeedleAxis());
+            CHA->setNeedleState(CD->getNeedleState());
+        };
+        g_sdk->getSceneManager(g_scene)->setPostUpdateCallback(communicateNeedleAxisAndState);
     }
+    
 
     // print frame rate
     if (NTISimulationConfig::dispayFPS)

@@ -63,20 +63,23 @@ NeedleTissueInteraction::computeContactForces()
     }
 
     // compute forces
-    Vec3d force(0., 0., 0.);
-    Vec3d forceSliding(0., 0., 0.);
+    Vec3d force(0., 0., 0.);    
     for (auto& colData : m_colData.NeedleColData)
     {
+        // Lateral force
         auto nodalDisp = physicsTetMesh->getVertexPosition(colData.nodeId) -
-            physicsTetMesh->getInitialVertexPosition(colData.nodeId);
-
+                         physicsTetMesh->getInitialVertexPosition(colData.nodeId);
         force += -nodalDisp*m_scalingFactor;
+                
+        // Drag force (from insertion and retraction)        
+        if (!colData.isOnSurface || m_needleMotionState == 0) { continue;}
 
-        forceSliding -= (colData.pointOnNeedle - colData.prevPos)*m_scalingFactorSliding;
+        double sign = m_needleMotionState == 1 ? 1 : -1;
+        double randomFactor = 0.6 + 0.4*((double)(std::rand() % 100 + 1) / 100.); // random number 0.6 to 1
+        force -= m_needleAxis*sign*m_scalingFactorSliding*randomFactor;
     }
-    force += forceSliding;
 
-    // Update object contact force
+    // Update needle force
     m_needle->appendForce(force);
 }
 

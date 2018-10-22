@@ -144,6 +144,7 @@ struct NeedleCollisionData
     Vec3d pointOnNeedle;
     Vec3d prevPos;
     Vec3d axis;
+    bool isOnSurface;
 };
 
 ///

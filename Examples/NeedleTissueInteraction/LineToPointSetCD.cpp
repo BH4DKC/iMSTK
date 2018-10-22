@@ -31,11 +31,12 @@ LineToPointSetCD::computeCollisionData()
     Vec3d devicePosition = m_tracker->getPosition();
     Mat3d deviceOrientation = m_tracker->getRotation().toRotationMatrix();
 
+    m_prevStartPoint = m_currentStartPoint;
     m_currentStartPoint = deviceOrientation*m_startPoint + devicePosition;
     m_currentEndPoint = deviceOrientation*m_endPoint + devicePosition;
 
-    const Vec3d needleAxis = m_currentEndPoint - m_currentStartPoint;
-    const Vec3d needleAxisNormalized = needleAxis / needleAxis.norm();
+    m_needleAxis = m_currentEndPoint - m_currentStartPoint;
+    m_needleAxis.normalize();    
     const double needleLength = (m_endPoint - m_startPoint).norm();
 
     //nodeDofToIdMap.clear();
@@ -45,8 +46,8 @@ LineToPointSetCD::computeCollisionData()
 
         Vec3d lineToPoint = m_pointSet->getVertexPosition(i) - m_currentStartPoint;
 
-        double distanceAlongLine = lineToPoint.dot(needleAxisNormalized);
-        double perpendicularDist = (lineToPoint - distanceAlongLine *needleAxisNormalized).norm();
+        double distanceAlongLine = lineToPoint.dot(m_needleAxis);
+        double perpendicularDist = (lineToPoint - distanceAlongLine *m_needleAxis).norm();
 
         double tol = m_isSurfaceNode[i] ? 0.035 : 0.02;
 
@@ -58,9 +59,10 @@ LineToPointSetCD::computeCollisionData()
             {
                 NeedleCollisionData d;
                 d.nodeId = i;
-                d.pointOnNeedle = m_currentStartPoint + needleAxisNormalized*distanceAlongLine;
+                d.pointOnNeedle = m_currentStartPoint + m_needleAxis*distanceAlongLine;
                 d.prevPos = d.pointOnNeedle;
-                d.axis = needleAxisNormalized;
+                d.axis = m_needleAxis;
+                d.isOnSurface = m_isSurfaceNode[i];
                 m_colData.NeedleColData.push_back(d);
 
                 m_isInContactWithNeedle[i] = true;
@@ -89,13 +91,104 @@ LineToPointSetCD::computeCollisionData()
                 if (contacts.nodeId == i)
                 {
                     contacts.prevPos = contacts.pointOnNeedle;
-                    contacts.pointOnNeedle = m_currentStartPoint + needleAxisNormalized*distanceAlongLine;
+                    contacts.pointOnNeedle = m_currentStartPoint + m_needleAxis*distanceAlongLine;
                     break;
                 }
             }
         }
     }
     //std::cout << "Num. of collisions: " << m_colData.NeedleColData.size() << std::endl;
+
+    computeNeedleMotionDirection();
+}
+
+void 
+LineToPointSetCD::computeNeedleMotionDirection()
+{
+    const Vec3d movementBetweenFrames = m_currentStartPoint - m_prevStartPoint;
+    const double dotVal = m_needleAxis.dot(movementBetweenFrames);
+    const double dotValNormalized = dotVal / movementBetweenFrames.norm();
+
+    if (m_needleInsersion == needleMotionState::insertion)
+    {
+        if (abs(dotVal) < 0.0001 && dotValNormalized < 0.05)
+        {
+            m_needleInsersion = needleMotionState::noMovement;
+            return;
+        }
+
+        if (dotValNormalized < -0.9 && abs(dotVal) < 0.9)
+        {
+            m_needleInsersion = needleMotionState::retraction;
+            return;
+        }
+    }
+
+    if (m_needleInsersion == needleMotionState::retraction)
+    {
+        if (abs(dotVal) < 0.0001 && dotValNormalized > 0.05)
+        {
+            m_needleInsersion = needleMotionState::noMovement; 
+            return;
+        }
+
+        if (dotValNormalized > 0.8 && abs(dotVal) < 0.8)
+        {
+            m_needleInsersion = needleMotionState::insertion;
+            return;
+        }
+    }
+
+    if (m_needleInsersion == needleMotionState::noMovement)
+    {
+        if (abs(dotVal) > 0.4 && dotValNormalized > 0.7)
+        {
+            m_needleInsersion = needleMotionState::insertion;
+            return;
+        }
+
+        if (abs(dotVal) > 0.4 && dotValNormalized < -0.7)
+        {
+            m_needleInsersion = needleMotionState::retraction;
+            return;
+        }        
+    }
+
+    /*if (m_needleInsersion != needleMovementState::noMovement) 
+    {
+        if (abs(movement.dot(m_needleAxis)) > 0.5)
+        {
+            if (dotVal > 0.6)
+            {
+                m_needleInsersion = needleMovementState::inserting;
+            }
+
+            if (dotVal < -0.6)
+            {
+                m_needleInsersion = needleMovementState::retracting;
+            }
+        }
+    }
+    else
+    {
+        if (abs(movement.dot(m_needleAxis)) > 0.4)
+        {
+            if (dotVal > 0.6)
+            {
+                m_needleInsersion = needleMovementState::inserting;
+            }
+
+            if (dotVal < -0.6)
+            {
+                m_needleInsersion = needleMovementState::retracting;
+            }
+        }
+        else
+        {
+            m_needleInsersion = needleMovementState::noMovement;
+        }
+    }*/
+    
 }
 
 } // imstk

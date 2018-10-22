@@ -47,6 +47,13 @@ struct constrainedNode
     bool isPiercingNode;
 };
 
+enum needleMotionState
+{
+    noMovement,
+    insertion,
+    retraction
+};
+
 ///
 /// \class LineToPointSet
 ///
@@ -95,13 +102,31 @@ public:
         m_isSurfaceNode = onSurfaceStatus;
     }
 
+    ///
+    /// \brief Needle axis
+    ///
+    Vec3d getNeedleAxis() { return m_needleAxis; };
+
+    ///
+    /// \brief 
+    ///
+    void computeNeedleMotionDirection();
+
+    ///
+    /// \brief 
+    ///
+    unsigned int getNeedleState() { return m_needleInsersion; };
+
 private:
     Vec3d m_startPoint, m_endPoint;
     Vec3d m_currentStartPoint, m_currentEndPoint;
+    Vec3d m_prevStartPoint;
     std::shared_ptr<PointSet> m_pointSet;               ///> Vector of PointSet data
 	std::shared_ptr<DeviceTracker> m_tracker;           ///> Sphere
     std::vector<bool> m_isInContactWithNeedle;
     std::vector<bool> m_isSurfaceNode;
+    needleMotionState m_needleInsersion = needleMotionState::noMovement;
+    Vec3d m_needleAxis;
 };
 }
 

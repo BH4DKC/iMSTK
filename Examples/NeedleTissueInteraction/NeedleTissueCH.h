@@ -65,23 +65,37 @@ public:
     ///
     /// \brief Set the scaling factor for the force
     ///
-    void setScalingFactor(const double scaleFac)
-    {
-        m_scalingFactor = scaleFac;
-    }
+    void setScalingFactor(const double scaleFac) { m_scalingFactor = scaleFac; }
 
     ///
     /// \brief Compute forces based on collision data
     ///
     void computeContactForces() override;
 
+    ///
+    /// \brief Update the needle axis
+    ///
+    void updateNeedleAxis(const Vec3d& axis) { m_needleAxis = axis; m_needleAxis.normalize(); }
+
+    ///
+    /// \brief Set the motion state of the needle Rang: [0, 2]
+    ///
+    void setNeedleState(unsigned int needleState) { m_needleMotionState = needleState; };
+
+    ///
+    /// \brief Set the scaling factor for forces of insertion and retraction
+    ///
+    void setScalingFactorSliding(const double scale) { m_scalingFactorSliding = scale; };
+
 private:
     std::vector<LinearProjectionConstraint>* m_projConstraints;   ///> needle projection constraints
     std::shared_ptr<DeformableObject> m_deformableBody;
     std::shared_ptr<CollidingObject> m_needle;
+    Vec3d m_needleAxis;
 
     double m_scalingFactor = 1.0e-1;
-    double m_scalingFactorSliding = 6.0e-1;
+    unsigned int m_needleMotionState = 0;
+    double m_scalingFactorSliding = 7.0e-1; // Modify this to scale the forces using gray scale
 };
 }
 
