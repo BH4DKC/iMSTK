@@ -111,13 +111,13 @@ LineToPointSetCD::computeNeedleMotionDirection()
 
     if (m_needleInsersion == needleMotionState::insertion)
     {
-        if (abs(dotVal) < 0.0001 && dotValNormalized < 0.05)
+        if (abs(dotVal) < 1.e-6 && dotValNormalized < 5.e-3)
         {
             m_needleInsersion = needleMotionState::noMovement;
             return;
         }
 
-        if (dotValNormalized < -0.9 && abs(dotVal) < 0.9)
+        if (dotValNormalized < -0.95 && abs(dotVal) < 0.95)
         {
             m_needleInsersion = needleMotionState::retraction;
             return;
@@ -126,13 +126,13 @@ LineToPointSetCD::computeNeedleMotionDirection()
 
     if (m_needleInsersion == needleMotionState::retraction)
     {
-        if (abs(dotVal) < 0.0001 && dotValNormalized > 0.05)
+        if (abs(dotVal) < 1.e-6 && dotValNormalized > 5.e-3)
         {
             m_needleInsersion = needleMotionState::noMovement; 
             return;
         }
 
-        if (dotValNormalized > 0.8 && abs(dotVal) < 0.8)
+        if (dotValNormalized > 0.95 && abs(dotVal) < 0.95)
         {
             m_needleInsersion = needleMotionState::insertion;
             return;
@@ -141,54 +141,19 @@ LineToPointSetCD::computeNeedleMotionDirection()
 
     if (m_needleInsersion == needleMotionState::noMovement)
     {
-        if (abs(dotVal) > 0.4 && dotValNormalized > 0.7)
+        const double threshold = 0.3;
+        if (abs(dotVal) > threshold && dotValNormalized > threshold)
         {
             m_needleInsersion = needleMotionState::insertion;
             return;
         }
 
-        if (abs(dotVal) > 0.4 && dotValNormalized < -0.7)
+        if (abs(dotVal) > threshold && dotValNormalized < -threshold)
         {
             m_needleInsersion = needleMotionState::retraction;
             return;
         }        
-    }
-
-    /*if (m_needleInsersion != needleMovementState::noMovement) 
-    {
-        if (abs(movement.dot(m_needleAxis)) > 0.5)
-        {
-            if (dotVal > 0.6)
-            {
-                m_needleInsersion = needleMovementState::inserting;
-            }
-
-            if (dotVal < -0.6)
-            {
-                m_needleInsersion = needleMovementState::retracting;
-            }
-        }
-    }
-    else
-    {
-        if (abs(movement.dot(m_needleAxis)) > 0.4)
-        {
-            if (dotVal > 0.6)
-            {
-                m_needleInsersion = needleMovementState::inserting;
-            }
-
-            if (dotVal < -0.6)
-            {
-                m_needleInsersion = needleMovementState::retracting;
-            }
-        }
-        else
-        {
-            m_needleInsersion = needleMovementState::noMovement;
-        }
-    }*/
-    
+    }    
 }
 
 } // imstk

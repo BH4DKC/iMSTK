@@ -62,6 +62,8 @@ NeedleTissueInteraction::computeContactForces()
         m_projConstraints->push_back(s);
     }
 
+    //std::cout << "State: " << m_needleMotionState << std::endl;
+    
     // compute forces
     Vec3d force(0., 0., 0.);    
     for (auto& colData : m_colData.NeedleColData)
@@ -74,8 +76,8 @@ NeedleTissueInteraction::computeContactForces()
         // Drag force (from insertion and retraction)        
         if (!colData.isOnSurface || m_needleMotionState == 0) { continue;}
 
-        double sign = m_needleMotionState == 1 ? 1 : -1;
-        double randomFactor = 0.6 + 0.4*((double)(std::rand() % 100 + 1) / 100.); // random number 0.6 to 1
+        const double sign = m_needleMotionState == 1 ? 1 : -1;        
+        const double randomFactor = 0.6 + 0.4*((double)(std::rand() % 100 + 1) / 100.); // random number 0.6 to 1
         force -= m_needleAxis*sign*m_scalingFactorSliding*randomFactor;
     }
 
