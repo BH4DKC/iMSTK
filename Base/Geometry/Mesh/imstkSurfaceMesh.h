@@ -134,6 +134,17 @@ public:
     void setVertexTangents(const StdVectorOfVec3d& tangents);
     const StdVectorOfVec3d& getVertexTangents() const;
 
+    void flipNormals()
+    {
+        for (auto& tri : m_trianglesVertices)
+        {
+            auto temp = tri[0];
+            tri[0] = tri[1];
+            tri[1] = temp;
+        }
+    }
+
+
     ///
     /// \brief Set/Get vector of bitangents of all the vertices
     ///
