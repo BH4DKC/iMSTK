@@ -79,7 +79,11 @@ macro(imstk_add_external_project extProj)
 
     #-----------------------------------------------------------------------------
     # Add project
-    #-----------------------------------------------------------------------------    
+    #-----------------------------------------------------------------------------
+
+    set(ep_common_c_flags "${CMAKE_C_FLAGS_INIT} ${ADDITIONAL_C_FLAGS}")
+    set(ep_common_cxx_flags "${CMAKE_CXX_FLAGS_INIT} ${ADDITIONAL_CXX_FLAGS}")
+
     ExternalProject_add( ${extProj}
       PREFIX ${${extProj}_PREFIX}
       SOURCE_DIR ${${extProj}_SOURCE_DIR} # from above or parsed argument
@@ -88,6 +92,14 @@ macro(imstk_add_external_project extProj)
       STAMP_DIR ${${extProj}_STAMP_DIR}   # from above
       ${${extProj}_EP_ARGS}               # from ExternalProject_Include_Dependencies
       ${${extProj}_UNPARSED_ARGUMENTS}    # from unparsed arguments of this macro
+      CMAKE_CACHE_ARGS
+        -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+        -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
+        -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+        -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
+        -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
+        -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=${CMAKE_CXX_STANDARD_REQUIRED}
+        -DCMAKE_CXX_EXTENSIONS:BOOL=${CMAKE_CXX_EXTENSIONS}
       DEPENDS ${${extProj}_DEPENDENCIES}  # from parsed argument
       )
       set(${extProj}_DIR ${${extProj}_BINARY_DIR})
