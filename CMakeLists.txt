@@ -4,7 +4,7 @@ project(iMSTK VERSION 0.0.1 LANGUAGES C CXX)
 if(UNIX AND NOT APPLE)
   set(LINUX TRUE)
 endif()
-  
+
 #-----------------------------------------------------------------------------
 # CTest/Dashboards
 #-----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utilities
     ${CMAKE_MODULE_PATH}
     )
-set(${PROJECT_NAME}_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CMake) 
+set(${PROJECT_NAME}_CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
 
 #-----------------------------------------------------------------------------
 # Set a default build type if none was specified
@@ -106,7 +106,7 @@ if(${PROJECT_NAME}_SUPERBUILD)
   imstk_define_dependency(glm)
 
   if(${PROJECT_NAME}_USE_Vulkan)
-    imstk_define_dependency(glfw)  
+    imstk_define_dependency(glfw)
     imstk_define_dependency(gli)
   endif()
 
@@ -131,14 +131,14 @@ if(${PROJECT_NAME}_SUPERBUILD)
   imstk_define_dependency(VRPN)
   imstk_define_dependency(LibNiFalcon)
   imstk_define_dependency(imgui)
-  imstk_define_dependency(tbb)
+  #imstk_define_dependency(tbb)
 
   if(APPLE OR LINUX)
    message("Warning: Building iMSTK WITHOUT audio support!")
-   set(${PROJECT_NAME}_AUDIO_ENABLED OFF)    
+   set(${PROJECT_NAME}_AUDIO_ENABLED OFF)
   else()
-   set(${PROJECT_NAME}_AUDIO_ENABLED "Windows OS detected: Building iMSTK with AUDIO support." ON)  
-    imstk_define_dependency(SFML)  
+   set(${PROJECT_NAME}_AUDIO_ENABLED "Windows OS detected: Building iMSTK with AUDIO support." ON)
+    imstk_define_dependency(SFML)
   endif()
 
   option(${PROJECT_NAME}_USE_ODE "Build iMSTK with ODE support." OFF)
@@ -190,9 +190,9 @@ endif()
 find_program(Uncrustify_EXECUTABLE uncrustify)
 include(SetupUncrustifyConfig)
 if(Uncrustify_EXECUTABLE)
-  include(imstkAddUncrustifyCustomTarget) 
+  include(imstkAddUncrustifyCustomTarget)
 else(Uncrustify_EXECUTABLE)
-  message(WARNING "uncrustify not found! Cannot run code-style test.") 
+  message(WARNING "uncrustify not found! Cannot run code-style test.")
 endif(Uncrustify_EXECUTABLE)
 
 # Assimp
@@ -292,9 +292,9 @@ if(BUILD_TESTING)
 endif()
 
 # TBB
-find_package(tbb REQUIRED)
-add_definitions(${TBB_DEFINITIONS})
-include_directories( ${TBB_INCLUDE_DIRS} )
+#find_package(tbb REQUIRED)
+#add_definitions(${TBB_DEFINITIONS})
+#include_directories( ${TBB_INCLUDE_DIRS} )
 
 # External data
 if(BUILD_TESTING OR BUILD_EXAMPLES)

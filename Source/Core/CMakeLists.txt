@@ -5,7 +5,7 @@ include(imstkAddLibrary)
 imstk_add_library( Core
   DEPENDS
     g3log
-	tbb	
+	#tbb
   )
 
 #-----------------------------------------------------------------------------
