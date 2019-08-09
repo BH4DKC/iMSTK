@@ -27,7 +27,7 @@
 #include "imstkDeformableObject.h"
 #include "imstkTimer.h"
 #include "imstkPbdSolver.h"
-
+#include "imstkSurfaceCuttingManager.h"
 #include <g3log/g3log.hpp>
 
 namespace imstk
@@ -323,6 +323,21 @@ Scene::advance()
         controller->updateControlledObjects();
     }
 
+    //PbdObject handle cutting events: update Topology, State Vector, and visuals...
+    for (auto obj : this->getSceneObjects()) {
+        if (auto dynaObj = std::dynamic_pointer_cast<PbdObject>(obj))
+        {
+            if (dynaObj->getName() == "Cloth")
+            {
+                auto pbdModel = std::dynamic_pointer_cast<PbdModel>(dynaObj->getDynamicalModel());
+                if (pbdModel && pbdModel->needsToHandleCut()) {
+                    std::cout << "Cloth PbdObj handle cutting ..." << std::endl;
+                    dynaObj->handleCutting();
+                }
+            }
+        }
+    }
+
     // Update the static octree and perform collision detection for some collision pairs
     CollisionDetection::updateInternalOctreeAndDetectCollision();
 
@@ -336,6 +351,16 @@ Scene::advance()
     for (auto intPair : this->getCollisionGraph()->getInteractionPairList())
     {
         intPair->processCollisionData();
+    }
+
+    // ToolSurfaceInteractionPair update tool state, detect cutting / grasping events
+    for (auto& intPair : this->getCollisionGraph()->getInteractionPairList())
+    {
+        auto toolPair = std::dynamic_pointer_cast<ToolSurfaceInteractionPair>(intPair);
+        if (toolPair)
+        {
+            toolPair->updateTools();
+        }
     }
 
     // Run the solvers

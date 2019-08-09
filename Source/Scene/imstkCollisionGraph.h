@@ -31,6 +31,7 @@
 #include "imstkCollisionHandling.h"
 
 #include "imstkPbdInteractionPair.h"
+#include "imstkToolSurfaceInteractionPair.h"
 
 namespace imstk
 {
@@ -46,7 +47,7 @@ public:
     using CollisionHandlingPtr  = std::shared_ptr<CollisionHandling>;
     using CollisionDetectionPtr = std::shared_ptr<CollisionDetection>;
     using InteractionPairPtr    = std::shared_ptr<InteractionPair>;
-
+    using ToolSurfaceInteractionPairPtr = std::shared_ptr<ToolSurfaceInteractionPair>;
     ///
     /// \brief Default constructor
     ///
@@ -74,6 +75,13 @@ public:
                                           CollisionHandlingPtr  CHB);
 
     void addInteractionPair(std::shared_ptr<PbdInteractionPair> pair);
+
+    /// \brief Add Tool-Surface-interaction pair in collision graph
+    ToolSurfaceInteractionPairPtr addToolSurfaceInteractionPair(CollidingObjectPtr A,
+        CollidingObjectPtr B,
+        CollisionDetectionPtr CD,
+        CollisionHandlingPtr CHA,
+        CollisionHandlingPtr CHB);
 
     ///
     /// \brief Remove interaction pair in collision graph

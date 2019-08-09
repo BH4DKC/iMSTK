@@ -30,6 +30,7 @@
 
 // imstk
 #include "imstkPointSet.h"
+#include "imstkParallelUtils.h"
 
 namespace imstk
 {
@@ -152,6 +153,10 @@ public:
     void setTrianglesVertices(const std::vector<TriangleArray>& triangles);
     const std::vector<TriangleArray>& getTrianglesVertices() const;
 
+    /// \brief Get vertex neighbor triangles
+    ///
+    inline NeighborsType getVertexNeighborTriangles(size_t i) { return m_vertexNeighborTriangles[i]; }
+
     ///
     /// \brief Get vector of normals of all the triangles
     ///
@@ -216,6 +221,9 @@ public:
     /// \brief Returns the mesh graph
     ///
     std::shared_ptr<Graph> getMeshGraph() override;
+
+    /// spinLock for topology modification
+    ParallelUtils::SpinLock m_TopologyLock;
 
 protected:
 

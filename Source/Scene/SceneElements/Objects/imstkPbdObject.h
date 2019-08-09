@@ -24,8 +24,9 @@
 #include "imstkDynamicObject.h"
 #include "imstkDynamicalModel.h"
 #include "imstkPbdState.h"
-
+#include "imstkPbdModel.h"
 #include <stdarg.h>
+#include <set>
 
 namespace imstk
 {
@@ -64,6 +65,22 @@ public:
     /// \brief Initialize the pbd scene object
     ///
     bool initialize() override;
+
+    ///
+    /// \brief Send the collisionData to the mesh for cut generation
+    ///
+    void generateCut(std::shared_ptr<ToolState> info) { m_pbdModel->generateCut(info); }
+
+    ///
+    /// \brief Grasp/unGrasp the PbdModel based on tool collision data
+    ///
+    bool doGrasp(std::shared_ptr<ToolState> info) { return(m_pbdModel->doGrasp(info)); }
+    void unGrasp(std::shared_ptr<ToolState> info) { m_pbdModel->unGrasp(info); }
+
+    ///
+    /// \brief Update the PbdState Vector and Physics and topology resulted from cutting operation
+    ///
+    virtual void handleCutting();
 
     ///
     /// \brief Update the position based on Verlet time stepping rule

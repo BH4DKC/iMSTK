@@ -218,6 +218,18 @@ PointSet::getPointDataArray(const std::string& arrayName) const
     return &(it->second);
 }
 
+StdVectorOfVectorf*
+PointSet::getPointDataArrayEdittable(const std::string& arrayName)
+{
+    auto it = m_pointDataMap.find(arrayName);
+    if (it == m_pointDataMap.end())
+    {
+        LOG(WARNING) << "No array with such name holds any point data.";
+        return nullptr;
+    }
+    return &(it->second);
+}
+
 bool
 PointSet::hasPointDataArray(const std::string& arrayName) const
 {
@@ -277,14 +289,21 @@ PointSet::applyScaling(const double s)
 void
 PointSet::updatePostTransformData()
 {
-    if (m_transformApplied)
-    {
-        return;
-    }
-
+    
+    //First check if topology been modified, then check if m_transformApplied
     if (m_vertexPositionsPostTransform.size() != m_vertexPositions.size())
     {
         m_vertexPositionsPostTransform.resize(m_vertexPositions.size());
+        for (size_t i = 0; i < m_vertexPositions.size(); ++i)
+        {
+            m_vertexPositionsPostTransform[i] = m_transform * (m_vertexPositions[i] * m_scaling);
+        }
+        m_transformApplied = true;
+    }
+
+    if (m_transformApplied)
+    {
+        return;
     }
 
     ParallelUtils::parallelFor(m_vertexPositions.size(),

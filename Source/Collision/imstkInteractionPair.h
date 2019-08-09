@@ -61,8 +61,8 @@ public:
 
     ///
     /// \brief Destructor
-    ///
-    ~InteractionPair() = default;
+    /// make virtual to turn InteractionPair into a polymorphic type
+    virtual ~InteractionPair() = default;
 
     ///
     /// \brief Call collision detection algorithm to compute collision data

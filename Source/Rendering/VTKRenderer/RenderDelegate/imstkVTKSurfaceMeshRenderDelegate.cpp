@@ -56,12 +56,12 @@ VTKSurfaceMeshRenderDelegate::VTKSurfaceMeshRenderDelegate(std::shared_ptr<Visua
     m_mappedVertexArray->SetArray(vertData, vertices.size() * 3, 1);
 
     // Create points
-    auto points = vtkSmartPointer<vtkPoints>::New();
-    points->SetNumberOfPoints(geometry->getNumVertices());
-    points->SetData(m_mappedVertexArray);
+    m_points = vtkSmartPointer<vtkPoints>::New();
+    m_points->SetNumberOfPoints(geometry->getNumVertices());
+    m_points->SetData(m_mappedVertexArray);
 
     // Copy cells
-    auto      cells = vtkSmartPointer<vtkCellArray>::New();
+    m_cells = vtkSmartPointer<vtkCellArray>::New();
     vtkIdType cell[3];
     for (const auto& t : geometry->getTrianglesVertices())
     {
@@ -69,13 +69,13 @@ VTKSurfaceMeshRenderDelegate::VTKSurfaceMeshRenderDelegate(std::shared_ptr<Visua
         {
             cell[i] = t[i];
         }
-        cells->InsertNextCell(3, cell);
+        m_cells->InsertNextCell(3, cell);
     }
 
     // Create PolyData
-    auto polydata = vtkSmartPointer<vtkPolyData>::New();
-    polydata->SetPoints(points);
-    polydata->SetPolys(cells);
+    m_polydata = vtkSmartPointer<vtkPolyData>::New();
+    m_polydata->SetPoints(m_points);
+    m_polydata->SetPolys(m_cells);
 
     // Map normals
     geometry->computeVertexNormals();
@@ -84,11 +84,11 @@ VTKSurfaceMeshRenderDelegate::VTKSurfaceMeshRenderDelegate(std::shared_ptr<Visua
     double*           normalData = reinterpret_cast<double*>(normals.data());
     m_mappedNormalArray->SetNumberOfComponents(3);
     m_mappedNormalArray->SetArray(normalData, normals.size() * 3, 1);
-    polydata->GetPointData()->SetNormals(m_mappedNormalArray);
+    m_polydata->GetPointData()->SetNormals(m_mappedNormalArray);
 
     // Create connection source
     auto source = vtkSmartPointer<vtkTrivialProducer>::New();
-    source->SetOutput(polydata);
+    source->SetOutput(m_polydata);
     geometry->m_dataModified = false;
 
     // Setup texture coordinates
@@ -102,35 +102,35 @@ VTKSurfaceMeshRenderDelegate::VTKSurfaceMeshRenderDelegate(std::shared_ptr<Visua
         }
         else
         {
-            auto vtkTCoords = vtkSmartPointer<vtkFloatArray>::New();
-            vtkTCoords->SetNumberOfComponents(2);
-            vtkTCoords->SetName(geometry->getDefaultTCoords().c_str());
+            m_vtkTCoords = vtkSmartPointer<vtkFloatArray>::New();
+            m_vtkTCoords->SetNumberOfComponents(2);
+            m_vtkTCoords->SetName(geometry->getDefaultTCoords().c_str());
 
             for (auto const tcoord : *tcoords)
             {
                 float tuple[2] = { tcoord[0], tcoord[1] };
-                vtkTCoords->InsertNextTuple(tuple);
+                m_vtkTCoords->InsertNextTuple(tuple);
             }
 
-            polydata->GetPointData()->SetTCoords(vtkTCoords);
+            m_polydata->GetPointData()->SetTCoords(m_vtkTCoords);
         }
     }
 
     // Update tangents
     if (geometry->getVertexTangents().size() > 0)
     {
-        auto tangents = vtkSmartPointer<vtkFloatArray>::New();
-        tangents->SetName("tangents");
-        tangents->SetNumberOfComponents(3);
+        m_tangents = vtkSmartPointer<vtkFloatArray>::New();
+        m_tangents->SetName("tangents");
+        m_tangents->SetNumberOfComponents(3);
 
         for (auto const tangent : geometry->getVertexTangents())
         {
             float tempTangent[3] = { (float)tangent[0],
                                      (float)tangent[1],
                                      (float)tangent[2] };
-            tangents->InsertNextTuple(tempTangent);
+            m_tangents->InsertNextTuple(tempTangent);
         }
-        polydata->GetPointData()->AddArray(tangents);
+        m_polydata->GetPointData()->AddArray(m_tangents);
     }
 
     // Update Transform, Render Properties
@@ -143,9 +143,73 @@ void
 VTKSurfaceMeshRenderDelegate::updateDataSource()
 {
     auto geometry = std::static_pointer_cast<SurfaceMesh>(m_visualModel->getGeometry());
-
+    geometry->m_TopologyLock.lock();
     if (geometry->m_dataModified)
     {
+        //if topology changed, update all geometry info accordinly
+        if (geometry->m_topologyChanged)
+        {
+            // Map vertices
+            StdVectorOfVec3d& vertices = geometry->getVertexPositionsNotConst();
+            double* vertData = reinterpret_cast<double*>(vertices.data());
+            m_mappedVertexArray->SetArray(vertData, vertices.size() * 3, 1);
+
+            // Update points
+            m_points->SetNumberOfPoints(geometry->getNumVertices());
+            m_points->SetData(m_mappedVertexArray);
+
+            // Update cells			
+            m_cells->Reset();
+            vtkIdType cell[3];
+            for (const auto& t : geometry->getTrianglesVertices())
+            {
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    cell[i] = t[i];
+                }
+                m_cells->InsertNextCell(3, cell);
+            }
+
+            // Map normals
+            geometry->computeVertexNormals();
+            StdVectorOfVec3d& normals = geometry->getVertexNormalsNotConst();
+            double* normalData = reinterpret_cast<double*>(normals.data());
+            m_mappedNormalArray->SetNumberOfComponents(3);
+            m_mappedNormalArray->SetArray(normalData, normals.size() * 3, 1);
+            m_polydata->GetPointData()->SetNormals(m_mappedNormalArray);
+
+            // Update texcoords
+            if (geometry->getDefaultTCoords() != "")
+            {
+                auto tcoords = geometry->getPointDataArray(geometry->getDefaultTCoords());
+                if (tcoords == nullptr)
+                {
+                    LOG(WARNING) << "No default texture coordinates array for geometry " << geometry;
+                }
+                else
+                {
+                    for (auto const tcoord : *tcoords)
+                    {
+                        float tuple[2] = { tcoord[0], tcoord[1] };
+                        m_vtkTCoords->InsertNextTuple(tuple);
+                    }
+                    m_polydata->GetPointData()->SetTCoords(m_vtkTCoords);
+                }
+            }
+
+            // Update tangents
+            if (geometry->getVertexTangents().size() > 0)
+            {
+                m_tangents->Resize(0);
+                for (auto const tangent : geometry->getVertexTangents())
+                {
+                    float tempTangent[3] = { (float)tangent[0],
+                                            (float)tangent[1],
+                                            (float)tangent[2] };
+                    m_tangents->InsertNextTuple(tempTangent);
+                }
+            }
+        }
         geometry->computeVertexNormals();
 
         StdVectorOfVec3d& normals    = geometry->getVertexNormalsNotConst();
@@ -158,6 +222,7 @@ VTKSurfaceMeshRenderDelegate::updateDataSource()
         m_mappedNormalArray->Modified();
         geometry->m_dataModified = false;
     }
+    geometry->m_TopologyLock.unlock();
 }
 
 void

@@ -23,7 +23,8 @@
 
 #include <vector>
 #include <Eigen/Dense>
-
+#include <tuple>
+#include "imstkToolSurfaceInteractionPair.h"
 #include "imstkPbdConstraint.h"
 #include "imstkPbdFEMConstraint.h"
 #include "imstkDynamicalModel.h"
@@ -98,6 +99,28 @@ public:
     const std::shared_ptr<PointSet>& getModelGeometry() const { return m_mesh; }
 
     ///
+    /// \Below are functions for handling cutting
+    ///
+
+    /// \brief reinit the constraints after cutting
+    void updateConstraintsFromCutting();
+
+    /// \brief update physics, states, constraints to handle cutting event,
+    void handleCutting();
+
+    /// \brief check if there is new cut needs to be handled
+    bool needsToHandleCut();
+
+    /// \brief generate cut from the Tool contact and tool state
+    void generateCut(std::shared_ptr<ToolState> info);
+
+    ///
+    /// \brief Grasp/unGrasp the PbdModel based on tool contact data
+    ///
+    bool doGrasp(std::shared_ptr<ToolState> info);
+    void unGrasp(std::shared_ptr<ToolState> info);
+
+    ///
     /// \brief Set simulation parameters
     ///
     void configure(const std::shared_ptr<PBDModelConfig>& params);
@@ -143,6 +166,18 @@ public:
     /// \brief Initialize constant density constraints for PBD fluid
     ///
     bool initializeConstantDensityConstraint(const double stiffness);
+
+    ///
+    /// \brief Add a distance constraint
+    /// \param (v1,v2) is the vertices idx on the edge
+    ///
+    void addDistanceConstraint(size_t v1, size_t v2, float stiffness);
+
+    ///
+    /// \brief Add a Dihedral constraint
+    /// \param (v2,v3) is the common edge
+    ///
+    void addDihedralConstraint(size_t v0, size_t v1, size_t v2, size_t v3, float stiffness);
 
     ///
     /// \brief compute delta x (position) and update position
@@ -244,5 +279,13 @@ protected:
     PBDConstraintVector m_constraints;                         ///> List of pbd constraints
     std::vector<PBDConstraintVector> m_partitionedConstraints; ///> List of pbd constraints
     std::shared_ptr<PBDModelConfig>  m_Parameters;             ///> Model parameters, must be set before simulation
+
+    // Cloth properties
+    float m_stiffnessStreching = 0.2;				    ///> Cloth: stiffness for Distance Constraint
+    float m_stiffnessBending = 0.01;					///> Cloth: stiffness for Dihedral Constraint
+
+    //Special Constaints below
+    std::vector< std::tuple<size_t, Vec3d*, Vec3d> > m_vertexPositionOffsetList;  ///> picking
+    std::vector< std::tuple<size_t, size_t, size_t, float> > m_fixedVertexOnEdgeList; ///> for partial broken edge: make the new verts attach to the edge
 };
 } // imstk

@@ -65,5 +65,10 @@ protected:
 
     vtkSmartPointer<vtkDoubleArray> m_mappedVertexArray;    ///> Mapped array of vertices
     vtkSmartPointer<vtkDoubleArray> m_mappedNormalArray;    ///> Mapped array of normals
+	vtkSmartPointer<vtkPoints> m_points;
+	vtkSmartPointer<vtkCellArray> m_cells;
+	vtkSmartPointer<vtkPolyData> m_polydata;
+	vtkSmartPointer<vtkFloatArray> m_tangents;
+    vtkSmartPointer<vtkFloatArray> m_vtkTCoords;   
 };
 }

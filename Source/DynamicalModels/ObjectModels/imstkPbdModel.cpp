@@ -23,6 +23,7 @@
 #include "imstkPbdModel.h"
 #include "imstkTetrahedralMesh.h"
 #include "imstkSurfaceMesh.h"
+#include "imstkSurfaceCuttingManager.h"
 #include "imstkPbdVolumeConstraint.h"
 #include "imstkPbdDistanceConstraint.h"
 #include "imstkPbdDihedralConstraint.h"
@@ -83,7 +84,6 @@ PbdModel::initialize()
     m_currentState->setPositions(m_mesh->getVertexPositions());
 
     auto numParticles = m_mesh->getNumVertices();
-
     m_mass.resize(numParticles, 0);
     m_invMass.resize(numParticles, 0);
     setUniformMass(m_Parameters->m_uniformMassValue);
@@ -92,7 +92,8 @@ PbdModel::initialize()
     {
         setFixedPoint(i);
     }
-
+    //Increase viscousDampingCoeff to resolve the oscillation issue in cutting.
+    m_Parameters->m_viscousDampingCoeff = 0.1;
     bool bOK = true; // Return immediately if some constraint failed to initialize
 
     // Initialize FEM constraints
@@ -120,6 +121,7 @@ PbdModel::initialize()
 
         case PbdConstraint::Type::Distance:
             bOK = initializeDistanceConstraints(constraint.second);
+            m_stiffnessStreching = constraint.second;
             break;
 
         case PbdConstraint::Type::Area:
@@ -128,6 +130,7 @@ PbdModel::initialize()
 
         case PbdConstraint::Type::Dihedral:
             bOK = initializeDihedralConstraints(constraint.second);
+            m_stiffnessBending = constraint.second;
             break;
 
         case PbdConstraint::Type::ConstantDensity:
@@ -140,7 +143,7 @@ PbdModel::initialize()
     }
 
     // Partition constraints for parallel computation
-    partitionCostraints();
+     //partitionCostraints();
 
     return bOK;
 }
@@ -393,8 +396,8 @@ PbdModel::initializeConstantDensityConstraint(const double stiffness)
         && m_mesh->getType() != Geometry::Type::HexahedralMesh
         && m_mesh->getType() != Geometry::Type::PointSet)
     {
-        //\todo Really only need a point cloud, so may need to change this.
-        LOG(WARNING) << "Constant constraint should come with a mesh!";
+        //TODO: Really only need a point cloud, so may need to change this.
+        LOG(WARNING) << "Constant constraint should come with a mesh";          
         return false;
     }
 
@@ -403,6 +406,75 @@ PbdModel::initializeConstantDensityConstraint(const double stiffness)
     m_constraints.push_back(std::move(c));
 
     return true;
+}
+
+void 
+PbdModel::addDistanceConstraint(size_t v1, size_t v2, float stiffness)
+{
+	auto c = std::make_shared<PbdDistanceConstraint>();
+	c->initConstraint(*this, v1, v2, stiffness);
+	m_constraints.push_back(c);		
+}
+
+void 
+PbdModel::addDihedralConstraint(size_t v0, size_t v1, size_t v2, size_t v3, float stiffness)
+{
+	auto c = std::make_shared<PbdDihedralConstraint>();
+	c->initConstraint(*this, v0, v1, v2, v3, stiffness);
+	m_constraints.push_back(c);
+}
+
+void
+PbdModel::updateConstraintsFromCutting() 
+{
+	// As there is no smart way to query a constraint. Updating k constraints needs 
+	// k * O(n) (search time) * O(n^2) (add per constraint time) = kO(n^3) 
+	// which means we better call the reintilize function, which always takes O(n^3) independent of k
+	//std::cout << "before updateConstraintsFromCutting, num constraints : "<< m_constraints.size() << std::endl;
+	
+	//reintilize constraints for cloth
+	m_constraints.clear();
+	this->initializeDistanceConstraints(m_stiffnessStreching);
+	this->initializeDihedralConstraints(m_stiffnessBending);	
+
+    //Add hard constraints on connected edges
+    auto manager = std::dynamic_pointer_cast<SurfaceCuttingManager>(m_mesh);
+    m_fixedVertexOnEdgeList.clear();
+    if (manager)
+    {
+        for (auto& e : manager->m_brokenEdges)
+        {
+            if (e.isConnected )
+            {
+                if (e.nodeId[0] >= m_initialState->getPositions().size() || e.nodeId[1] >= m_initialState->getPositions().size())
+                {
+                    std::cout << "Error: can only hard constraint on initial edges...\n";
+                    continue;
+                }
+                //Prevent the "gap" issue by adding hard constraints fixing the new vertices on partial broken edges
+                std::tuple<size_t, size_t, size_t, float> tuple = std::make_tuple(e.newNodeId[0], e.nodeId[0], e.nodeId[1], e.brokenCoord-0.01);
+                m_fixedVertexOnEdgeList.push_back(tuple);
+
+                tuple = std::make_tuple(e.newNodeId[1], e.nodeId[0], e.nodeId[1], e.brokenCoord+0.01);
+                m_fixedVertexOnEdgeList.push_back(tuple);
+            }
+        }
+    }
+    //partitionCostraints();
+}
+
+bool 
+PbdModel::needsToHandleCut()
+{
+    auto manager = std::dynamic_pointer_cast<SurfaceCuttingManager>(m_mesh);
+    if (manager && manager->m_newCutGenerated)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void
@@ -494,9 +566,93 @@ PbdModel::partitionCostraints(const bool print)
 }
 
 void
-PbdModel::projectConstraints()
+PbdModel::handleCutting() 
 {
+	auto mesher = std::dynamic_pointer_cast<SurfaceCuttingManager>(m_mesh);
+    mesher->m_newCutGenerated = false;
+    mesher->propagateTopologyChanges();
+
+	if (mesher && mesher->m_needToUpdatePhysicalModel)
+	{	
+        //std::cout << "PbdModel handle cutting ..." << std::endl;
+		//update mass and invMass and fixedNodes
+        auto numParticles = mesher->getVertexPositions().size();
+        m_mass.resize(numParticles, 0);
+        m_invMass.resize(numParticles, 0);
+        setUniformMass(m_Parameters->m_uniformMassValue);
+ 
+
+        for (auto i : m_Parameters->m_fixedNodeIds)
+        {
+            setFixedPoint(i);
+        }
+
+		//update PbdStates, note that the State vector length has changed
+		m_currentState->setPositions(m_mesh->getVertexPositions());
+		m_previousState->setPositions(m_mesh->getVertexPositions());
+
+		auto& vel = m_currentState->getVelocities(); //Todo: Handle the new vertices' velocities and acelerations more realisticly?
+		for (auto i = vel.size(); i < numParticles; i++)
+			vel.push_back(Vec3d(0, 0, 0));
+
+		auto& accn = m_currentState->getAccelerations();
+		for (auto i = accn.size(); i < numParticles; i++)
+			accn.push_back(Vec3d(0, 0, 0));
+
+         //update initial state with new created vertices using the interpolation
+        auto& interpolationData =  mesher->getNewVertexInterpolationData();
+        auto &initPos = m_initialState->getPositions();
+        auto numInitialParticles = initPos.size();
+        for (auto i = numInitialParticles; i < numParticles; i++)
+        {
+            auto tuple = interpolationData[i - numInitialParticles];
+            Vec3d interpolatedPos = initPos[std::get<0>(tuple)]*(1 - std::get<2>(tuple))
+                + initPos[std::get<1>(tuple)]*std::get<2>(tuple);
+            initPos.push_back(interpolatedPos);
+        }
+        interpolationData.clear();
+		updateConstraintsFromCutting();
+        mesher->m_needToUpdatePhysicalModel = false;
+	}	
+	
+}
+
+void
+PbdModel::generateCut(std::shared_ptr<ToolState> info)
+{
+    auto manager = std::dynamic_pointer_cast<SurfaceCuttingManager>(m_mesh);
+    manager->generateCut(info);
+}
+
+
+bool 
+PbdModel::doGrasp(std::shared_ptr<ToolState> info)
+{
+    std::tuple<size_t, Vec3d*, Vec3d> tuple;
+    auto manager = std::dynamic_pointer_cast<SurfaceCuttingManager>(m_mesh);
+    if (manager->findToolSurfaceContactPair(info, tuple))
+    {
+        m_vertexPositionOffsetList.push_back(tuple);
+        return true;
+    }
+    else
+    {
+        std::cout << "Error: can not find the vertex to grasp...\n";
+        return false;
+    }  
+}
+
+void
+PbdModel::unGrasp(std::shared_ptr<ToolState> info)
+{
+    m_vertexPositionOffsetList.clear();
+}
+
+void
+PbdModel::projectConstraints()
+{	
     unsigned int i = 0;
+
     while (++i < m_Parameters->m_maxIter)
     {
         for (auto c: m_constraints)
@@ -513,6 +669,28 @@ PbdModel::projectConstraints()
                 });
         }
     }
+    ////TODO -- add hard attach constraint here
+    if (m_fixedVertexOnEdgeList.size() > 0)
+    {
+        const auto& state = this->getCurrentState();
+        auto& pos = state->getPositions();
+        for (auto & tuple : m_fixedVertexOnEdgeList)
+        {
+            pos[std::get<0>(tuple)] += (1.0 - m_Parameters->m_viscousDampingCoeff) * 
+                ( pos[std::get<1>(tuple)] * (1- std::get<3>(tuple)) + pos[std::get<2>(tuple)] * std::get<3>(tuple) - pos[std::get<0>(tuple)] );
+        }
+    }
+    //picking (Grasping constraint) 
+    if (m_vertexPositionOffsetList.size() > 0)
+    {
+        const auto& state = this->getCurrentState();
+        auto& pos = state->getPositions();
+        for (auto & tuple : m_vertexPositionOffsetList)
+        {
+            pos[std::get<0>(tuple)] = *std::get<1>(tuple) + std::get<2>(tuple);
+        }      
+    }
+    
 }
 
 void

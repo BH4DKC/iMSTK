@@ -43,6 +43,16 @@ PbdObject::initialize()
 }
 
 void
+PbdObject::handleCutting()
+{
+    //std::shared_ptr<GeometryMap> map = this->getPhysicsToCollidingMap();
+    if (m_pbdModel && m_pbdModel->hasConstraints())
+    {
+        m_pbdModel->handleCutting();
+    }
+}
+
+void
 PbdObject::integratePosition()
 {
     if (m_pbdModel && m_pbdModel->hasConstraints())

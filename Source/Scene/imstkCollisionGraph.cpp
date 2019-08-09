@@ -104,6 +104,43 @@ CollisionGraph::addInteractionPair(CollidingObjectPtr    A,
     return intPair;
 }
 
+std::shared_ptr<ToolSurfaceInteractionPair>
+CollisionGraph::addToolSurfaceInteractionPair(CollidingObjectPtr A,
+    CollidingObjectPtr B,
+    CollisionDetectionPtr CD,
+    CollisionHandlingPtr CHA,
+    CollisionHandlingPtr CHB)
+{
+    // Check that interaction pair does not exist
+    if (this->getInteractionPair(A, B) != nullptr)
+    {
+        LOG(WARNING) << "CollisionGraph::addInteractionPair error: interaction already defined for "
+            << A->getName() << " & " << B->getName() << ".";
+        return nullptr;
+    }
+
+    // Create interaction pair
+    auto toolIntPair = std::make_shared<ToolSurfaceInteractionPair>(A, B, CD, CHA, CHB);
+
+    // Check validity
+    if (!toolIntPair->isValid())
+    {
+        LOG(WARNING) << "CollisionGraph::addInteractionPair error: could not create interaction for "
+            << A->getName() << " & " << B->getName() << " with those parameters.";
+        toolIntPair.reset();
+        return nullptr;
+    }
+
+    // Populate book-keeping
+    auto intPair = std::dynamic_pointer_cast<InteractionPair>(toolIntPair);
+    m_interactionPairList.push_back(intPair);
+    m_interactionPairMap[A].push_back(intPair);
+    m_interactionPairMap[B].push_back(intPair);
+
+    // Return interaction pair
+    return toolIntPair;
+}
+
 bool
 CollisionGraph::removeInteractionPair(CollidingObjectPtr A, CollidingObjectPtr B)
 {

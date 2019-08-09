@@ -10,6 +10,7 @@ imstk_add_library( Geometry
     Assimp
     Materials
     VegaFEM::volumetricMesh
+	Collision
     ${VTK_LIBRARIES}
   )
 

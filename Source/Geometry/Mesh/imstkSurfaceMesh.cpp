@@ -371,6 +371,7 @@ SurfaceMesh::setTrianglesVertices(const std::vector<TriangleArray>& triangles)
         m_trianglesVertices.reserve(m_maxNumTriangles);
         m_vertexNormals.reserve(m_maxNumVertices);
         m_vertexTangents.reserve(m_maxNumVertices);
+        m_vertexNeighborTriangles.reserve(m_maxNumVertices);
         m_topologyChanged = true;
     }
 

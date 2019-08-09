@@ -119,7 +119,7 @@ protected:
     std::shared_ptr<SceneObject> m_lowerJaw;             ///< Tool lower jaw
 
     double m_jawAngle    = PI / 6.0;                     ///< Angle of the jaws
-    double m_change      = 6.0e-5;                       ///< Amount of change in jaw angle per frame
+    double m_change      = 6.0e-2;                       ///< Amount of change in jaw angle per frame
     double m_maxJawAngle = PI / 6.0;                     ///< Maximum angle of the jaws
 
     Vec3d m_jawRotationAxis = Vec3d(0, 1., 0);           ///< Angle of the jaws

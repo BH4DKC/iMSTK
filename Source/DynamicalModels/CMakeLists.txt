@@ -13,6 +13,7 @@ imstk_add_library( DynamicalModels
     Geometry
     TimeIntegrators
     Constraints
+	Collision
     Solvers
     VegaFEM::massSpringSystem
     VegaFEM::corotationalLinearFEM
