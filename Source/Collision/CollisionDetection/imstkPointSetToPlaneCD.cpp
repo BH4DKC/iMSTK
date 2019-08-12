@@ -46,5 +46,6 @@ PointSetToPlaneCD::computeCollisionData()
             const auto& point = m_pointSet->getVertexPosition(idx);
             NarrowPhaseCD::pointToPlane(point, idx, m_plane.get(), m_colData);
         });
+    //std::cout << "colData->MAColData size()" << m_colData->MAColData.getSize();
 }
 } // imstk

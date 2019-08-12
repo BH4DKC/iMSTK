@@ -291,10 +291,10 @@ pointToPlane(const Vec3r& point, uint32_t pointIdx, Plane* const plane,
     const auto planePos        = plane->getPosition();
     const auto planeNormal     = plane->getNormal();
     const auto penetrationDist = (point - planePos).dot(planeNormal);
-
-    if (penetrationDist < 0.0)
+    float defaultProximity = 0.2;
+    if (penetrationDist < defaultProximity)
     {
-        const auto penetrationDir = planeNormal * penetrationDist;
+        const auto penetrationDir = planeNormal * (penetrationDist - defaultProximity);
         colData->MAColData.safeAppend({ pointIdx, penetrationDir });
     }
 }

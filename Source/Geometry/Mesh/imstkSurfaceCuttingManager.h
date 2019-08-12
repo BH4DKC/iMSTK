@@ -7,6 +7,8 @@
 namespace imstk
 {
 
+ /// MeshSplitTriangle : 
+ /// for remeshing the partial cut triangle, which will be splitted into 4 subtriangles 
 struct MeshSplitTriangle
 {
     size_t triId;       // id split triangle in the global tris list
@@ -18,7 +20,9 @@ struct MeshSplitTriangle
 	{}
 };
 
-struct MeshBrokenEdge
+/// MeshSplitTriangle : 
+/// for remeshing the partial cut triangle, which will be splitted into 4 subtriangles 
+struct MeshBrokenEdge //TODO add documentation
 {
     bool isConnected = true;
     int idNeiTriToBeCut;
@@ -53,7 +57,7 @@ struct MeshTriangle //Carvable Triangle element of the Triangle Mesh
 
 };
 
-
+///  TODO class overview
 class SurfaceCuttingManager : public SurfaceMesh
 {
 public:
@@ -226,23 +230,22 @@ public:
 
 protected:
 
-	std::vector<MeshTriangle> m_triangles; //global tris list (pushes in every tri, never pops out)
+	std::vector<MeshTriangle> m_triangles; //global tris list (pushes in every tri, never pops out), store every triangle
 	std::vector<MeshSplitTriangle> m_splitTriangle; //split triangles list
 	StdVectorOfVec3d m_newVertexPositions; // vector of new vertices positions generated
     StdVectorOfVectorf m_newVertexUVs; // vector of new vertices UV coords generated
     std::vector< std::tuple<size_t, size_t, float> > m_newVertexInterpolationData; // new vertices InterpolationData, <v1, v2, ratio> meaning v = (1-ratio)*v1 + ratio*v2 
-	int nbrBrokenEdges = 0; 
     int nbrBrokenEdgesHandled = 0; //number of the broken edges that have been handled in doCutting()
-    std::vector< std::array<size_t, 3> > m_adjTrianglesWithVertex; //list of adjacent trianlges pairs with one common vertex
-	bool m_newCutGenerated = false;
+    std::vector< std::array<size_t, 3> > m_adjTrianglesWithVertex; //special case: list of adjacent trianlges pairs with one common vertex
+	bool m_newCutGenerated = false; //telling PBD model
     bool m_needToUpdatePhysicalModel = false;
-    std::map<int, int> mapCurrentTriToTris; //map the triangle Id from current physical mesh to the global triangles list
+    std::map<int, int> mapCurrentTriToTris; //map the triangle Id from current graphic mesh to the global triangles list
 
-    //std::vector< std::tuple<size_t, size_t, size_t> > m_replaceTriVertIdList; //list of traingles with the vertex to be updated
     float m_initialElementArea; //Assume the inital mesh is structured and initialElementArea is a constant
+    float stopCriteriaElementArea = 0.05; //mark uncuttable if the element area smaller than 0.05 of the initial element area
     size_t initialNumberVertices;
     int whenToSetUncarvable; //With id above this number, the children triangles will be uncarvable
-    float stopCriteriaElementArea = 0.05; //mark uncuttable if the element area smaller than 0.05 of the initial element area
+ 
 
     
 

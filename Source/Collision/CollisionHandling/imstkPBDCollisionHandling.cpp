@@ -26,6 +26,7 @@
 #include "imstkPbdObject.h"
 #include "imstkPbdEdgeEdgeCollisionConstraint.h"
 #include "imstkPbdPointTriCollisionConstraint.h"
+#include "imstkPbdPointPenetrationDepthConstraint.h"
 #include "imstkPbdSolver.h"
 #include "imstkParallelUtils.h"
 
@@ -41,6 +42,10 @@ PBDCollisionHandling::~PBDCollisionHandling()
         delete ptr;
     }
     for (const auto ptr: m_VTConstraintPool)
+    {
+        delete ptr;
+    }
+    for (const auto ptr : m_VPConstraintPool)
     {
         delete ptr;
     }
@@ -85,6 +90,25 @@ PBDCollisionHandling::generatePBDConstraints()
     const auto map2 = m_pbdObject2->getPhysicsToCollidingMap();
 
 //    std::cout << "EE: " << m_colData->EEColData.getSize() << "TV: " << m_colData->VTColData.getSize() << std::endl;
+
+    // Generate point-penetration pbd constraints from object 1
+    if (m_VPConstraintPool.size() < m_colData->MAColData.getSize())
+    {
+        for (size_t i = m_VPConstraintPool.size(); i < m_colData->MAColData.getSize(); ++i)
+        {
+            m_VPConstraintPool.push_back(new PbdPointPenetrationDepthConstraint);
+        }
+    }
+    ParallelUtils::parallelFor(m_colData->MAColData.getSize(),
+        [&](const size_t idx)
+    {
+        const auto& colData = m_colData->MAColData[idx];
+      
+
+        const auto constraint = m_VPConstraintPool[idx];
+        std::array<double, 3> p = { colData.penetrationVector[0], colData.penetrationVector[1], colData.penetrationVector[2] };
+        constraint->initConstraint(dynaModel1, colData.nodeIdx, p);
+    });
 
     // Generate edge-edge pbd constraints
     if (m_EEConstraintPool.size() < m_colData->EEColData.getSize())
@@ -163,7 +187,7 @@ PBDCollisionHandling::generatePBDConstraints()
 
     // Copy constraints
     m_PBDConstraints.resize(0);
-    m_PBDConstraints.reserve(m_colData->EEColData.getSize() + m_colData->VTColData.getSize());
+    m_PBDConstraints.reserve(m_colData->EEColData.getSize() + m_colData->VTColData.getSize() + m_colData->MAColData.getSize());
 
     for (size_t i = 0; i < m_colData->EEColData.getSize(); ++i)
     {
@@ -173,6 +197,11 @@ PBDCollisionHandling::generatePBDConstraints()
     for (size_t i = 0; i < m_colData->VTColData.getSize(); ++i)
     {
         m_PBDConstraints.push_back(static_cast<PbdCollisionConstraint*>(m_VTConstraintPool[i]));
+    }
+
+    for (size_t i = 0; i < m_colData->MAColData.getSize(); ++i)
+    {
+        m_PBDConstraints.push_back(static_cast<PbdCollisionConstraint*>(m_VPConstraintPool[i]));
     }
 }
 }

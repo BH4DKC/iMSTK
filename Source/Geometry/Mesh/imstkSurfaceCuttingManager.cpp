@@ -728,7 +728,6 @@ namespace imstk
         //clear all temp data
         //m_brokenEdges.clear();
         //m_splitTriangle.clear();
-        nbrBrokenEdges = 0;
     }
 
 
@@ -1086,7 +1085,7 @@ namespace imstk
     bool 
     SurfaceCuttingManager::generateCut(std::shared_ptr<ToolState> info)
     {
-        bool DEBUG = true; //print out debug info
+        bool DEBUG = false; //print out debug info
         double lengthCuttingBlade = (info->toolTipEndPos - info->toolTipStartPos).norm();
         int numberPointsToCut = 25; ///>TODO:: Adaptive step-length, this number should be determined by lengthBlade / averageElementEdgeLength     
         d_toolPos[0] = info->toolTipStartPos; 
@@ -1431,7 +1430,7 @@ namespace imstk
     void 
     SurfaceCuttingManager::handleIsolatedTri(std::shared_ptr<ToolState> info, size_t tid, size_t tidGlobal)
     {
-        bool DEBUG = true;
+        bool DEBUG = false;
         if (tidGlobal != -1 && m_triangles[tidGlobal].numberCuts < 2 && !m_triangles[tidGlobal].doneHandlingCut 
             && m_triangles[tidGlobal].canBeCut &&!m_triangles[tidGlobal].tooSmallToCut)
         {

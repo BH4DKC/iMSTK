@@ -34,6 +34,7 @@ class PbdObject;
 class PbdCollisionConstraint;
 class PbdEdgeEdgeConstraint;
 class PbdPointTriangleConstraint;
+class PbdPointPenetrationDepthConstraint;
 class PbdSolver;
 struct CollisionData;
 
@@ -86,5 +87,6 @@ private:
 
     std::vector<PbdEdgeEdgeConstraint*>      m_EEConstraintPool;
     std::vector<PbdPointTriangleConstraint*> m_VTConstraintPool;
+    std::vector<PbdPointPenetrationDepthConstraint*>    m_VPConstraintPool;
 };
 }

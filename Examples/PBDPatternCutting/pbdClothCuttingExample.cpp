@@ -310,7 +310,7 @@ main()
     // Constraints
     pbdParams->enableConstraint(PbdConstraint::Type::Distance, 1.0);
     pbdParams->enableConstraint(PbdConstraint::Type::Dihedral, 0.01);
-    pbdParams->m_fixedNodeIds = { 440, 439, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420, 0, 1, 19, 20 };
+    pbdParams->m_fixedNodeIds = { 440, 439, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420/*, 0, 1, 19, 20*/ };
     pbdParams->m_contactStiffness = 1;
 
     // Other parameters
@@ -345,16 +345,18 @@ main()
     // Create a plane in the scene
     auto planeGeom = std::make_shared<Plane>();
     planeGeom->setWidth(30);
-    planeGeom->setPosition(5.0, -2, 5.0);
+    planeGeom->setPosition(5.0, -1.0, 5.0);
     auto planeObj = std::make_shared<CollidingObject>("Plane");
     planeObj->setVisualGeometry(planeGeom);
     planeObj->setCollidingGeometry(planeGeom);
     scene->addSceneObject(planeObj);
     // Create the cloth_plane collision pair
     auto planeColData = std::make_shared<CollisionData>();
-    auto planeCD = std::make_shared<PointSetToPlaneCD>(surfMesh, planeGeom, planeColData); 
+    auto planeCD = std::make_shared<PointSetToPlaneCD>(surfMesh, planeGeom, planeColData);
+    // object1 = object2 below since object 2 is not used at all
+    auto planeCH = std::make_shared<PBDCollisionHandling>(CollisionHandling::Side::A, planeColData, clothObj, clothObj, pbdSolver); 
     auto cloth_plane_pair = scene->getCollisionGraph()->addInteractionPair(clothObj, planeObj,
-        planeCD, nullptr, nullptr);
+        planeCD, planeCH, nullptr);
     
 
     //Add cutter cloth iteraction pair
@@ -476,10 +478,11 @@ main()
                         debugLinesBroken->appendVertex(initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[0]));
                         debugLinesBroken->appendVertex(initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[1]));
                     }
-                    if (i > 8) //the first 8 edges doesn't count in accuracy
+                    Vec3d cutPointPos = initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[0])* (1 - surfMesh->m_brokenEdges[i].brokenCoord)
+                        + initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[1]) * surfMesh->m_brokenEdges[i].brokenCoord;
+                    if ((cutPointPos - center).norm() < 3.18) //the first 8 edges doesn't count in accuracy
                     {
-                        Vec3d cutPointPos = initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[0])* (1 - surfMesh->m_brokenEdges[i].brokenCoord)
-                            + initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[1]) * surfMesh->m_brokenEdges[i].brokenCoord;
+                        
                         //debugPoints->appendVertex(cutPointPos);
                         distFromCutPointstoCenter.push_back((cutPointPos - center).norm());
                     }

@@ -39,7 +39,8 @@ public:
     enum class Type
     {
         EdgeEdge,
-        PointTriangle
+        PointTriangle,
+        PointPenetration
     };
 
     ///

@@ -143,7 +143,7 @@ PbdModel::initialize()
     }
 
     // Partition constraints for parallel computation
-     //partitionCostraints();
+     partitionCostraints();
 
     return bOK;
 }
