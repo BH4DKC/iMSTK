@@ -70,5 +70,6 @@ protected:
 	vtkSmartPointer<vtkPolyData> m_polydata;
 	vtkSmartPointer<vtkFloatArray> m_tangents;
     vtkSmartPointer<vtkFloatArray> m_vtkTCoords;   
+    size_t m_previousTCoordsSize = 0;
 };
 }

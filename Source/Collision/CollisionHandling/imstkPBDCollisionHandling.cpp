@@ -89,7 +89,7 @@ PBDCollisionHandling::generatePBDConstraints()
     const auto map1 = m_pbdObject1->getPhysicsToCollidingMap();
     const auto map2 = m_pbdObject2->getPhysicsToCollidingMap();
 
-//    std::cout << "EE: " << m_colData->EEColData.getSize() << "TV: " << m_colData->VTColData.getSize() << std::endl;
+    //std::cout << "EE: " << m_colData->EEColData.getSize() << "TV: " << m_colData->VTColData.getSize() <<"MA: "<< m_colData->MAColData.getSize()<< std::endl;
 
     // Generate point-penetration pbd constraints from object 1
     if (m_VPConstraintPool.size() < m_colData->MAColData.getSize())

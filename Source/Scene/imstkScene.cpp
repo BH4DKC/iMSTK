@@ -331,7 +331,6 @@ Scene::advance()
             {
                 auto pbdModel = std::dynamic_pointer_cast<PbdModel>(dynaObj->getDynamicalModel());
                 if (pbdModel && pbdModel->needsToHandleCut()) {
-                    std::cout << "Cloth PbdObj handle cutting ..." << std::endl;
                     dynaObj->handleCutting();
                 }
             }

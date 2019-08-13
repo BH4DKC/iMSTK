@@ -95,6 +95,12 @@ public:
     const Vec3d& getForce() const;
     void setForce(Vec3d force);
 
+    /// force to set the button state
+    /// this is used for mapping the keyboard event to button event
+    inline void setButton(size_t buttonId, bool pressed) {
+        m_buttons.at(buttonId) = pressed;
+    }
+
 protected:
 
     ///

@@ -135,6 +135,7 @@ public:
 
     ///
     /// \brief Get a specific data array. If the array name cannot be found, nullptr is returned.
+    /// const version and non-constant version
     ///
     const StdVectorOfVectorf* getPointDataArray(const std::string& arrayName) const;
     StdVectorOfVectorf* getPointDataArrayEdittable(const std::string& arrayName);

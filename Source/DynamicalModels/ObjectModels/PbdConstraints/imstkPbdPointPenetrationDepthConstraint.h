@@ -52,10 +52,10 @@ namespace imstk
              std::array<double,3> penetrationDir);
 
         ///
-        /// \brief
+        /// \brief solve this constraint by moving each penetrated vertex to stay above the analytical geometry 
         ///
         bool solvePositionConstraint();
 
-        std::array<double, 3> m_penetrationDir;
+        std::array<double, 3> m_penetrationDir; //penetrationDir vector
     };
 }

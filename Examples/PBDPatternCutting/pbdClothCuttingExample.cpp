@@ -174,63 +174,63 @@ main()
     /////////////////////////////////////////////////
     /// Phantom 2 -- Grasping Tool Configurations ///
     /////////////////////////////////////////////////
-    //auto client_2 = std::make_shared<HDAPIDeviceClient>(phantomOmni2Name);
-    //server->addDeviceClient(client_2);
-    //auto deviceTracker_2 = std::make_shared<DeviceTracker>(client_2);
-    //deviceTracker_2->setTranslationOffset(Vec3d(3, 1, 4));
-    //deviceTracker_2->setTranslationScaling(0.08);
-    //deviceTracker_2->setRotationOffset(rot);
-    ////read the obj for Grasper Mesh
-    //auto GrasperMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/simpleTool.obj");
-    //if (!GrasperMesh)
-    //    std::cout << "Can not read GrasperMesh...\n";
+    auto client_2 = std::make_shared<HDAPIDeviceClient>(phantomOmni2Name);
+    server->addDeviceClient(client_2);
+    auto deviceTracker_2 = std::make_shared<DeviceTracker>(client_2);
+    deviceTracker_2->setTranslationOffset(Vec3d(3, 1, 4));
+    deviceTracker_2->setTranslationScaling(0.08);
+    deviceTracker_2->setRotationOffset(rot);
+    //read the obj for Grasper Mesh
+    auto GrasperMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/simpleTool.obj");
+    if (!GrasperMesh)
+        std::cout << "Can not read GrasperMesh...\n";
 
-    //auto GrasperUpperJawMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/upper.obj");
-    //if (!GrasperUpperJawMesh)
-    //    std::cout << "Can not read GrasperUpperJawMesh...\n";
-    //GrasperUpperJawMesh->rotate(Vec3d(0, 0, 1.0), PI / 2, Geometry::TransformType::ApplyToData);
-    ////GrasperUpperJawMesh->scale(0.04);
+    auto GrasperUpperJawMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/upper.obj");
+    if (!GrasperUpperJawMesh)
+        std::cout << "Can not read GrasperUpperJawMesh...\n";
+    GrasperUpperJawMesh->rotate(Vec3d(0, 0, 1.0), PI / 2, Geometry::TransformType::ApplyToData);
+    //GrasperUpperJawMesh->scale(0.04);
 
-    //auto GrasperLowerJawMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/lower.obj");
-    //if (!GrasperLowerJawMesh)
-    //    std::cout << "Can not read GrasperLowerJawMesh...\n";
-    //GrasperLowerJawMesh->rotate(Vec3d(0, 0, 1.0), PI / 2, Geometry::TransformType::ApplyToData);
-    ////GrasperLowerJawMesh->scale(0.04);
+    auto GrasperLowerJawMesh = MeshIO::read(iMSTK_DATA_ROOT "/laptool/lower.obj");
+    if (!GrasperLowerJawMesh)
+        std::cout << "Can not read GrasperLowerJawMesh...\n";
+    GrasperLowerJawMesh->rotate(Vec3d(0, 0, 1.0), PI / 2, Geometry::TransformType::ApplyToData);
+    //GrasperLowerJawMesh->scale(0.04);
 
-    ////Create the grasper object
-    //auto grasper = std::make_shared<PbdObject>("grasperObject");
-    //grasper->setCollidingGeometry(GrasperMesh);
-    //grasper->setPhysicsGeometry(GrasperMesh);
-    //auto grasperVisualModel = std::make_shared<VisualModel>(GrasperMesh);
-    //grasperVisualModel->setRenderMaterial(toolMaterial);
-    //grasper->addVisualModel(grasperVisualModel);
+    //Create the grasper object
+    auto grasper = std::make_shared<PbdObject>("grasperObject");
+    grasper->setCollidingGeometry(GrasperMesh);
+    grasper->setPhysicsGeometry(GrasperMesh);
+    auto grasperVisualModel = std::make_shared<VisualModel>(GrasperMesh);
+    grasperVisualModel->setRenderMaterial(toolMaterial);
+    grasper->addVisualModel(grasperVisualModel);
 
-    ////Create the model / object for upper jaw
-    //auto grasperupper = std::make_shared<VisualObject>("grasperUpper");
-    //auto grasperUpperVisualModel = std::make_shared<VisualModel>(GrasperUpperJawMesh);
-    //grasperUpperVisualModel->setRenderMaterial(toolMaterial);
-    //grasperupper->addVisualModel(grasperUpperVisualModel);
+    //Create the model / object for upper jaw
+    auto grasperupper = std::make_shared<VisualObject>("grasperUpper");
+    auto grasperUpperVisualModel = std::make_shared<VisualModel>(GrasperUpperJawMesh);
+    grasperUpperVisualModel->setRenderMaterial(toolMaterial);
+    grasperupper->addVisualModel(grasperUpperVisualModel);
 
-    ////Create the object for lower jaw
-    //auto grasperlower = std::make_shared<VisualObject>("grasperLower");
-    //auto grasperLowerVisualModel = std::make_shared<VisualModel>(GrasperLowerJawMesh);
-    //grasperLowerVisualModel->setRenderMaterial(toolMaterial);
-    //grasperlower->addVisualModel(grasperLowerVisualModel);
+    //Create the object for lower jaw
+    auto grasperlower = std::make_shared<VisualObject>("grasperLower");
+    auto grasperLowerVisualModel = std::make_shared<VisualModel>(GrasperLowerJawMesh);
+    grasperLowerVisualModel->setRenderMaterial(toolMaterial);
+    grasperlower->addVisualModel(grasperLowerVisualModel);
 
-    ////Set the PBD model of the tool
-    //auto grasperModel = std::make_shared<PbdModel>();
-    //grasperModel->setModelGeometry(GrasperMesh);
-    //grasperModel->configure(toolpbdParams);
-    //grasper->setDynamicalModel(grasperModel);
+    //Set the PBD model of the tool
+    auto grasperModel = std::make_shared<PbdModel>();
+    grasperModel->setModelGeometry(GrasperMesh);
+    grasperModel->configure(toolpbdParams);
+    grasper->setDynamicalModel(grasperModel);
 
-    ////// Add grasper object  in the scene.
-    //scene->addSceneObject(grasper);
-    //scene->addSceneObject(grasperupper);
-    //scene->addSceneObject(grasperlower);
+    //// Add grasper object  in the scene.
+    scene->addSceneObject(grasper);
+    scene->addSceneObject(grasperupper);
+    scene->addSceneObject(grasperlower);
 
-    ////// Create and add tool object controller in the scene
-    //auto grasperController = std::make_shared<LaparoscopicToolController>(grasper, grasperupper, grasperlower, deviceTracker_2);
-    //scene->addObjectController(grasperController);
+    //// Create and add tool object controller in the scene
+    auto grasperController = std::make_shared<LaparoscopicToolController>(grasper, grasperupper, grasperlower, deviceTracker_2);
+    scene->addObjectController(grasperController);
 
     //  Cylinder to indicate the cutting blade
     auto CylinderGeom = std::make_shared<Cylinder>();
@@ -308,16 +308,16 @@ main()
     auto pbdParams = std::make_shared<PBDModelConfig>();
 
     // Constraints
-    pbdParams->enableConstraint(PbdConstraint::Type::Distance, 1.0);
+    pbdParams->enableConstraint(PbdConstraint::Type::Distance, 0.8);
     pbdParams->enableConstraint(PbdConstraint::Type::Dihedral, 0.01);
-    pbdParams->m_fixedNodeIds = { 440, 439, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420/*, 0, 1, 19, 20*/ };
+    pbdParams->m_fixedNodeIds = { 440, 439, 420, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420, 0,20, 1, 19 };
     pbdParams->m_contactStiffness = 1;
 
     // Other parameters
     pbdParams->m_uniformMassValue = 0.5;
     pbdParams->m_gravity          = Vec3d(0, -9.8, 0);
     pbdParams->m_dt               = 0.02;
-    pbdParams->m_maxIter          = 35;
+    pbdParams->m_maxIter          = 30;
 
     // Set the parameters
     clothModel->configure(pbdParams);
@@ -370,14 +370,14 @@ main()
     cutter_pair->setToolFunction(ToolState::ToolFunction::CUT);
 
     //Add grasper cloth iteraction pair
-    /*auto grasperColData = std::make_shared<CollisionData>();
+    auto grasperColData = std::make_shared<CollisionData>();
     auto CD2 = std::make_shared<MeshToMeshBruteForceCD>(GrasperMesh, surfMesh, grasperColData);
     auto CH2 = std::make_shared<PBDCollisionHandling>(CollisionHandling::Side::A,
         CD2->getCollisionData(), grasper, clothObj, pbdSolver);
     std::shared_ptr<ToolSurfaceInteractionPair> grasper_pair = scene->getCollisionGraph()->addToolSurfaceInteractionPair(grasper, clothObj, CD2, CH2, nullptr);
     grasper_pair->setDeviceClient(client_2);
     grasper_pair->setLapToolController(grasperController);
-    grasper_pair->setToolFunction(ToolState::ToolFunction::GRASP);*/
+    grasper_pair->setToolFunction(ToolState::ToolFunction::GRASP);
 
    
 
@@ -390,13 +390,14 @@ main()
     auto debugLinesConnected = addLinesDebugRendering(scene, "DebugConnectedLines", Color::Red, 4.0);
     auto debugCuttingBlade = addLinesDebugRendering(scene, "DebugToolBlade", Color::Yellow);
     auto debugToolOrientation = addLinesDebugRendering(scene, "DebugToolOrientation", Color::Blue);
-    auto debugPoints = addPointsDebugRendering(scene);
+    auto debugPointsMeasured = addPointsDebugRendering(scene);
     // metrics
-    float totalDists = 0;
+    int nbrPointsInsidePattern = 0;
     float avgAccuracy = 0;
     float patternRadius = 2.83;
     std::vector<float> distFromCutPointstoCenter(0);
     bool DebugModeOn = false;
+    bool startedMeasuring = false; 
 
     // Light (white) DirectionalLight
     auto whiteLight1 = std::make_shared<DirectionalLight>("whiteLight1");
@@ -408,7 +409,7 @@ main()
     whiteLight2->setPosition(Vec3d(9, 16, 5));
     whiteLight2->setFocalPoint(Vec3d(0, -15, 5));
     whiteLight2->setColor(Color::White);
-    whiteLight2->setIntensity(200);
+    whiteLight2->setIntensity(90);
     whiteLight2->setSpotAngle(50);
 
 
@@ -437,8 +438,8 @@ main()
 
     // Update the debug data every frame from the cutting manager
     auto debugFunc =
-        [&DebugModeOn, &CylinderGeom, &clothModel, &CutterMesh, &debugTriangles, &debugCuttingBlade, &totalDists, &avgAccuracy, &patternRadius, &debugToolOrientation,
-        &viewer, &debugLinesConnected, &debugLinesBroken, &surfMesh, &renderer, &statusManager, &distFromCutPointstoCenter, &debugPoints, &cutter_pair](Module* module)
+        [&/*DebugModeOn, &CylinderGeom, &clothModel, &CutterMesh, &debugTriangles, &debugCuttingBlade, &totalDists, &avgAccuracy, &patternRadius, &debugToolOrientation,
+        &viewer, &debugLinesConnected, &debugLinesBroken, &surfMesh, &renderer, &statusManager, &distFromCutPointstoCenter, &debugPoints, &cutter_pair, &startMeasuring*/](Module* module)
     {     
         surfMesh->m_TopologyLock.lock();
         std::shared_ptr<PbdState> initialState = clothModel->getInitialState();
@@ -459,7 +460,8 @@ main()
             debugLinesConnected->clear();
             debugLinesBroken->clear();
             debugTriangles->clear();
-            totalDists = 0;
+            nbrPointsInsidePattern = 0;
+            distFromCutPointstoCenter.resize(0);
             Vec3d center(5, 1, 5);
             for (size_t i = 0; i < surfMesh->m_brokenEdges.size(); i++)
             {
@@ -480,22 +482,25 @@ main()
                     }
                     Vec3d cutPointPos = initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[0])* (1 - surfMesh->m_brokenEdges[i].brokenCoord)
                         + initialState->getVertexPosition(surfMesh->m_brokenEdges[i].nodeId[1]) * surfMesh->m_brokenEdges[i].brokenCoord;
-                    if ((cutPointPos - center).norm() < 3.18) //the first 8 edges doesn't count in accuracy
+                    if (!startedMeasuring && (cutPointPos - center).norm() < 3.18) // start measuring the accuracy after the cut has entered the pattern
                     {
-                        
-                        //debugPoints->appendVertex(cutPointPos);
-                        distFromCutPointstoCenter.push_back((cutPointPos - center).norm());
+                        startedMeasuring = true;    
+                    }
+                    if (startedMeasuring)
+                    {
+                        //debugPointsMeasured->appendVertex(cutPointPos);
+                        distFromCutPointstoCenter.push_back((cutPointPos - center).norm()); 
                     }
 
                 }
             }
             for (auto k = 0; k < distFromCutPointstoCenter.size(); k++)
             {
-                if (distFromCutPointstoCenter[k] < 2.48 || distFromCutPointstoCenter[k] > 3.18)
-                    totalDists += abs(distFromCutPointstoCenter[k] - patternRadius);
+                if (distFromCutPointstoCenter[k] > 2.48 && distFromCutPointstoCenter[k] < 3.18)
+                    nbrPointsInsidePattern++; /*abs(distFromCutPointstoCenter[k] - patternRadius);*/
             }
-            if (totalDists != 0)
-                avgAccuracy = totalDists / distFromCutPointstoCenter.size();         
+            if (nbrPointsInsidePattern != 0)
+                avgAccuracy = (float)nbrPointsInsidePattern / distFromCutPointstoCenter.size();
         }   
        
         if (DebugModeOn && surfMesh->d_listUncarvableTris.size() > debugTriangles->getNumVertices() / 3.0)
@@ -534,14 +539,14 @@ main()
         statusManager->setCustomStatus("Mesh Info: " +
             std::to_string(debugLinesBroken->getNumVertices() / 2) + " (broken edges)  | " +
             std::to_string(surfMesh->getNumTriangles()) + " (triangles) | " +
-            " Accuracy: " + std::to_string((1-avgAccuracy)*100) +"% "
+            " Accuracy: " + std::to_string(avgAccuracy*100) +"% "
         );
         surfMesh->m_TopologyLock.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     };
     sdk->getSceneManager(scene)->setPostUpdateCallback(debugFunc);
 
-    /*viewer->setOnCharFunction('b', [&](InteractorStyle* c) -> bool
+    viewer->setOnCharFunction('b', [&](InteractorStyle* c) -> bool
     {  
         client_2->setButton(0, false);
         client_2->setButton(1, true);
@@ -552,7 +557,7 @@ main()
         client_2->setButton(1, false);
         client_2->setButton(0, true);
         return false;
-    });*/
+    });
     viewer->setOnCharFunction('m', [&](InteractorStyle* c) -> bool
     {
         DebugModeOn = !DebugModeOn;

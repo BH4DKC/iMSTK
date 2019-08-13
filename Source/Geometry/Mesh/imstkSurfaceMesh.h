@@ -223,6 +223,7 @@ public:
     std::shared_ptr<Graph> getMeshGraph() override;
 
     /// spinLock for topology modification
+    /// this will be used in SurfaceCuttingManager and VTKSurfaceMeshRenderDelegate
     ParallelUtils::SpinLock m_TopologyLock;
 
 protected:

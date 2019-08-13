@@ -181,19 +181,31 @@ VTKSurfaceMeshRenderDelegate::updateDataSource()
             // Update texcoords
             if (geometry->getDefaultTCoords() != "")
             {
-                auto tcoords = geometry->getPointDataArray(geometry->getDefaultTCoords());
+                auto tcoords = geometry->getPointDataArray(geometry->getDefaultTCoords());                
                 if (tcoords == nullptr)
                 {
                     LOG(WARNING) << "No default texture coordinates array for geometry " << geometry;
                 }
-                else
+                else //attempt to send the new tcoords to vtk, not succeeded yet...
                 {
-                    for (auto const tcoord : *tcoords)
+                    for (auto i = m_previousTCoordsSize; i < tcoords->size(); i++)
                     {
-                        float tuple[2] = { tcoord[0], tcoord[1] };
+                        auto const tcoord = tcoords->at(i);
+                        float tuple[2] = { tcoord[0], tcoord[1] };                      
                         m_vtkTCoords->InsertNextTuple(tuple);
                     }
-                    m_polydata->GetPointData()->SetTCoords(m_vtkTCoords);
+                    //std::cout << "tcoords->size() : " << tcoords->size() << std::endl;
+                    /*for (auto i = m_previousTCoordsSize; i < tcoords->size(); i++)
+                    {
+                        auto const tcoord = tcoords->at(i);
+                        float tuple[2] = { tcoord[0], tcoord[1] };
+                        m_polydata->GetPointData()->GetTCoords()->InsertNextTuple(tuple);
+                    }*/
+                    //m_polydata->GetPointData()->GetTCoords()->Resize(0);
+                    //m_polydata->GetPointData()->SetTCoords(m_vtkTCoords);
+                    //m_polydata->GetPointData()->SetActiveTCoords(geometry->getDefaultTCoords().c_str());
+                    //std::cout << "m_polydata tccords size: " << m_polydata->GetPointData()->GetTCoords()->GetDataSize()<<" "<< m_previousTCoordsSize;
+                    m_previousTCoordsSize = tcoords->size();
                 }
             }
 

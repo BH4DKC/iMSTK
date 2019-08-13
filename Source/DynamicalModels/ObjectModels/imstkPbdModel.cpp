@@ -460,7 +460,7 @@ PbdModel::updateConstraintsFromCutting()
             }
         }
     }
-    //partitionCostraints();
+    partitionCostraints();
 }
 
 bool 

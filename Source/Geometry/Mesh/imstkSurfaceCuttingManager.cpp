@@ -188,7 +188,7 @@ namespace imstk
                 auto splitV0 = m_vertexPositions[nodeId] + m_vertexNormals[nodeId]/*Vec3d(0,1,0)*/;
                 auto splitV1 = (m_vertexPositions[v1] + m_vertexPositions[v2]) / 2;
                 auto splitV2 = (m_vertexPositions[v5] + m_vertexPositions[v6]) / 2;
-                //std::cout << "splitting plane (v0,v1,v2) : " << splitV0 << splitV1 << splitV2;              
+             
                 if (checkTriangleOnWhichSideOfPlane(TriangleArray({ v1,v1,v1 }), splitV0, splitV1, splitV2) == 1) {
                     replaceTriVertId(NewTri[0], nodeId, newNodeId);
                 }
@@ -267,7 +267,7 @@ namespace imstk
         }
 
         //Create new verts on splitTriangles -- Disabled for now
-        //handleSplitTriangles()
+        //handleSplitTriangles:
         //for (auto & tri : m_splitTriangle)
         //{
         //    if (tri.newNodeId == 0)
@@ -278,7 +278,7 @@ namespace imstk
         //        tri.newNodeId = m_vertexPositions.size() + m_newVertexPositions.size();
         //        m_newVertexPositions.push_back(VPos);
         //        m_newVertexUVs.push_back...
-        //        m_newVertexInterpolationData.push_back(std::make_tuple(tri.nodeId[0], tri.nodeId[1], 0.5)); // TODO, this interpolation needs to be corrected
+        //        m_newVertexInterpolationData.push_back(std::make_tuple(tri.nodeId[0], tri.nodeId[1], 0.5)); //0.5 is default
         //    }
         //}
 
@@ -823,27 +823,25 @@ namespace imstk
             m_vertexPositions.push_back(m_newVertexPositions[i]);
         }           
         m_newVertexPositions.clear();     
-        std::cout << "done propagating... " << this->getPointDataArray(m_defaultTCoords)->size() << " " << this->m_vertexPositions.size() << std::endl;
+        //std::cout << "done propagating... " << this->getPointDataArray(m_defaultTCoords)->size() << " " << this->m_vertexPositions.size() << std::endl;
+        
         //Copy new sub triangles to m_trianglesVertices for Visual Rendering
         //Clearing m_trianglesVertices first then copy all non-broken triangles takes O(n) in total
         //But updating m_trianglesVertices one by one will take k*O(n) since each vector.erase() takes O(n) time
         m_trianglesVertices.clear();
         mapCurrentTriToTris.clear();
         d_listUncarvableTris.clear();
-        //TODO put the below copying data section to a different buffer
-        // then copy from that buffer to m_trianglevertices without clear()
+
         for (auto i = 0; i < m_triangles.size(); i++)
         {
             //keep all non-broken triangles and the ones with partial cuts that has not yet been handled
-            if ( m_triangles[i].numberCuts <= 1 && !m_triangles[i].doneHandlingCut )
+            if ( m_triangles[i].numberCuts <= 1 && !m_triangles[i].doneHandlingCut && !m_triangles[i].tooSmallToCut)
             {
                 mapCurrentTriToTris.insert(std::pair<int, int>(m_trianglesVertices.size(), i)); 
-                //if (i == preCutTriIdGlobal) //update the preCutTriId since it might be updated
-                //    preCutTriId = m_trianglesVertices.size(); 
+
                 if (!m_triangles[i].tooSmallToCut && checkTriangleAreaBelowThreshold(m_triangles[i].nodeId, stopCriteriaElementArea))
                     m_triangles[i].tooSmallToCut = true;
-                /*else if (!m_triangles[i].canBeCut && !checkTriangleAreaBelowThreshold(m_triangles[i].nodeId, stopCriteriaElementArea * 1.5))
-                    m_triangles[i].canBeCut = true;*/
+
                 m_trianglesVertices.push_back(m_triangles[i].nodeId);
                 if (m_triangles[i].tooSmallToCut || !m_triangles[i].canBeCut)
                     d_listUncarvableTris.push_back(m_triangles[i].nodeId);
@@ -1085,9 +1083,9 @@ namespace imstk
     bool 
     SurfaceCuttingManager::generateCut(std::shared_ptr<ToolState> info)
     {
-        bool DEBUG = false; //print out debug info
+        bool DEBUG = false; //print out debugging info
         double lengthCuttingBlade = (info->toolTipEndPos - info->toolTipStartPos).norm();
-        int numberPointsToCut = 25; ///>TODO:: Adaptive step-length, this number should be determined by lengthBlade / averageElementEdgeLength     
+        int numberPointsToCut = 30; ///>TODO:: Adaptive step-length, this number should be determined by lengthBlade / averageElementEdgeLength     
         d_toolPos[0] = info->toolTipStartPos; 
         d_toolPos[1] = info->toolTipEndPos;
         
@@ -1381,7 +1379,7 @@ namespace imstk
 
                         else //the two triangles are not connected
                         {   
-                            //TODO: special case: that two neighbor tris are not conformal 
+                            //special case: that two neighbor tris are not conformal 
                             if (brokenEdge.size() == 1)
                             {
                                 std::cout << "Warning: non-conformal connected triangles detected... " << std::endl;                                
@@ -1392,9 +1390,9 @@ namespace imstk
                             }
                             //handleIsolatedTri(info, preCutTriId, preCutTriIdGlobal);
                             //handleIsolatedTri(info, *it, newCutTriIdGlobal);
-                            handleIsolatedTri(info, startCutTriId, startCutTriIdGlobal);
+                            /*handleIsolatedTri(info, startCutTriId, startCutTriIdGlobal);
                             startCutTriId = -1;
-                            startCutTriIdGlobal = -1;
+                            startCutTriIdGlobal = -1;*/
                             preCutTriId = -1;
                             preCutTriIdGlobal = -1;                           
                             break;    
@@ -1463,13 +1461,19 @@ namespace imstk
                 << angleToolAndEdge[1]<< angleToolAndEdge[2]<<"; cutPos:"<< cutPos[0]<< cutPos[1]<< cutPos[2]<< " ; isOnBoundary:" << isEdgeOnBoundary[0] << isEdgeOnBoundary[1] << isEdgeOnBoundary[2] << std::endl;
             if (edgeBroken[0] + edgeBroken[1] + edgeBroken[2] == 3)
             {
-                std::cout << "Warning : special case detected -- this triangle has 3 edges cut by the blade...\n";
+                std::cout << "Warning : special case detected -- remove this triangle since it has 3 edges cut by the blade...\n";
+                m_triangles[tidGlobal].doneHandlingCut = true;
             }
             else if (edgeBroken[0] + edgeBroken[1] + edgeBroken[2] == 2) // this triangle needs to be cut
             {
-                //Special case : this triangle has at least 2 edges that has no neighbor
-                if (isEdgeOnBoundary[0] + isEdgeOnBoundary[1] + isEdgeOnBoundary[2] >= 1) 
+                //Special case : isolated triangle
+                if (isEdgeOnBoundary[0] + isEdgeOnBoundary[1] + isEdgeOnBoundary[2] == 2)
                 {
+                    m_triangles[tidGlobal].doneHandlingCut = true; //remove
+                }  
+                else if (isEdgeOnBoundary[0] + isEdgeOnBoundary[1] + isEdgeOnBoundary[2] == 1) 
+                {
+                    //reset this triangle
                     m_triangles[tidGlobal].numberCuts = 0;
                     m_triangles[tidGlobal].brokenEdgeId.resize(0);
                     m_triangles[tidGlobal].brokenType = -1;
@@ -1524,6 +1528,7 @@ namespace imstk
             {
                 //not handle the case where no more than one edge got intersected
                 std::cout << "Warning : special case detected -- this triangle is not properly cut by the blade...\n";
+                //m_triangles[tidGlobal].doneHandlingCut = true; //remove this tri?
             }
             //commented out for now, splitting triangle may cause un-connected cuts for pattern cutting                       
             /*if (startCutBaryCoords[0]>=0.25 && startCutBaryCoords[1] >= 0.25 && startCutBaryCoords[2] >= 0.25)
