@@ -127,8 +127,12 @@ if(${PROJECT_NAME}_SUPERBUILD)
 
   option(${PROJECT_NAME}_USE_Vulkan "Use the custom Vulkan renderer." OFF)
   option(${PROJECT_NAME}_USE_OpenHaptics "Use OpenHaptic Support." OFF)
+  option(${PROJECT_NAME}_ENABLE_SERIALIZATION "Enable serialization Support." ON)
 
   imstk_define_dependency(Assimp)
+  if(${PROJECT_NAME}_ENABLE_SERIALIZATION)
+    imstk_define_dependency(Cereal)
+  endif()
   imstk_define_dependency(Eigen3)
   imstk_define_dependency(g3log)
   imstk_define_dependency(glm)
@@ -209,6 +213,13 @@ set(PACKAGE_PREFIX_DIR ${CMAKE_INSTALL_PREFIX})
 
 # Assimp
 find_package( Assimp REQUIRED )
+# Cereal
+if(${PROJECT_NAME}_ENABLE_SERIALIZATION)
+  add_definitions( -DiMSTK_ENABLE_SERIALIZATION )
+  find_package( Cereal REQUIRED )
+else()
+  remove_definitions( -DiMSTK_ENABLE_SERIALIZATION )
+endif()
 # Eigen
 find_package( Eigen3 3.1.2 REQUIRED )
 if(WIN32)

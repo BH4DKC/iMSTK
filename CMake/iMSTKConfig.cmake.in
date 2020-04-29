@@ -12,6 +12,7 @@ set(iMSTK_ROOT ${PACKAGE_PREFIX_DIR})
 set(iMSTK_ENABLE_VR @iMSTK_ENABLE_VR@)
 set(iMSTK_USE_Vulkan @iMSTK_USE_Vulkan@)
 set(iMSTK_USE_OpenHaptics @iMSTK_USE_OpenHaptics@)
+set(iMSTK_ENABLE_SERIALIZATION @iMSTK_ENABLE_SERIALIZATION@)
 set(iMSTK_BUILD_TESTING @iMSTK_BUILD_TESTING@)
 
 # Use the iMSTK modules to find all required packages
@@ -22,6 +23,12 @@ set(CMAKE_DEBUG_POSTFIX @CMAKE_DEBUG_POSTFIX@)
 
 # Assimp
 find_package( Assimp REQUIRED )
+
+# Cereal
+if(${PROJECT_NAME}_ENABLE_SERIALIZATION)
+  add_definitions(-DiMSTK_ENABLE_SERIALIZATION)
+  find_dependency(Cereal REQUIRED)
+endif()
 
 # Eigen3
 set(Eigen3_DIR @Eigen3_DIR@)

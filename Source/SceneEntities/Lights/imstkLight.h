@@ -24,6 +24,7 @@
 #include "imstkMath.h"
 #include "imstkColor.h"
 #include "imstkSceneEntity.h"
+#include "imstkSerialize.h"
 
 #include <string>
 
@@ -116,6 +117,23 @@ public:
     ///
     void setName(std::string name) { m_name = name; };
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(iMSTK_SERIALIZE_SUPERCLASS(SceneEntity),
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(intensity),
+            iMSTK_SERIALIZE(switchState),
+            iMSTK_SERIALIZE(color),
+            iMSTK_SERIALIZE(focalPoint)
+        );
+    }
+#endif
+
 protected:
     explicit Light(const std::string& name, const LightType& type) : m_name(name), m_type(type), SceneEntity() {};
 
@@ -145,7 +163,7 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit DirectionalLight(const std::string& name) : Light(name, LightType::Directional)
+    explicit DirectionalLight(const std::string& name = "") : Light(name, LightType::Directional)
     {
         this->setFocalPoint(-1, -1, -1);
     };
@@ -175,6 +193,21 @@ public:
     void setDirection(const Vec3d& dir) { setFocalPoint(dir); }
     void setDirection(const double x, const double y, const double z) { setFocalPoint(Vec3d(x, y, z)); }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
+            iMSTK_SERIALIZE(castShadow),
+            iMSTK_SERIALIZE(shadowCenter),
+            iMSTK_SERIALIZE(shadowRange),
+            iMSTK_SERIALIZE(shadowMapIndex)
+        );
+    }
+#endif
+
 protected:
     friend class VulkanRenderer;
 
@@ -200,7 +233,7 @@ public:
     ///
     /// \brief Constructors
     ///
-    explicit PointLight(const std::string& name, const LightType& type = LightType::Point) : Light(name, type) {};
+    explicit PointLight(const std::string& name = "", const LightType& type = LightType::Point) : Light(name, type) {};
 
     virtual ~PointLight() override = default;
 
@@ -231,6 +264,19 @@ public:
         this->setPosition(Vec3d(x, y, z));
     };
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+      archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
+        iMSTK_SERIALIZE(position),
+        iMSTK_SERIALIZE(coneAngle)
+      );
+    }
+#endif
+
 protected:
     Vec3f m_position  = Vec3f(0, 0, 0);
     float m_coneAngle = 179.0f;
@@ -249,7 +295,7 @@ public:
     ///
     /// \brief Constructors
     ///
-    explicit SpotLight(const std::string& name) : PointLight(name, LightType::Spot)
+    explicit SpotLight(const std::string& name = "") : PointLight(name, LightType::Spot)
     {
         m_coneAngle = 10.;
     };
@@ -265,6 +311,18 @@ public:
     /// \brief Set the spotlight angle in degrees
     ///
     void setSpotAngle(const double& angle) { m_spotAngle = (float)angle; };
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+      archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
+        iMSTK_SERIALIZE(spotAngle)
+      );
+    }
+#endif
 
 protected:
     float m_spotAngle = 45.;

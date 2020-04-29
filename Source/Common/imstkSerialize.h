@@ -19,48 +19,18 @@
 
 =========================================================================*/
 
-#pragma once
+#ifdef iMSTK_ENABLE_SERIALIZATION
 
-#include <atomic>
+#include <cereal/access.hpp> // For LoadAndConstruct
+#include <cereal/types/memory.hpp>
 
-#include "imstkSerialize.h"
+namespace imstk {
 
-namespace imstk
-{
-using EntityID = unsigned long;
+#define iMSTK_SERIALIZE(name) \
+ cereal::make_nvp<Archive>(#name, m_##name)
 
-///
-/// \class SceneEntity
-/// \brief Top-level class for iMSTK scene elements (scene objects, lights, camera)
-///
-class SceneEntity
-{
-public:
-    virtual ~SceneEntity() = default;
+#define iMSTK_SERIALIZE_SUPERCLASS(className) \
+ cereal::make_nvp<Archive>("imstk::"#className, cereal::base_class<##className>(this))
 
-    ///
-    /// \brief Get ID (ALWAYS query the ID in your code, DO NOT hardcode it)
-    /// \returns ID of entity
-    ///
-    EntityID getID() const;
-
-    ///
-    /// \brief Serialization
-    ///
-    template<class Archive> void serialize(Archive & archive)
-    {
-        archive(iMSTK_SERIALIZE(ID));
-    }
-
-protected:
-    ///
-    /// \brief Constructor
-    ///
-    SceneEntity();
-
-    // Not the best design pattern
-    static std::atomic<EntityID> s_count; ///< current count of entities
-
-    EntityID m_ID;                        ///< unique ID of entity
-};
 }
+#endif // iMSTK_ENABLE_SERIALIZATION

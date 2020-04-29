@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
+
 #define NOMINMAX
 
 #include <Eigen/Geometry>
@@ -159,4 +161,52 @@ using AffineTransform3d = Eigen::Affine3d;
 #define MAX_F                std::numeric_limits<float>::max()
 #define MIN_F                std::numeric_limits<float>::min()
 #define VERY_SMALL_EPSILON_F std::numeric_limits<float>::epsilon()
+
 } // end namespace imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+namespace cereal {
+
+template <class Archive,
+    class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+    void
+    save(Archive & archive,
+        Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> const & m)
+{
+    int32_t rows = m.rows();
+    int32_t cols = m.cols();
+    archive(rows);
+    archive(cols);
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            archive(m(i, j));
+        }
+    }
+}
+
+template <class Archive,
+  class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+  void load(Archive & archive,
+      Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> & m)
+{
+    int32_t rows;
+    int32_t cols;
+    archive(rows);
+    archive(cols);
+
+    m.resize(rows, cols);
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            archive(m(i, j));
+        }
+    }
+}
+
+}
+#endif // iMSTK_ENABLE_SERIALIZATION

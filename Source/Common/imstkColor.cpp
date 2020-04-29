@@ -180,6 +180,16 @@ Color::rgbHex()
     ss << std::setfill('0') << std::setw(2) << std::hex << green;
     ss << std::setfill('0') << std::setw(2) << std::hex << blue;
     return ss.str();
+
+bool
+operator==(const Color& color_lhs, const Color& color_rhs)
+{
+    return (
+        color_lhs.r == color_rhs.r &&
+        color_lhs.g == color_rhs.g &&
+        color_lhs.b == color_rhs.b &&
+        color_lhs.a == color_rhs.a
+    );
 }
 
 Color

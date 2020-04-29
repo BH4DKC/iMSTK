@@ -23,6 +23,8 @@
 
 #include <iostream>
 
+#include "imstkSerialize.h"
+
 /// \todo remove nameless union/struct in the future
 #pragma warning(disable : 4201)
 namespace imstk
@@ -122,8 +124,24 @@ struct Color
     static Color Yellow;
     static Color Teal;
     static Color Marigold;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief cereal :: Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(r, g, b, a);
+    }
+#endif
+
 };
 #pragma warning(default : 4201)
+
+///
+/// \brief Equality operators
+///
+bool operator==(const Color& color_lhs, const Color& color_rhs);
 
 ///
 /// \brief Multiplication operators
