@@ -24,6 +24,9 @@
 #include <memory>
 #include <string>
 
+#include "imstkTexture.h"
+#include "imstkSerialize.h"
+
 namespace imstk
 {
 class Texture;
@@ -57,6 +60,36 @@ public:
     std::shared_ptr<Texture> getRadianceCubemapTexture();
     /// \brief TODO
     std::shared_ptr<Texture> getBrdfLUTTexture();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+      archive(
+        iMSTK_SERIALIZE(irradianceCubemapTexture),
+        iMSTK_SERIALIZE(radianceCubemapTexture),
+        iMSTK_SERIALIZE(brdfLUTTexture)
+      );
+    }
+
+    template <class Archive>
+    static void load_and_construct(Archive& archive, cereal::construct<IBLProbe>& construct)
+    {
+        std::string irradianceCubemapPath;
+        std::string radianceCubemapPath;
+        std::string brdfLUTPath;
+        archive(
+            irradianceCubemapPath,
+            radianceCubemapPath,
+            brdfLUTPath);
+        construct(
+            irradianceCubemapPath,
+            radianceCubemapPath,
+            brdfLUTPath);
+    }
+#endif
 
 protected:
     std::string m_irradianceCubemapPath;
