@@ -381,6 +381,9 @@ set(${PROJECT_NAME}_INSTALL_FOLDER ${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_MAJ
 #--------------------------------------------------------------------------
 # Add Source code subdirectories
 #--------------------------------------------------------------------------
+if(${PROJECT_NAME}_BUILD_EXAMPLES)
+    add_subdirectory(Source/TestingUtils)
+endif()
 add_subdirectory(Source/Common)
 add_subdirectory(Source/Geometry)
 add_subdirectory(Source/MeshIO)
