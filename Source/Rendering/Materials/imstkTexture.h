@@ -24,6 +24,8 @@
 #include <string>
 #include <memory>
 
+#include "imstkSerialize.h"
+
 namespace imstk
 {
 ///
@@ -116,6 +118,22 @@ public:
     /// brief Get anisotropy factor
     ///
     float getAnisotropyFactor();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(path),
+            iMSTK_SERIALIZE(mipmapsEnabled),
+            iMSTK_SERIALIZE(anisotropyEnabled),
+            iMSTK_SERIALIZE(anisotropyFactor)
+        );
+    }
+#endif
 
 protected:
     Type m_type;            ///< Texture type

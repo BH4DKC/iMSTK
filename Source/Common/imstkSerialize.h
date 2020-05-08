@@ -23,6 +23,8 @@
 
 #include <cereal/access.hpp> // For LoadAndConstruct
 #include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/map.hpp>
 
 namespace imstk {
 

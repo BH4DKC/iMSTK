@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
 #include "imstkTexture.h"
 #include "imstkTextureDelegate.h"
 
@@ -36,6 +37,18 @@ public:
     /// \brief Add texture
     ///
     std::shared_ptr<T> getTextureDelegate(std::shared_ptr<Texture> texture);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(textureMap)
+        );
+    }
+#endif
 
 protected:
     friend class VTKRenderer;

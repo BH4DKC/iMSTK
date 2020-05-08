@@ -22,7 +22,9 @@
 #pragma once
 
 #include "imstkColor.h"
+#include "imstkSerialize.h"
 #include "imstkTexture.h"
+#include "imstkTextureManager.h"
 
 #include <vector>
 
@@ -228,6 +230,50 @@ public:
 
     bool getScalarVisibility() const { return m_scalarVisibility; }
     void setScalarVisibility(bool scalarVisibility) { this->m_scalarVisibility = scalarVisibility; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(textures),
+            iMSTK_SERIALIZE(blendMode),
+            iMSTK_SERIALIZE(diffuseColor),
+            iMSTK_SERIALIZE(specularColor),
+            iMSTK_SERIALIZE(ambientColor),
+            iMSTK_SERIALIZE(ambientLightCoeff),
+            iMSTK_SERIALIZE(specularPower),
+            iMSTK_SERIALIZE(opacity),
+            iMSTK_SERIALIZE(lineWidth),
+            iMSTK_SERIALIZE(pointSize),
+            iMSTK_SERIALIZE(edgeColor),
+            iMSTK_SERIALIZE(vertexColor),
+            iMSTK_SERIALIZE(edgeVisibility),
+            iMSTK_SERIALIZE(vertexVisibility),
+            iMSTK_SERIALIZE(emissivity),
+            iMSTK_SERIALIZE(emissivityColor),
+            iMSTK_SERIALIZE(metalness),
+            iMSTK_SERIALIZE(roughness),
+            iMSTK_SERIALIZE(occlusionStrength),
+            iMSTK_SERIALIZE(normalStrength),
+            iMSTK_SERIALIZE(imageBasedLighting),
+            iMSTK_SERIALIZE(receivesShadows),
+            iMSTK_SERIALIZE(castsShadows),
+            iMSTK_SERIALIZE(stateModified),
+            iMSTK_SERIALIZE(modified),
+            iMSTK_SERIALIZE(backfaceCulling),
+            iMSTK_SERIALIZE(shadingModel),
+            iMSTK_SERIALIZE(backfaceCulling),
+            iMSTK_SERIALIZE(tessellated),
+            iMSTK_SERIALIZE(isDecal),
+            iMSTK_SERIALIZE(isLineMesh),
+            iMSTK_SERIALIZE(isParticle),
+            iMSTK_SERIALIZE(scalarVisibility)
+        );
+    }
+#endif
 
 protected:
     friend class VTKRenderDelegate;

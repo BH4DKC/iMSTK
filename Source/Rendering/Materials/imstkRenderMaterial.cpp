@@ -22,6 +22,8 @@
 #include "imstkRenderMaterial.h"
 #include "imstkLogger.h"
 
+#include <algorithm>
+
 namespace imstk
 {
 RenderMaterial::RenderMaterial()
@@ -195,7 +197,7 @@ RenderMaterial::getMetalness() const
 void
 RenderMaterial::setMetalness(const float metalness)
 {
-    m_metalness = metalness;
+    m_metalness = std::min(1.0f, std::max(metalness, 0.0f));
 }
 
 const float&
@@ -207,7 +209,7 @@ RenderMaterial::getRoughness() const
 void
 RenderMaterial::setRoughness(const float roughness)
 {
-    m_roughness = roughness;
+    m_roughness = std::min(1.0f, std::max(roughness, 0.0f));
 }
 
 const float&
