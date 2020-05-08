@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -96,6 +97,21 @@ public:
     /// params fov vertical field of view in degrees
     ///
     void setFieldOfView(const double& fov);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(position),
+            iMSTK_SERIALIZE(focalPoint),
+            iMSTK_SERIALIZE(viewUp),
+            iMSTK_SERIALIZE(fieldOfView)
+        );
+    }
+#endif
 
 protected:
 
