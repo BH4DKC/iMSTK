@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkImplicitGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -57,6 +58,22 @@ public:
     /// \brief Returns signed distance to surface at pos
     ///
     virtual double getFunctionValue(const Vec3d& imstkNotUsed(pos)) const override { return 0.0; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(Geometry),
+            iMSTK_SERIALIZE(position),
+            iMSTK_SERIALIZE(positionPostTransform),
+            iMSTK_SERIALIZE(orientationAxis),
+            iMSTK_SERIALIZE(orientationAxisPostTransform)
+        );
+    }
+#endif
 
 protected:
     explicit AnalyticalGeometry(Type type, const std::string& name = std::string(""));

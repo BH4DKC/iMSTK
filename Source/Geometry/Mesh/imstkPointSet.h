@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -177,6 +178,26 @@ public:
     /// \brief Get the maximum number of vertices
     ///
     size_t getMaxNumVertices();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(Geometry),
+            iMSTK_SERIALIZE(initialVertexPositions),
+            iMSTK_SERIALIZE(vertexPositions),
+            iMSTK_SERIALIZE(vertexPositionsPostTransform),
+            iMSTK_SERIALIZE(pointDataMap),
+            iMSTK_SERIALIZE(topologyChanged),
+            iMSTK_SERIALIZE(loadFactor),
+            iMSTK_SERIALIZE(maxNumVertices),
+            iMSTK_SERIALIZE(originalNumVertices),
+        );
+    }
+#endif
 
 protected:
     friend class VTKPointSetRenderDelegate;

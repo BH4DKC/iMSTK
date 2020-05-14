@@ -20,7 +20,10 @@
 =========================================================================*/
 
 #include "imstkTestingUtils.h"
-#include "imstkCube.h"
+
+#include "imstkMath.h"
+#include "imstkSphere.h"
+#include "imstkIdentityMap.h"
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
 #include <fstream>
@@ -29,80 +32,53 @@
 
 using namespace imstk;
 
-class imstkCubeTest : public TestWithTempFolder
+class imstkIdentityMapTest : public TestWithTempFolder
 {
+    imstkIdentityMapTest()
+    {
+        m_master->setPosition(Vec3d(0, 0, 0));
+        m_master->setRadius(1.0);
+
+        m_puppet->setPosition(Vec3d(5, 0, 0));
+        m_puppet->setRadius(1.0);
+    }
+
 protected:
-    Cube m_cube;
+    Sphere m_master;
+    Sphere m_puppet;
+
+    IdentityMap m_map;
 };
 
-///
-/// \brief TODO
-///
-TEST_F(imstkCubeTest, SetGetWidth)
-{
-    m_cube.setWidth(2);
-    EXPECT_EQ(m_cube.getWidth(), 2);
-
-    m_cube.setWidth(0.003);
-    EXPECT_EQ(m_cube.getWidth(), 0.003);
-
-    m_cube.setWidth(400000000);
-    EXPECT_EQ(m_cube.getWidth(), 400000000);
-
-    m_cube.setWidth(0);
-    EXPECT_GT(m_cube.getWidth(), 0);
-
-    m_cube.setWidth(-5);
-    EXPECT_GT(m_cube.getWidth(), 0);
-}
-
-///
-/// \brief TODO
-///
-TEST_F(imstkCubeTest, GetVolume)
-{
-    m_cube.setWidth(2);
-    EXPECT_EQ(m_cube.getVolume(), 8);
-
-    m_cube.setWidth(0.003);
-    EXPECT_EQ(m_cube.getVolume(), 0.003 * 0.003 * 0.003);
-
-    double w = 400000000;
-    m_cube.setWidth(400000000);
-    EXPECT_EQ(m_cube.getVolume(), w * w * w);
-}
-
-///
-/// \brief Serialization
-///
 #ifdef iMSTK_ENABLE_SERIALIZATION
-TEST_F(imstkCubeTest, Serialization)
+TEST_F(imstkIdentityMapTest, Serialization)
 {
-    m_cube.setWidth(500);
+    m_map.setMaster(m_master);
+    m_map.setSlave(m_puppet);
 
     // Serialize
     {
-        std::ofstream os(getTempFolder() + "/imstkCubeTest.cereal", std::ios::binary);
+        std::ofstream os(getTempFolder() + "/imstkIdentityMapTest.cereal", std::ios::binary);
         cereal::JSONOutputArchive archive(os);
 
-        archive(m_cube);
+        archive(m_map);
     }
 
     // Deserialize
-    auto newCube = Cube();
+    auto newMap = IdentityMap();
     {
-        std::ifstream is(getTempFolder() + "/imstkCubeTest.cereal", std::ios::binary);
+        std::ifstream is(getTempFolder() + "/imstkIdentityMapTest.cereal", std::ios::binary);
         cereal::JSONInputArchive dearchive(is);
 
-        dearchive(newCube);
+        dearchive(newMap);
     }
 
-    EXPECT_EQ(m_cube.getWidth(), newCube.getWidth());
+    EXPECT_EQ(m_map.getMaster(), newMap.getSlave());
 }
 #endif
 
 int
-imstkCubeTest(int argc, char* argv[])
+imstkIdentityTest(int argc, char* argv[])
 {
     // Init Google Test & Mock
     ::testing::InitGoogleTest(&argc, argv);

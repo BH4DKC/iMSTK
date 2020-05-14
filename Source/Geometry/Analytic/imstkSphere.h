@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkAnalyticalGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -78,6 +79,20 @@ public:
     ///
     virtual Vec3d getFunctionGrad(const Vec3d& pos, const double dx) const override { return 2.0 * (pos - m_position) * dx; }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AnalyticalGeometry),
+            iMSTK_SERIALIZE(radius),
+            iMSTK_SERIALIZE(radiusPostTransform)
+        );
+    }
+#endif
+
 protected:
     friend class VTKSphereRenderDelegate;
 
@@ -88,3 +103,7 @@ protected:
     mutable double m_radiusPostTransform = 1.0; ///> Radius of the sphere once transform applied
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    CEREAL_REGISTER_TYPE(imstk::Sphere)
+#endif

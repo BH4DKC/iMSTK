@@ -19,16 +19,18 @@
 
 =========================================================================*/
 
-#include "gtest/gtest.h"
+#include "imstkTestingUtils.h"
 
 #include "imstkSphere.h"
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+#include <fstream>
+#include "cereal/archives/json.hpp"
+#endif
+
 using namespace imstk;
 
-///
-/// \brief TODO
-///
-class imstkSphereTest : public ::testing::Test
+class imstkSphereTest : public TestWithTempFolder
 {
 protected:
     Sphere m_sphere;
@@ -69,8 +71,34 @@ TEST_F(imstkSphereTest, GetVolume)
 }
 
 ///
-/// \brief TODO
+/// \brief Serialization
 ///
+#ifdef iMSTK_ENABLE_SERIALIZATION
+TEST_F(imstkSphereTest, Serialization)
+{
+    m_sphere.setRadius(3*PI);
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkSphereTest.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(m_sphere);
+    }
+
+    // Deserialize
+    auto newSphere = Sphere();
+    {
+        std::ifstream is(getTempFolder() + "/imstkSphereTest.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newSphere);
+    }
+
+    EXPECT_EQ(m_sphere.getRadius(), newSphere.getRadius());
+}
+#endif
+
 int
 imstkSphereTest(int argc, char* argv[])
 {

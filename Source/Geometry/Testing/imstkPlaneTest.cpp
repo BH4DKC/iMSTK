@@ -19,16 +19,18 @@
 
 =========================================================================*/
 
-#include "gtest/gtest.h"
+#include "imstkTestingUtils.h"
 
 #include "imstkPlane.h"
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+#include <fstream>
+#include "cereal/archives/json.hpp"
+#endif
+
 using namespace imstk;
 
-///
-/// \brief TODO
-///
-class imstkPlaneTest : public ::testing::Test
+class imstkPlaneTest : public TestWithTempFolder
 {
 protected:
     Plane m_plane;
@@ -86,8 +88,40 @@ TEST_F(imstkPlaneTest, GetVolume)
 }
 
 ///
-/// \brief TODO
+/// \brief Serialization
 ///
+#ifdef iMSTK_ENABLE_SERIALIZATION
+TEST_F(imstkPlaneTest, Serialization)
+{
+    Vec3d origin = Vec3d(1000.2, -0.3, 0.);
+    m_plane.setPosition(origin);
+    Vec3d normal = Vec3d(-70.2, 10000.3, 0.00001);
+    m_plane.setNormal(normal);
+    m_plane.setWidth(3001);
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkPlaneTest.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(m_plane);
+    }
+
+    // Deserialize
+    auto newPlane = Plane();
+    {
+        std::ifstream is(getTempFolder() + "/imstkPlaneTest.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newPlane);
+    }
+
+    EXPECT_EQ(m_plane.getPosition(), newPlane.getPosition());
+    EXPECT_EQ(m_plane.getNormal(), newPlane.getNormal());
+    EXPECT_EQ(m_plane.getWidth(), newPlane.getWidth());
+}
+#endif
+
 int
 imstkPlaneTest(int argc, char* argv[])
 {

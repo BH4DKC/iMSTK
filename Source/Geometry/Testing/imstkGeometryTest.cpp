@@ -19,16 +19,18 @@
 
 =========================================================================*/
 
-#include "gtest/gtest.h"
+#include "imstkTestingUtils.h"
 
 #include "imstkPlane.h"
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+#include <fstream>
+#include "cereal/archives/json.hpp"
+#endif
+
 using namespace imstk;
 
-///
-/// \brief TODO
-///
-class imstkGeometryTest : public ::testing::Test
+class imstkGeometryTest : public TestWithTempFolder
 {
 protected:
     Plane m_geometry; // Can't use imstk::Geometry since pure virtual. Should use google mock class.
@@ -110,8 +112,47 @@ TEST_F(imstkGeometryTest, GetSetRotation)
 }
 
 ///
-/// \brief TODO
+/// \brief Serialization
 ///
+#ifdef iMSTK_ENABLE_SERIALIZATION
+TEST_F(imstkGeometryTest, Serialization)
+{
+    auto p1 = Vec3d(12, 0.0005, -400000);
+
+    auto angle1 = 15;
+    auto axis1 = Vec3d(12, 0, -0.5);
+    auto aa1 = Rotd(angle1, axis1);
+    auto q1 = Quatd(aa1);
+
+    m_geometry.setTranslation(p1);
+    m_geometry.setRotation(q1);
+    m_geometry.setScaling(2);
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkGeometry.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(m_geometry);
+    }
+
+    // Deserialize
+    auto newGeometry = Plane();
+    {
+        std::ifstream is(getTempFolder() + "/imstkGeometry.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newGeometry);
+    }
+
+    EXPECT_EQ(m_geometry.getTranslation(), newGeometry.getTranslation());
+    EXPECT_EQ(m_geometry.getRotation(), newGeometry.getRotation());
+    EXPECT_EQ(m_geometry.getScaling(), newGeometry.getScaling());
+    EXPECT_EQ(m_geometry.getTotalNumberGeometries(), newGeometry.getTotalNumberGeometries());
+    EXPECT_EQ(m_geometry.getGlobalIndex(), newGeometry.getGlobalIndex());
+}
+#endif
+
 int
 imstkGeometryTest(int argc, char* argv[])
 {

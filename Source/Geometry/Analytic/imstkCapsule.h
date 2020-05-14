@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkAnalyticalGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -68,6 +69,22 @@ public:
     ///
     void setLength(const double l);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AnalyticalGeometry),
+            iMSTK_SERIALIZE(radius),
+            iMSTK_SERIALIZE(radiusPostTransform),
+            iMSTK_SERIALIZE(length),
+            iMSTK_SERIALIZE(lengthPostTransform)
+        );
+    }
+#endif
+
 protected:
     friend class VTKCapsuleRenderDelegate;
 
@@ -84,3 +101,7 @@ protected:
     mutable double m_lengthPostTransform = 1.0; ///> Length after transform
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+CEREAL_REGISTER_TYPE(imstk::Capsule)
+#endif

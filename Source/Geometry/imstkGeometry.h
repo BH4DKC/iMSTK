@@ -22,7 +22,9 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 #include "imstkTypes.h"
+
 
 #include <tbb/concurrent_unordered_set.h>
 
@@ -184,6 +186,33 @@ public:
     /// \brief Get a pointer to geometry that has been registered globally
     ///
     static uint32_t getTotalNumberGeometries() { return s_NumGeneratedGegometries; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(geometryIndex),
+            iMSTK_SERIALIZE(dataModified),
+            iMSTK_SERIALIZE(transformModified),
+            iMSTK_SERIALIZE(transformApplied),
+            iMSTK_SERIALIZE(transform),
+            iMSTK_SERIALIZE(scaling)
+        );
+    }
+
+    template <class Archive>
+    static void load_and_construct(Archive& archive, cereal::construct<Geometry>& construct)
+    {
+        Type t;
+        archive(iMSTK_SERIALIZE(type));
+        construct(t);
+    }
+#endif
 
 protected:
     ///

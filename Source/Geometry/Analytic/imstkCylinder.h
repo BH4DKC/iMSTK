@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkAnalyticalGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -76,6 +77,22 @@ public:
     ///
     void setLength(const double r);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AnalyticalGeometry),
+            iMSTK_SERIALIZE(radius),
+            iMSTK_SERIALIZE(radiusPostTransform),
+            iMSTK_SERIALIZE(length),
+            iMSTK_SERIALIZE(lengthPostTransform)
+        );
+    }
+#endif
+
 protected:
     friend class VTKCylinderRenderDelegate;
 
@@ -92,3 +109,7 @@ protected:
     mutable double m_lengthPostTransform = 1.; ///> Length of the cylinder onc transform applied
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+CEREAL_REGISTER_TYPE(imstk::Cylinder)
+#endif

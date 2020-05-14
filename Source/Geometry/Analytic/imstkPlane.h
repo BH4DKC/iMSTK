@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkAnalyticalGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -86,6 +87,20 @@ public:
     ///
     virtual Vec3d getFunctionGrad(const Vec3d& imstkNotUsed(pos), const double dx = 1.0) const override { return dx * m_orientationAxis; }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AnalyticalGeometry),
+            iMSTK_SERIALIZE(width),
+            iMSTK_SERIALIZE(widthPostTransform)
+        );
+    }
+#endif
+
 protected:
     friend class VTKPlaneRenderDelegate;
 
@@ -96,3 +111,7 @@ protected:
     mutable double m_widthPostTransform = 1.0; ///> Width of the plane once transform applied
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+CEREAL_REGISTER_TYPE(imstk::Plane)
+#endif

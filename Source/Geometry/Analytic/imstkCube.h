@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkAnalyticalGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -67,6 +68,20 @@ public:
     ///
     double getFunctionValue(const Vec3d& pos) const override;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AnalyticalGeometry),
+            iMSTK_SERIALIZE(width),
+            iMSTK_SERIALIZE(widthPostTransform)
+        );
+    }
+#endif
+
 protected:
     friend class VTKCubeRenderDelegate;
 
@@ -77,3 +92,7 @@ protected:
     mutable double m_widthPostTransform = 1.0; ///> Width of the cube once transform applied
 };
 }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+CEREAL_REGISTER_TYPE(imstk::Cube)
+#endif

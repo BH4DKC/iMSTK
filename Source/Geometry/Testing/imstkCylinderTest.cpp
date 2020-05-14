@@ -20,7 +20,9 @@
 =========================================================================*/
 
 #include "imstkTestingUtils.h"
-#include "imstkCube.h"
+
+#include "imstkMath.h"
+#include "imstkCylinder.h"
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
 #include <fstream>
@@ -29,80 +31,42 @@
 
 using namespace imstk;
 
-class imstkCubeTest : public TestWithTempFolder
+class imstkCylinderTest : public TestWithTempFolder
 {
 protected:
-    Cube m_cube;
+    Cylinder m_cylinder;
 };
 
-///
-/// \brief TODO
-///
-TEST_F(imstkCubeTest, SetGetWidth)
-{
-    m_cube.setWidth(2);
-    EXPECT_EQ(m_cube.getWidth(), 2);
-
-    m_cube.setWidth(0.003);
-    EXPECT_EQ(m_cube.getWidth(), 0.003);
-
-    m_cube.setWidth(400000000);
-    EXPECT_EQ(m_cube.getWidth(), 400000000);
-
-    m_cube.setWidth(0);
-    EXPECT_GT(m_cube.getWidth(), 0);
-
-    m_cube.setWidth(-5);
-    EXPECT_GT(m_cube.getWidth(), 0);
-}
-
-///
-/// \brief TODO
-///
-TEST_F(imstkCubeTest, GetVolume)
-{
-    m_cube.setWidth(2);
-    EXPECT_EQ(m_cube.getVolume(), 8);
-
-    m_cube.setWidth(0.003);
-    EXPECT_EQ(m_cube.getVolume(), 0.003 * 0.003 * 0.003);
-
-    double w = 400000000;
-    m_cube.setWidth(400000000);
-    EXPECT_EQ(m_cube.getVolume(), w * w * w);
-}
-
-///
-/// \brief Serialization
-///
 #ifdef iMSTK_ENABLE_SERIALIZATION
-TEST_F(imstkCubeTest, Serialization)
+TEST_F(imstkCylinderTest, Serialization)
 {
-    m_cube.setWidth(500);
+    m_cylinder.setRadius(PI);
+    m_cylinder.setLength(5.0);
 
     // Serialize
     {
-        std::ofstream os(getTempFolder() + "/imstkCubeTest.cereal", std::ios::binary);
+        std::ofstream os(getTempFolder() + "/imstkCylinderTest.cereal", std::ios::binary);
         cereal::JSONOutputArchive archive(os);
 
-        archive(m_cube);
+        archive(m_cylinder);
     }
 
     // Deserialize
-    auto newCube = Cube();
+    auto newCylinder = Cylinder();
     {
-        std::ifstream is(getTempFolder() + "/imstkCubeTest.cereal", std::ios::binary);
+        std::ifstream is(getTempFolder() + "/imstkCylinderTest.cereal", std::ios::binary);
         cereal::JSONInputArchive dearchive(is);
 
-        dearchive(newCube);
+        dearchive(newCylinder);
     }
 
-    EXPECT_EQ(m_cube.getWidth(), newCube.getWidth());
+    EXPECT_EQ(m_cylinder.getRadius(), newCylinder.getRadius());
+    EXPECT_EQ(m_cylinder.getLength(), newCylinder.getLength());
 }
 #endif
 
 int
-imstkCubeTest(int argc, char* argv[])
+imstkCylinderTest(int argc, char* argv[])
 {
     // Init Google Test & Mock
     ::testing::InitGoogleTest(&argc, argv);

@@ -167,6 +167,27 @@ using AffineTransform3d = Eigen::Affine3d;
 #ifdef iMSTK_ENABLE_SERIALIZATION
 namespace cereal {
 
+/// Save Eigen Matrix
+template <class Archive,
+          class _Scalar, int _Dim, int _Mode, int _Options>
+    void save(Archive & archive, Eigen::Transform<_Scalar, _Dim, _Mode, _Options> const & t)
+{
+    archive(t.matrix());
+}
+
+/// Load Eigen Transform
+template <class Archive,
+    class _Scalar, int _Dim, int _Mode, int _Options>
+    void load(Archive & archive, Eigen::Transform<_Scalar, _Dim, _Mode, _Options>& t)
+{
+    typedef Eigen::Transform < _Scalar, _Dim, _Mode, _Options> TransformType;
+    typedef typename TransformType::MatrixType MType;
+    MType newMatrix;
+    archive(newMatrix);
+    t = TransformType(newMatrix);
+}
+
+/// Save Eigen Matrix
 template <class Archive,
     class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
     void
@@ -187,6 +208,7 @@ template <class Archive,
     }
 }
 
+/// Load Eigen Matrix
 template <class Archive,
   class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
   void load(Archive & archive,
