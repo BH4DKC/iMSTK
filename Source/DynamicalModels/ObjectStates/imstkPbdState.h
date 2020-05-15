@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -82,6 +83,20 @@ public:
     /// \brief Set the state to a given one
     ///
     void setState(std::shared_ptr<PbdState> rhs);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(pos),
+            iMSTK_SERIALIZE(vel),
+            iMSTK_SERIALIZE(acc)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<StdVectorOfVec3d> m_pos = std::make_shared<StdVectorOfVec3d>(); ///> Nodal positions

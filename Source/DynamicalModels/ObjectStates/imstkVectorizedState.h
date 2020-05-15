@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -99,6 +100,20 @@ public:
     ///
     //const Vectord& getState() const { return getQ(); }
     Vectord& getState() { return getQ(); }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(q),
+            iMSTK_SERIALIZE(qDot),
+            iMSTK_SERIALIZE(qDotDot)
+        );
+    }
+#endif
 
 protected:
     Vectord m_q;         // State

@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -65,6 +66,19 @@ public:
     ///
     void setState(const std::shared_ptr<SPHKinematicState>& rhs);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(Postions),
+            iMSTK_SERIALIZE(Velocities)
+        );
+    }
+#endif
+
 private:
     StdVectorOfVec3r m_Positions;   ///> Particle positions
     StdVectorOfVec3r m_Velocities;  ///> Particle velocities
@@ -78,6 +92,16 @@ struct NeighborInfo
 {
     Vec3r xpq;     ///> relative position: xpq = x_p - x_q
     Real density;  ///> density of neighbor particle q
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(xpq density);
+    }
+#endif
 };
 
 ///
@@ -187,6 +211,27 @@ public:
     ///
     std::vector<std::vector<NeighborInfo>>& getNeighborInfo() { return m_NeighborInfo; }
     const std::vector<std::vector<NeighborInfo>>& getNeighborInfo() const { return m_NeighborInfo; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(KinematicState),
+            iMSTK_SERIALIZE(BDPositions),
+            iMSTK_SERIALIZE(Densities),
+            iMSTK_SERIALIZE(NormalizedDensities),
+            iMSTK_SERIALIZE(Normals),
+            iMSTK_SERIALIZE(Accels),
+            iMSTK_SERIALIZE(DiffuseVelocities),
+            iMSTK_SERIALIZE(NeighborLists),
+            iMSTK_SERIALIZE(BDNeighborLists),
+            iMSTK_SERIALIZE(NeighborInfo)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<SPHKinematicState> m_KinematicState;      ///> basic state: positions + velocities

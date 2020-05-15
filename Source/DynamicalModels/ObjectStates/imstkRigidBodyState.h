@@ -66,6 +66,19 @@ public:
     RigidTransform3d& getRotation() { return m_orientation; };
     void setRotation(const RigidTransform3d& r) { m_orientation = r; };
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(orientation),
+            iMSTK_SERIALIZE(position)
+        );
+    }
+#endif
+
 private:
     RigidTransform3d m_orientation = RigidTransform3d::Identity(); ///> Rotation
     Vec3d m_position = Vec3d::Zero();                              ///> position
