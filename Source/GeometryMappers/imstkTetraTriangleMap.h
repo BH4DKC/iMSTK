@@ -22,6 +22,9 @@
 #pragma once
 
 #include "imstkGeometryMap.h"
+#include "imstkSerialize.h"
+#include "imstkTetrahedralMesh.h"
+
 #include <array>
 
 namespace imstk
@@ -84,6 +87,27 @@ public:
     /// \brief Set the geometry that follows the master
     ///
     void setSlave(std::shared_ptr<Geometry> slave) override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void save(Archive & archive) const
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap)
+        );
+    }
+
+    template <class Archive>
+    static void load(Archive& archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap)
+        );
+        compute();
+    }
+#endif
 
 protected:
 

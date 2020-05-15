@@ -64,5 +64,17 @@ public:
     /// \brief Get the transform of Identity map which is an Identity (3x3)
     ///
     const RigidTransform3d getTransform() const;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap)
+        );
+    }
+#endif
 };
 } // imstk

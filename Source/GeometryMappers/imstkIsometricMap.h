@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometryMap.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -83,6 +84,19 @@ public:
     /// \brief Get the transform
     ///
     const RigidTransform3d& getTransform() const;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap),
+            iMSTK_SERIALIZE(rigidTransform)
+        );
+    }
+#endif
 
 protected:
 

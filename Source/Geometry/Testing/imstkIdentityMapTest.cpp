@@ -34,18 +34,21 @@ using namespace imstk;
 
 class imstkIdentityMapTest : public TestWithTempFolder
 {
+public:
     imstkIdentityMapTest()
     {
+        m_master = std::make_shared<Sphere>("Master");
         m_master->setPosition(Vec3d(0, 0, 0));
         m_master->setRadius(1.0);
 
+        m_puppet = std::make_shared<Sphere>("Puppet");
         m_puppet->setPosition(Vec3d(5, 0, 0));
         m_puppet->setRadius(1.0);
     }
 
 protected:
-    Sphere m_master;
-    Sphere m_puppet;
+    std::shared_ptr<Sphere> m_master;
+    std::shared_ptr<Sphere> m_puppet;
 
     IdentityMap m_map;
 };
@@ -73,12 +76,37 @@ TEST_F(imstkIdentityMapTest, Serialization)
         dearchive(newMap);
     }
 
-    EXPECT_EQ(m_map.getMaster(), newMap.getSlave());
+    EXPECT_EQ(m_map.getMaster()->getName(), newMap.getMaster()->getName());
+}
+
+TEST_F(imstkIdentityMapTest, SerializationSameObject)
+{
+    m_map.setMaster(m_master);
+    m_map.setSlave(m_master);
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkIdentityMapTest.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(m_map);
+    }
+
+    // Deserialize
+    auto newMap = IdentityMap();
+    {
+        std::ifstream is(getTempFolder() + "/imstkIdentityMapTest.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newMap);
+    }
+
+    EXPECT_EQ(m_map.getMaster()->getName(), newMap.getSlave()->getName());
 }
 #endif
 
 int
-imstkIdentityTest(int argc, char* argv[])
+imstkIdentityMapTest(int argc, char* argv[])
 {
     // Init Google Test & Mock
     ::testing::InitGoogleTest(&argc, argv);

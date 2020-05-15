@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometryMap.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -95,6 +96,28 @@ public:
     /// \brief
     ///
     size_t getMapIdx(const size_t& idx) override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void save(Archive & archive) const
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap),
+            iMSTK_SERIALIZE(oneToOneMap),
+            iMSTK_SERIALIZE(oneToOneMapVector),
+        );
+    }
+    template<class Archive> void load(Archive & archive) const
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(GeometryMap),
+            iMSTK_SERIALIZE(oneToOneMap)
+        );
+        setMap(m_oneToOneMap);
+    }
+#endif
 
 protected:
 

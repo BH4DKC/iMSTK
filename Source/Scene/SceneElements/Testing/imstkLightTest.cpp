@@ -72,6 +72,33 @@ TEST_F(imstkLightTest, DirectionalLightSerialization)
     EXPECT_EQ(m_directional.getIntensity(), newLight.getIntensity());
 }
 
+TEST_F(imstkLightTest, DirectionalLightSerialization_SharedPointer)
+{
+    std::shared_ptr<DirectionalLight> light = std::make_shared<DirectionalLight>("DirectionalLight_SharedPtr");
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkDirectionalLight.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(light);
+    }
+
+    // Deserialize
+    auto newLight = std::make_shared<DirectionalLight>();
+    {
+        std::ifstream is(getTempFolder() + "/imstkDirectionalLight.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newLight);
+    }
+
+    EXPECT_EQ(light->getName(), newLight->getName());
+    EXPECT_EQ(light->getFocalPoint(), newLight->getFocalPoint());
+    EXPECT_EQ(light->getColor(), newLight->getColor());
+    EXPECT_EQ(light->getIntensity(), newLight->getIntensity());
+}
+
 TEST_F(imstkLightTest, PointLightSerialization)
 {
     m_point.setName("Serialization_PointLight");

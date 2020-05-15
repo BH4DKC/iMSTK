@@ -76,7 +76,7 @@ TEST_F(imstkSphereTest, GetVolume)
 #ifdef iMSTK_ENABLE_SERIALIZATION
 TEST_F(imstkSphereTest, Serialization)
 {
-    m_sphere.setRadius(3*PI);
+    m_sphere.setRadius(3 * PI);
 
     // Serialize
     {
@@ -96,6 +96,31 @@ TEST_F(imstkSphereTest, Serialization)
     }
 
     EXPECT_EQ(m_sphere.getRadius(), newSphere.getRadius());
+}
+
+TEST_F(imstkSphereTest, SerializationSharedPointer)
+{
+    auto sphere = std::make_shared<Sphere>("SphereSharedPointer");
+    sphere->setRadius(3*PI);
+
+    // Serialize
+    {
+        std::ofstream os(getTempFolder() + "/imstkSphereTest.cereal", std::ios::binary);
+        cereal::JSONOutputArchive archive(os);
+
+        archive(sphere);
+    }
+
+    // Deserialize
+    auto newSphere = std::make_shared<Sphere>();
+    {
+        std::ifstream is(getTempFolder() + "/imstkSphereTest.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
+
+        dearchive(newSphere);
+    }
+
+    EXPECT_EQ(sphere->getRadius(), newSphere->getRadius());
 }
 #endif
 

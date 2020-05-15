@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -119,6 +120,21 @@ public:
     /// \brief Initialize the map
     ///
     virtual void initialize();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(isActive),
+            iMSTK_SERIALIZE(master),
+            iMSTK_SERIALIZE(slave)
+        );
+    }
+#endif
 
 protected:
 
