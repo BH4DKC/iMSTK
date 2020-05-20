@@ -22,9 +22,11 @@
 #pragma once
 
 #include "imstkDynamicalModel.h"
+#include "imstkMath.h"
 #include "imstkPbdCollisionConstraint.h"
 #include "imstkPbdFEMConstraint.h"
 #include "imstkPbdState.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -84,6 +86,33 @@ struct PBDModelConfig
     void setSolverType(const PbdConstraint::SolverType& type);
 
     PbdConstraint::SolverType m_solverType = PbdConstraint::SolverType::xPBD;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(uniformMassValue),
+            iMSTK_SERIALIZE(viscousDampingCoeff),
+            iMSTK_SERIALIZE(contactStiffness),
+            iMSTK_SERIALIZE(proximity)
+            iMSTK_SERIALIZE(maxIter),
+            iMSTK_SERIALIZE(dt),
+            iMSTK_SERIALIZE(DefaultDt),
+            iMSTK_SERIALIZE(maxIter),
+            iMSTK_SERIALIZE(fixedNodeIds),
+            iMSTK_SERIALIZE(gravity),
+            iMSTK_SERIALIZE(mu),
+            iMSTK_SERIALIZE(lambda),
+            iMSTK_SERIALIZE(mu),
+            iMSTK_SERIALIZE(YoungModulus),
+            iMSTK_SERIALIZE(RegularConstraints),
+            iMSTK_SERIALIZE(FEMConstraints)
+        );
+    }
+#endif
 };
 
 ///
@@ -257,6 +286,25 @@ public:
     std::shared_ptr<TaskNode> getSolveNode() const { return m_solveConstraintsNode; }
 
     std::shared_ptr<TaskNode> getUpdateVelocityNode() const { return m_updateVelocityNode; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<PdbState>)
+            iMSTK_SERIALIZE(partitionThreshold),
+            iMSTK_SERIALIZE(mesh),
+            iMSTK_SERIALIZE(mass),
+            iMSTK_SERIALIZE(invMass)
+            iMSTK_SERIALIZE(constraints),
+            iMSTK_SERIALIZE(partitionedConstraints),
+            iMSTK_SERIALIZE(Parameters)
+        );
+    }
+#endif
 
 protected:
     ///

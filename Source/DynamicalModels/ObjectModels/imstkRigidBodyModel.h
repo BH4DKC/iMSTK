@@ -24,6 +24,7 @@
 #include "imstkDynamicalModel.h"
 #include "imstkRigidBodyState.h"
 #include "imstkRigidBodyWorld.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -41,6 +42,21 @@ struct RigidBodyConfig
     double m_staticFriction       = 0.01;
     double m_dynamicFriction      = 0.01;
     double m_restitution = 0.01;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(rigidBodyType),
+            iMSTK_SERIALIZE(staticFriction),
+            iMSTK_SERIALIZE(dynamicFriction),
+            iMSTK_SERIALIZE(restitution)
+        );
+    }
+#endif
 };
 
 using namespace physx;
@@ -148,10 +164,25 @@ public:
         //m_previousState->setState(m_initialState);
     }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive) const
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<RigidBodyState>)
+            iMSTK_SERIALIZE(config),
+            iMSTK_SERIALIZE(isStatic),
+            iMSTK_SERIALIZE(force)
+        );
+    }
+#endif
+
 protected:
     std::shared_ptr<RigidBodyConfig> m_config;
-    PxRigidDynamic* m_pxDynamicActor = NULL;
-    PxRigidStatic*  m_pxStaticActor  = NULL;
+    PxRigidDynamic* m_pxDynamicActor;
+    PxRigidStatic* m_pxStaticActor;
     bool m_isStatic = true;                     ///> Indicates if the body is static or dynamic
     //RigidBodyType m_type = RigidBodyType::none; ///> Indicates if the body is static, dynamic
 

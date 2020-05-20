@@ -68,6 +68,20 @@ public:
         m_previousState->setState(m_initialState);
     }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(AbstractDynamicalModel),
+            iMSTK_SERIALIZE(initialState),
+            iMSTK_SERIALIZE(currentState),
+            iMSTK_SERIALIZE(previousState)
+        );
+    }
+#endif
 protected:
     // Body states
     std::shared_ptr<StateType> m_initialState;  ///> Initial state

@@ -23,6 +23,8 @@
 
 #include "imstkMath.h"
 #include "imstkLogger.h"
+#include "imstkSerialize.h"
+#include <g3log/g3log.hpp>
 
 namespace imstk
 {
@@ -489,6 +491,21 @@ public:
     /// \brief Compute cohesion W using cohesion kernel
     ///
     Real cohesionW(const Vec3r& r) const { return m_cohesion.W(r); }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(poly6),
+            iMSTK_SERIALIZE(spiky),
+            iMSTK_SERIALIZE(viscosity),
+            iMSTK_SERIALIZE(cohesion)
+        );
+    }
+#endif
 
 protected:
     SPH::Poly6Kernel<3>     m_poly6;

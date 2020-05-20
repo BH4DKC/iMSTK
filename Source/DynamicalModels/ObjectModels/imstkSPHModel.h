@@ -25,6 +25,7 @@
 #include "imstkSPHState.h"
 #include "imstkSPHKernels.h"
 #include "imstkNeighborSearch.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -80,6 +81,38 @@ public:
 
     // neighbor search
     NeighborSearch::Method m_NeighborSearchMethod = NeighborSearch::Method::UniformGridBasedSearch;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(minTimestep),
+            iMSTK_SERIALIZE(maxTimestep),
+            iMSTK_SERIALIZE(CFLFactor),
+            iMSTK_SERIALIZE(particleRadius),
+            iMSTK_SERIALIZE(particleRadiusSqr),
+            iMSTK_SERIALIZE(restDensity),
+            iMSTK_SERIALIZE(restDensitySqr),
+            iMSTK_SERIALIZE(restDensityInv),
+            iMSTK_SERIALIZE(particleMass),
+            iMSTK_SERIALIZE(particleMassScale),
+            iMSTK_SERIALIZE(bNormalizeDensity),
+            iMSTK_SERIALIZE(pressureStiffness),
+            iMSTK_SERIALIZE(viscosityCoeff),
+            iMSTK_SERIALIZE(viscosotyBoundary),
+            iMSTK_SERIALIZE(surfaceTensionStiffness),
+            iMSTK_SERIALIZE(frictionBoundary),
+            iMSTK_SERIALIZE(kernelOverParticleRadiusRatio),
+            iMSTK_SERIALIZE(kernelRadius),
+            iMSTK_SERIALIZE(kernelRadiusSqr),
+            iMSTK_SERIALIZE(gravity),
+            iMSTK_SERIALIZE(NeighborSearchMethod),
+        );
+    }
+#endif
 };
 
 ///
@@ -186,6 +219,23 @@ protected:
     /// \brief Setup SPH compute graph connectivity
     ///
     virtual void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<SPHKinematicState>)
+            iMSTK_SERIALIZE(pointSetGeometry),
+            iMSTK_SERIALIZE(simulationState),
+            iMSTK_SERIALIZE(kernels),
+            iMSTK_SERIALIZE(modelParameters),
+            iMSTK_SERIALIZE(neighborSearcher)
+        );
+    }
+#endif
 
 private:
     ///

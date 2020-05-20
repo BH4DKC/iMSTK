@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometry.h"
+#include "imstkSerialize.h"
 
 #include <set>
 
@@ -146,6 +147,22 @@ public:
     ///
     virtual void setTimeStepSizeType(const TimeSteppingType type) { m_timeStepSizeType = type; }
     TimeSteppingType getTimeStepSizeType() { return m_timeStepSizeType; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(numDOF),
+            iMSTK_SERIALIZE(geometry),
+            iMSTK_SERIALIZE(validGeometryTypes),
+            iMSTK_SERIALIZE(timeStepSizeType)
+        );
+    }
+#endif
 
 protected:
     ///

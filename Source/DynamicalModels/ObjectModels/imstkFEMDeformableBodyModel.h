@@ -275,6 +275,35 @@ public:
     std::shared_ptr<SolverBase> getSolver() const { return m_solver; }
     void setSolver(std::shared_ptr<SolverBase> solver) { this->m_solver = solver; }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive) const
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<RigidBodyState>)
+            iMSTK_SERIALIZE(internalForceModel),
+            iMSTK_SERIALIZE(timeIntegrator),
+            iMSTK_SERIALIZE(FEModelConfig),
+            iMSTK_SERIALIZE(M),
+            iMSTK_SERIALIZE(C),
+            iMSTK_SERIALIZE(K),
+            iMSTK_SERIALIZE(Keff),
+            iMSTK_SERIALIZE(Finternal),
+            iMSTK_SERIALIZE(Feff),
+            iMSTK_SERIALIZE(Fcontact),
+            iMSTK_SERIALIZE(Fgravity),
+            iMSTK_SERIALIZE(FexplicitExternal),
+            iMSTK_SERIALIZE(qSol),
+            iMSTK_SERIALIZE(fixedNodeIds),
+            iMSTK_SERIALIZE(updateType),
+            iMSTK_SERIALIZE(damped),
+            iMSTK_SERIALIZE(implementFixedBC),
+        );
+    }
+#endif
+
 protected:
     ///
     /// \brief Setup the computational graph of FEM
