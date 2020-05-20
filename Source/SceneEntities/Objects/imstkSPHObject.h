@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkDynamicObject.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -50,6 +51,19 @@ public:
     /// \brief Initialize the SPH scene object
     ///
     bool initialize() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicObject),
+            iMSTK_SERIALIZE(SPHModel)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<SPHModel> m_SPHModel = nullptr;

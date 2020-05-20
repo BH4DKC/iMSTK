@@ -78,6 +78,21 @@ public:
     ///
     bool isRenderDelegateCreated();
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(geometry),
+            iMSTK_SERIALIZE(renderMaterial),
+            iMSTK_SERIALIZE(isVisible),
+            iMSTK_SERIALIZE(renderDelegateCreated)
+        );
+    }
+#endif
+
 protected:
     friend class VulkanRenderDelegate;
     friend class VTKRenderer;

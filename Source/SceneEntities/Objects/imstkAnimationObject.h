@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkSceneObject.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -67,6 +68,19 @@ public:
             return false;
         }
     }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(SceneObject),
+            iMSTK_SERIALIZE(animationModel)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<AnimationModel> m_animationModel;

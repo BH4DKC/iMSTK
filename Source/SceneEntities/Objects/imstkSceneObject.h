@@ -147,6 +147,21 @@ public:
     ///
     virtual void reset() { }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(SceneEntity),
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(visualModels)
+        );
+    }
+#endif
+
 protected:
     ///
     /// \brief Setup connectivity of the compute graph

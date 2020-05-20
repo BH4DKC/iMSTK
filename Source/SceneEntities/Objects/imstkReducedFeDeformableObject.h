@@ -27,6 +27,7 @@
 // imstk
 #include "imstkDynamicObject.h"
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -104,6 +105,19 @@ public:
     /// \brief Get the vector of accelerations from previous time step
     ///
     const Vectord& getPrevAccelerations() const;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicObject),
+            iMSTK_SERIALIZE(defModel)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<ReducedStVK> m_defModel = nullptr;

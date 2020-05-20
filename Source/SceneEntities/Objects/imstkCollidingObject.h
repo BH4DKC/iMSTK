@@ -23,6 +23,7 @@
 
 #include "imstkSceneObject.h"
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -36,7 +37,7 @@ public:
     ///
     /// \brief
     ///
-    explicit CollidingObject(const std::string& name) : SceneObject(name)
+    explicit CollidingObject(const std::string& name = "") : SceneObject(name)
     {
         m_type = Type::Colliding;
     }
@@ -80,6 +81,20 @@ public:
     /// \brief Initialize the scene object
     ///
     virtual bool initialize() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(collidingGeometry),
+            iMSTK_SERIALIZE(collidintToVisualMap),
+            iMSTK_SERIALIZE(force)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<Geometry>    m_collidingGeometry;    ///> Geometry for collisions

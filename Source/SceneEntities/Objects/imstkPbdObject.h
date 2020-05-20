@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkDynamicObject.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -55,6 +56,19 @@ public:
     /// \brief Initialize the pbd scene object
     ///
     bool initialize() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicObject),
+            iMSTK_SERIALIZE(pdbModel)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<PbdModel> m_pbdModel = nullptr;  ///> PBD mathematical model

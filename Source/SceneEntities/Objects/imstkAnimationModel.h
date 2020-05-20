@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkGeometry.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -55,6 +56,18 @@ public:
     /// \brief Reset animation
     ///
     virtual void reset() {};
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(geometry)
+        );
+    }
+#endif
 
 protected:
     friend class VulkanRenderer;

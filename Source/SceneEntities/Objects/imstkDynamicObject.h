@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkCollidingObject.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -41,6 +42,11 @@ public:
     /// \brief Destructor
     ///
     virtual ~DynamicObject() = default;
+
+    ///
+    /// \brief Constructor
+    ///
+    explicit DynamicObject(const std::string& name = "") : CollidingObject(name) {}
 
     ///
     /// \brief Set/Get the geometry used for Physics computations
@@ -96,18 +102,27 @@ public:
     ///
     virtual void reset() override;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollidingObject),
+            iMSTK_SERIALIZE(dynamicModel),
+            iMSTK_SERIALIZE(physicsGeometry),
+            iMSTK_SERIALIZE(physicsToCollidingGeoMap),
+            iMSTK_SERIALIZE(physicsToVisualGeoMap)
+            iMSTK_SERIALIZE(updateVisualFromPhysicsGeometry)
+        );
+    }
+#endif
 protected:
     ///
     /// \brief Setup connectivity of compute graph
     ///
     virtual void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override;
-
-protected:
-
-    ///
-    /// \brief Constructor
-    ///
-    explicit DynamicObject(const std::string& name) : CollidingObject(name) {}
 
     std::shared_ptr<AbstractDynamicalModel> m_dynamicalModel = nullptr; ///> Dynamical model
     std::shared_ptr<Geometry> m_physicsGeometry = nullptr;              ///> Geometry used for Physics
