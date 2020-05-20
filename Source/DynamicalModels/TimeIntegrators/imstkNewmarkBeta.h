@@ -65,6 +65,20 @@ public:
     {
     }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(TimeIntegrator),
+            iMSTK_SERIALIZE(beta),
+            iMSTK_SERIALIZE(gamma)
+        );
+    }
+#endif
+
 protected:
     double m_beta;
     double m_gamma;

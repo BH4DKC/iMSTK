@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkVectorizedState.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -83,6 +84,19 @@ public:
     virtual void updateStateGivenV(std::shared_ptr<FeDeformBodyState> prevState, std::shared_ptr<FeDeformBodyState> currentState, Vectord& v)   = 0;
     virtual void updateStateGivenU(std::shared_ptr<FeDeformBodyState> prevState, std::shared_ptr<FeDeformBodyState> currentState, Vectord& u)   = 0;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(dT),
+            iMSTK_SERIALIZE(defaultDt)
+        );
+    }
+#endif
 protected:
     Type   m_type; ///> Type of the time integrator
     double m_dT;   ///> Delta T
