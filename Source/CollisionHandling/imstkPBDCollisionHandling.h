@@ -21,6 +21,8 @@
 
 #pragma once
 
+// imstk
+#include "imstkSerialize.h"
 #include "imstkCollisionHandling.h"
 
 #include <vector>
@@ -69,6 +71,24 @@ public:
     void generatePBDConstraints();
 
     std::shared_ptr<PbdCollisionSolver> getCollisionSolver() const { return m_pbdCollisionSolver; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetection),
+            iMSTK_SERIALIZE(pbdObject1),
+            iMSTK_SERIALIZE(pbdObject1),
+            iMSTK_SERIALIZE(PBDConstraints),
+            iMSTK_SERIALIZE(PBDSolver),
+            iMSTK_SERIALIZE(EEConstraintPool),
+            iMSTK_SERIALIZE(VTConstraintPool)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<PbdObject> m_PbdObject1 = nullptr; ///> PBD object

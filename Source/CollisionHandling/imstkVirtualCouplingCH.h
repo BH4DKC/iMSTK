@@ -21,8 +21,10 @@
 
 #pragma once
 
+// imstk
 #include "imstkCollisionHandling.h"
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -75,6 +77,24 @@ public:
     /// \brief Get the offset of the
     ///
     Vec3d getOffset();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollidingHandling),
+            iMSTK_SERIALIZE(object),
+            iMSTK_SERIALIZE(initialStep),
+            iMSTK_SERIALIZE(prevPos),
+            iMSTK_SERIALIZE(offset),
+            iMSTK_SERIALIZE(stiffness),
+            iMSTK_SERIALIZE(damping)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<CollidingObject> m_object;  ///> colliding object

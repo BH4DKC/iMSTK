@@ -22,11 +22,12 @@
 #pragma once
 
 #include "imstkCollisionDetection.h"
+#include "imstkSerialize.h"
+#include "imstkSphere.h"
+#include "imstkPlane.h"
 
 namespace imstk
 {
-class Plane;
-class Sphere;
 struct CollisionData;
 
 ///
@@ -48,6 +49,20 @@ public:
     /// \brief Detect collision and compute collision data
     ///
     void computeCollisionData() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetectionS),
+            iMSTK_SERIALIZE(planeA),
+            iMSTK_SERIALIZE(planeB)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<Plane>  m_planeA;

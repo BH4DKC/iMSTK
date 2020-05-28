@@ -167,6 +167,25 @@ using AffineTransform3d = Eigen::Affine3d;
 #ifdef iMSTK_ENABLE_SERIALIZATION
 namespace cereal {
 
+/// Save Eigen Quaternion
+template <class Archive,
+    class _Scalar, int _Options>
+    void serialize(Archive & archive, Eigen::Quaternion<_Scalar, _Options> & t)
+{
+    archive(t.w(), t.x(), t.y(), t.z());
+}
+
+/// Load Eigen Quaternion
+template <class Archive,
+    class _Scalar, int _Options>
+    void load_and_construct(Archive & archive, cereal::construct< Eigen::Quaternion<_Scalar, _Options> >& construct)
+{
+    typedef Eigen::Quaternion < _Scalar, _Options> QuaternionType;
+    QuaternionType::CoeffReturnType w, x, y, z;
+    archive(w, x, y, z);
+    construct(w, x, y, z);
+}
+
 /// Save Eigen Matrix
 template <class Archive,
           class _Scalar, int _Dim, int _Mode, int _Options>
@@ -194,8 +213,9 @@ template <class Archive,
     save(Archive & archive,
         Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> const & m)
 {
-    int32_t rows = m.rows();
-    int32_t cols = m.cols();
+    typedef Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> MatrixType;
+    MatrixType::Index rows = m.rows();
+    MatrixType::Index cols = m.cols();
     archive(rows);
     archive(cols);
 
@@ -214,8 +234,8 @@ template <class Archive,
   void load(Archive & archive,
       Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> & m)
 {
-    int32_t rows;
-    int32_t cols;
+    int rows;
+    int cols;
     archive(rows);
     archive(cols);
 

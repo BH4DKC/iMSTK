@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
 #include "imstkCollisionDetection.h"
 
 class DeformModel;
@@ -50,6 +51,22 @@ public:
     /// \brief Detect collision and compute collision data
     ///
     void computeCollisionData() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetection),
+            iMSTK_SERIALIZE(meshA),
+            iMSTK_SERIALIZE(meshB),
+            iMSTK_SERIALIZE(modelA),
+            iMSTK_SERIALIZE(modelB)
+        );
+    }
+#endif
 
 private:
 

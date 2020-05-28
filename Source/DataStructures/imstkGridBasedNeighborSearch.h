@@ -23,6 +23,7 @@
 
 #include "imstkSpinLock.h"
 #include "imstkUniformSpatialGrid.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -73,6 +74,20 @@ public:
     ///
     void getNeighbors(std::vector<std::vector<size_t>>& result, const StdVectorOfVec3r& setA, const StdVectorOfVec3r& setB);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(SearchRadius),
+            iMSTK_SERIALIZE(SearchRadiusSqr),
+            iMSTK_SERIALIZE(Grid)
+        );
+    }
+#endif
+
 private:
     Real m_SearchRadius    = 0.;
     Real m_SearchRadiusSqr = 0.;
@@ -83,6 +98,14 @@ private:
     {
         std::vector<size_t> particleIndices; // Store list of particles
         ParallelUtils::SpinLock lock;        // An atomic lock for thread-safe writing
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+        template<class Archive> void serialize(Archive & archive)
+        {
+            archive(particleIndices, lock);
+        }
+#endif
+
     };
     UniformSpatialGrid<CellData> m_Grid;
 };

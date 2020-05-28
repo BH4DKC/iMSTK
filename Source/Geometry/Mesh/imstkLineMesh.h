@@ -22,6 +22,8 @@
 #pragma once
 
 #include "imstkPointSet.h"
+#include "imstkSerialize.h"
+
 #include <array>
 
 namespace imstk
@@ -79,6 +81,20 @@ public:
     /// \brief
     ///
     std::vector<LineArray> getLinesVertices() const;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(originalNumLines),
+            iMSTK_SERIALIZE(maxNumLines),
+            iMSTK_SERIALIZE(lines)
+        );
+    }
+#endif
 
 private:
     friend class VTKLineMeshRenderDelegate;

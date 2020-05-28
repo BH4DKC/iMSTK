@@ -22,11 +22,10 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkDeviceClient.h"
 
 namespace imstk
 {
-class DeviceClient;
-
 ///
 /// \class DeviceTracker
 ///
@@ -115,6 +114,25 @@ public:
     /// \brief Get the latest rotation
     ///
     const Quatd& getRotation() { return m_currentRot; };
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(deviceClient),
+            iMSTK_SERIALIZE(scaling),
+            iMSTK_SERIALIZE(translationOffset),
+            iMSTK_SERIALIZE(rotationOffset),
+            iMSTK_SERIALIZE(invertFlags),
+            iMSTK_SERIALIZE(currentPos),
+            iMSTK_SERIALIZE(currentRot),
+            iMSTK_SERIALIZE(trackingDataUptoDate)
+        );
+    }
+#endif
 
 protected:
 

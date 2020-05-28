@@ -26,10 +26,11 @@
 #include <functional>
 #include <memory>
 
+#include "imstkSerialize.h"
+#include "imstkTimer.h"
+
 namespace imstk
 {
-class UPSCounter;
-
 ///
 /// \brief Enumerations for the status of the module
 ///
@@ -142,6 +143,22 @@ public:
     bool isFrameCountEnabled() const { return m_trackFPS; };
 
     unsigned int getUPS();
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(status),
+            iMSTK_SERIALIZE(frameCounter),
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(loopDelay),
+            iMSTK_SERIALIZE(trackFPS)
+        );
+    }
+#endif
 
 protected:
 

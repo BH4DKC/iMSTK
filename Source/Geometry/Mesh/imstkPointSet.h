@@ -194,7 +194,7 @@ public:
             iMSTK_SERIALIZE(topologyChanged),
             iMSTK_SERIALIZE(loadFactor),
             iMSTK_SERIALIZE(maxNumVertices),
-            iMSTK_SERIALIZE(originalNumVertices),
+            iMSTK_SERIALIZE(originalNumVertices)
         );
     }
 #endif

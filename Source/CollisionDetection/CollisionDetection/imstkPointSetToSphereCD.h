@@ -21,13 +21,13 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
 #include "imstkCollisionDetection.h"
+#include "imstkSphere.h"
 
 namespace imstk
 {
 class PointSet;
-class Sphere;
-class Geometry;
 struct CollisionData;
 
 ///
@@ -50,6 +50,20 @@ public:
     /// \brief Detect collision and compute collision data
     ///
     void computeCollisionData() override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetection),
+            iMSTK_SERIALIZE(pointSet),
+            iMSTK_SERIALIZE(sphere)
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<PointSet> m_pointSet;

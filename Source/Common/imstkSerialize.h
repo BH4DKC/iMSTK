@@ -19,12 +19,24 @@
 
 =========================================================================*/
 
+#pragma once
+
 #ifdef iMSTK_ENABLE_SERIALIZATION
 
 #include <cereal/access.hpp> // For LoadAndConstruct
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/array.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/map.hpp>
+#include <cereal/types/atomic.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/set.hpp>
+
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/xml.hpp>
+#include <cereal/archives/json.hpp>
 
 namespace imstk {
 
@@ -34,5 +46,12 @@ namespace imstk {
 #define iMSTK_SERIALIZE_SUPERCLASS(className) \
  cereal::make_nvp<Archive>("imstk::"#className, cereal::base_class<##className>(this))
 
+#define iMSTK_SERIALIZE_VIRTUAL_SUPERCLASS(className) \
+ cereal::make_nvp<Archive>("imstk::"#className, cereal::virtual_base_class<##className>(this))
+
 }
+
+#define iMSTK_REGISTER_SERIALIZATION(className) \
+ CEREAL_REGISTER_TYPE(##className)
+
 #endif // iMSTK_ENABLE_SERIALIZATION

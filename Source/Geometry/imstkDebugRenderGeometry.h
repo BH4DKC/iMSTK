@@ -22,6 +22,8 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkRenderMaterial.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -106,6 +108,38 @@ public:
     ///
     bool isModified() const { return m_isModified; }
     void setDataModified(const bool bState) { m_isModified = bState; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(VertexBuffer),
+            iMSTK_SERIALIZE(renderDelegateCreated),
+            iMSTK_SERIALIZE(isModified),
+            iMSTK_SERIALIZE(renderMaterial)
+        );
+    }
+
+    template <class Archive>
+    static void load_and_construct(Archive& archive, cereal::construct<DebugRenderGeometry>& construct)
+    {
+        std::string name;
+        Type type;
+        archive(
+            name,
+            type
+        );
+        construct(
+            name,
+            type
+        );
+    }
+#endif
 
 protected:
     friend class VTKRenderer;

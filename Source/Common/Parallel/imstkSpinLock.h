@@ -22,6 +22,7 @@
 #pragma once
 
 #include <atomic>
+#include "imstkSerialize.h"
 
 namespace imstk
 {

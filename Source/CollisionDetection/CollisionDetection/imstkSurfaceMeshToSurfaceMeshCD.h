@@ -22,11 +22,10 @@
 #pragma once
 
 #include "imstkCollisionDetection.h"
+#include "imstkSurfaceMesh.h"
 
 namespace imstk
 {
-class Geometry;
-class SurfaceMesh;
 struct CollisionData;
 
 ///

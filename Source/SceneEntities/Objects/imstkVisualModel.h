@@ -23,11 +23,14 @@
 
 #include <memory>
 
+#include "imstkSerialize.h"
+#include "imstkRenderMaterial.h"
+
 namespace imstk
 {
 class Geometry;
-class RenderMaterial;
 class DebugRenderGeometry;
+
 ///
 /// \class VisualModel
 ///
@@ -39,7 +42,7 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit VisualModel(std::shared_ptr<Geometry> geometry);
+    explicit VisualModel(std::shared_ptr<Geometry> geometry  = nullptr);
     explicit VisualModel(std::shared_ptr<Geometry>       geometry,
                          std::shared_ptr<RenderMaterial> renderMaterial);
     explicit VisualModel(std::shared_ptr<DebugRenderGeometry> geometry);

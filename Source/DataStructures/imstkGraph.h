@@ -21,8 +21,13 @@
 
 #pragma once
 
+#include "imstkMath.h"
+#include "imstkSerialize.h"
+
 #include <unordered_set>
 #include <vector>
+#include <iostream>
+#include <algorithm>
 
 namespace imstk
 {
@@ -73,6 +78,18 @@ public:
     graphColorsType doColoring(ColoringMethod method = ColoringMethod::WelshPowell,
                                bool           print = false) const;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(adjList),
+            iMSTK_SERIALIZE(ColoringMethod)
+        );
+    }
+#endif
 protected:
     ///
     /// \brief Colorize using greedy algorithm and print the assignment of colors

@@ -62,7 +62,8 @@ public:
         RenderParticles,
         ImageData,
         SignedDistanceField,
-        CompositeImplicitGeometry
+        CompositeImplicitGeometry,
+        Undefined
     };
 
     ///
@@ -90,7 +91,7 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit Geometry(const Geometry::Type type, const std::string& name = std::string(""));
+    explicit Geometry(const Geometry::Type type = Type::Undefined, const std::string& name = std::string(""));
 
     ///
     /// \brief Destructor
@@ -203,14 +204,6 @@ public:
             iMSTK_SERIALIZE(transform),
             iMSTK_SERIALIZE(scaling)
         );
-    }
-
-    template <class Archive>
-    static void load_and_construct(Archive& archive, cereal::construct<Geometry>& construct)
-    {
-        Type t;
-        archive(iMSTK_SERIALIZE(type));
-        construct(t);
     }
 #endif
 

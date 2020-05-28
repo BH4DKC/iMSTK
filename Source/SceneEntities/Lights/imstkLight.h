@@ -318,8 +318,8 @@ public:
     ///
     template<class Archive> void serialize(Archive & archive)
     {
-      archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
-        iMSTK_SERIALIZE(spotAngle)
+      archive(iMSTK_SERIALIZE_SUPERCLASS(PointLight),
+              iMSTK_SERIALIZE(spotAngle)
       );
     }
 #endif
@@ -328,3 +328,9 @@ protected:
     float m_spotAngle = 45.;
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::DirectionalLight);
+iMSTK_REGISTER_SERIALIZATION(imstk::PointLight);
+iMSTK_REGISTER_SERIALIZATION(imstk::SpotLight);
+#endif

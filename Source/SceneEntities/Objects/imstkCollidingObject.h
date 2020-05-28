@@ -89,8 +89,9 @@ public:
     template<class Archive> void serialize(Archive & archive)
     {
         archive(
+            iMSTK_SERIALIZE_SUPERCLASS(SceneObject),
             iMSTK_SERIALIZE(collidingGeometry),
-            iMSTK_SERIALIZE(collidintToVisualMap),
+            iMSTK_SERIALIZE(collidingToVisualMap),
             iMSTK_SERIALIZE(force)
         );
     }

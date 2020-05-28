@@ -21,6 +21,8 @@
 
 #pragma once
 
+// imstk
+#include "imstkSerialize.h"
 #include "imstkCollisionHandling.h"
 
 #include <vector>
@@ -80,6 +82,20 @@ public:
     {
         return *m_DynamicLinearProjConstraints;
     }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetection),
+            iMSTK_SERIALIZE(object),
+            iMSTK_SERIALIZE(DynamicLinearProjConstraints)
+        );
+    }
+#endif
 
 private:
 

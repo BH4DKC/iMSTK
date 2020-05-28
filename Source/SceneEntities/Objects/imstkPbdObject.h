@@ -23,11 +23,12 @@
 
 #include "imstkDynamicObject.h"
 #include "imstkSerialize.h"
+#include "imstkGeometryMap.h"
+#include "imstkPbdModel.h"
 
 namespace imstk
 {
-class PbdModel;
-
+class Geometry;
 ///
 /// \class PbdObject
 ///
@@ -37,7 +38,10 @@ class PbdModel;
 class PbdObject : public DynamicObject
 {
 public:
-    explicit PbdObject(const std::string& name) : DynamicObject(name)
+    ///
+    /// \brief Constructor
+    ///
+    PbdObject(const std::string& name = "") : DynamicObject(name)
     {
         m_type = SceneObject::Type::Pbd;
     }
@@ -65,7 +69,7 @@ public:
     {
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicObject),
-            iMSTK_SERIALIZE(pdbModel)
+            iMSTK_SERIALIZE(pbdModel)
         );
     }
 #endif

@@ -24,6 +24,7 @@
 #include "imstkLogger.h"
 #include "imstkMath.h"
 #include "imstkParallelUtils.h"
+#include "imstkSerialize.h"
 
 #include <array>
 
@@ -95,6 +96,19 @@ public:
     ///
     void clear() { m_Data.resize(0); }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(Data)
+            // Don't serialize the SpinLock
+        );
+    }
+#endif
+
 private:
     std::vector<DataElement> m_Data;
     ParallelUtils::SpinLock  m_Lock;
@@ -112,6 +126,16 @@ struct PositionDirectionCollisionDataElement
     Vec3d dirAtoB;
     uint32_t nodeIdx;
     double penetrationDepth;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(posA, posB, dirAtoB, penetrationDepth);
+    }
+#endif
 };
 class PositionDirectionCollisionData : public CollisionDataBase<PositionDirectionCollisionDataElement>
 {
@@ -126,6 +150,16 @@ struct MeshToAnalyticalCollisionDataElement
 {
     uint32_t nodeIdx;
     Vec3d penetrationVector;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(nodeIdx, penetrationVector);
+    }
+#endif
 };
 class MeshToAnalyticalCollisionData : public CollisionDataBase<MeshToAnalyticalCollisionDataElement>
 {
@@ -141,6 +175,16 @@ struct VertexTriangleCollisionDataElement
     uint32_t vertexIdx;
     uint32_t triIdx;
     double closestDistance;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(vertexIdx, triIdx, closestDistance);
+    }
+#endif
 };
 class VertexTriangleCollisionData : public CollisionDataBase<VertexTriangleCollisionDataElement>
 {
@@ -156,6 +200,16 @@ struct TriangleVertexCollisionDataElement
     uint32_t triIdx;
     uint32_t vertexIdx;
     double closestDistance;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(triIdx, vertexIdx, closestDistance);
+    }
+#endif
 };
 class TriangleVertexCollisionData : public CollisionDataBase<TriangleVertexCollisionDataElement>
 {
@@ -171,6 +225,16 @@ struct EdgeEdgeCollisionDataElement
     std::pair<uint32_t, uint32_t> edgeIdA;
     std::pair<uint32_t, uint32_t> edgeIdB;
     float time;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(edgeIdA, edgeIdB, time);
+    }
+#endif
 };
 class EdgeEdgeCollisionData : public CollisionDataBase<EdgeEdgeCollisionDataElement>
 {
@@ -195,6 +259,16 @@ struct PointTetrahedronCollisionDataElement
     uint32_t tetreahedronIdx;
     using WeightsArray = std::array<double, 4>;
     WeightsArray BarycentricCoordinates;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(vertexIdx, tetreahedronIdx, BarycentricCoordinates);
+    }
+#endif
 };
 class PointTetrahedronCollisionData : public CollisionDataBase<PointTetrahedronCollisionDataElement>
 {
@@ -209,6 +283,16 @@ struct PickingCollisionDataElement
     Vec3d ptPos;
     uint32_t nodeIdx;
     bool touchStatus;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(ptPos, nodeIdx, touchStatus);
+    }
+#endif
 };
 class PickingCollisionData : public CollisionDataBase<PickingCollisionDataElement>
 {
@@ -231,6 +315,24 @@ struct CollisionData
         PTColData.clear();
         NodePickData.clear();
     }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            PDColData,
+            VTColData,
+            TVColData,
+            EEColData,
+            MAColData,
+            PTColData,
+            NodePickData
+        );
+    }
+#endif
 
     PositionDirectionCollisionData PDColData;           ///< Position Direction collision data
     VertexTriangleCollisionData VTColData;              ///< Vertex Triangle collision data

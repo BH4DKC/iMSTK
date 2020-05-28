@@ -96,6 +96,28 @@ public:
     const Vec3d& getForce() const;
     void setForce(Vec3d force);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(deviceName),
+            iMSTK_SERIALIZE(ip),
+            iMSTK_SERIALIZE(trackingEnabled),
+            iMSTK_SERIALIZE(analogicEnabled),
+            iMSTK_SERIALIZE(buttonsEnabled),
+            iMSTK_SERIALIZE(forceEnabled),
+            iMSTK_SERIALIZE(position),
+            iMSTK_SERIALIZE(velocity),
+            iMSTK_SERIALIZE(orientation),
+            iMSTK_SERIALIZE(buttons),
+            iMSTK_SERIALIZE(force)
+        );
+    }
+#endif
+
 protected:
 
     ///

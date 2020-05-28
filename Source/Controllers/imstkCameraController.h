@@ -63,6 +63,22 @@ public:
     const Quatd& getCameraRotationOffset() const;
     void setCameraRotationOffset(const Quatd& r);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(Module),
+            iMSTK_SERIALIZE_SUPERCLASS(DeviceTracker),
+            iMSTK_SERIALIZE(camera),
+            iMSTK_SERIALIZE(cameraTranslationOffset),
+            iMSTK_SERIALIZE(cameraRotationalOffset)
+        );
+    }
+#endif
+
 protected:
     ///
     /// \brief TODO

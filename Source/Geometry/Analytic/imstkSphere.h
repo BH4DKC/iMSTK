@@ -21,8 +21,10 @@
 
 #pragma once
 
+// imstk
 #include "imstkAnalyticalGeometry.h"
 #include "imstkSerialize.h"
+#include "imstkAnalyticalGeometry.h"
 
 namespace imstk
 {
@@ -105,5 +107,5 @@ protected:
 } // imstk
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
-    CEREAL_REGISTER_TYPE(imstk::Sphere)
+iMSTK_REGISTER_SERIALIZATION(imstk::Sphere)
 #endif

@@ -35,6 +35,11 @@ class AnalyticalGeometry : public ImplicitGeometry
 {
 public:
     ///
+    /// \brief Constructor
+    ///
+    AnalyticalGeometry(Type type = Type::Undefined, const std::string& name = "");
+
+    ///
     /// \brief Print
     ///
     virtual void print() const override;
@@ -98,3 +103,7 @@ protected:
     mutable Vec3d m_orientationAxisPostTransform; ///> orientation once transform applied
 };
 } //imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::AnalyticalGeometry)
+#endif

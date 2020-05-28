@@ -251,6 +251,23 @@ public:
         return getCellLinearizedIndex<IndexType>(cellIdx[0], cellIdx[1], cellIdx[2]);
     }
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(LowerCorner),
+            iMSTK_SERIALIZE(UpperCorner),
+            iMSTK_SERIALIZE(CellSize),
+            iMSTK_SERIALIZE(InvCellSize),
+            iMSTK_SERIALIZE(NTotalCells),
+            iMSTK_SERIALIZE(CellData)
+            );
+    }
+#endif
+
 private:
     Vec3r m_LowerCorner;                      ///> Lower corner of the grid
     Vec3r m_UpperCorner;                      ///> Upper corner of the grid

@@ -21,6 +21,8 @@
 
 #pragma once
 
+// imstk
+#include "imstkSerialize.h"
 #include "imstkCollisionHandling.h"
 
 namespace imstk
@@ -80,6 +82,22 @@ public:
     {
         m_damping = damping;
     }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionDetection),
+            iMSTK_SERIALIZE(object),
+            iMSTK_SERIALIZE(stiffness),
+            iMSTK_SERIALIZE(damping)
+        );
+    }
+#endif
+
 
 private:
     std::shared_ptr<CollidingObject> m_object = nullptr; ///>

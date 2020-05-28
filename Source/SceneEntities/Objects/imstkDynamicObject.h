@@ -110,10 +110,10 @@ public:
     {
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(CollidingObject),
-            iMSTK_SERIALIZE(dynamicModel),
+            iMSTK_SERIALIZE(dynamicalModel),
             iMSTK_SERIALIZE(physicsGeometry),
-            iMSTK_SERIALIZE(physicsToCollidingGeoMap),
-            iMSTK_SERIALIZE(physicsToVisualGeoMap)
+            iMSTK_SERIALIZE(physicsToCollidingGeomMap),
+            iMSTK_SERIALIZE(physicsToVisualGeomMap),
             iMSTK_SERIALIZE(updateVisualFromPhysicsGeometry)
         );
     }

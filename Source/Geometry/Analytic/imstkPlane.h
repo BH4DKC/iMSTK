@@ -113,5 +113,5 @@ protected:
 } // imstk
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
-CEREAL_REGISTER_TYPE(imstk::Plane)
+iMSTK_REGISTER_SERIALIZATION(imstk::Plane)
 #endif

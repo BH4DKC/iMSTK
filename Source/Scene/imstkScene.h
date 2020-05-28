@@ -28,6 +28,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "imstkSerialize.h"
+#include "imstkIBLProbe.h"
+#include "imstkSolverBase.h"
+#include "imstkSceneObjectControllerBase.h"
+#include "imstkCameraController.h"
+
 namespace imstk
 {
 class Camera;
@@ -72,6 +78,24 @@ struct SceneConfig
 
     // If on, non functional nodes and redundant edges will be removed from final graph
     bool graphReductionEnabled = true;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+        ///
+        /// \brief Serialization
+        ///
+        template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            lazyInitialization,
+            timeStepping,
+            trackFPS,
+            taskParallelizationEnabled,
+            taskTimingEnabled,
+            writeTaskGraph,
+            graphReductionEnabled
+        );
+    }
+#endif
 };
 
 ///
@@ -88,7 +112,11 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit Scene(const std::string& name, std::shared_ptr<SceneConfig> config = std::make_shared<SceneConfig>());
+    Scene(const std::string& name = "", std::shared_ptr<SceneConfig> config = std::make_shared<SceneConfig>()) :
+        m_name(name),
+        m_camera(std::make_shared<Camera>()),
+        m_collisionGraph(std::make_shared<CollisionGraph>()),
+        m_config(config) {}
 
     ///
     /// \brief Destructor
@@ -274,6 +302,34 @@ public:
     ///
     std::shared_ptr<const SceneConfig> getConfig() const { return m_config; };
     const std::shared_ptr<SceneConfig> getConfig() { return m_config; };
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(config),
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(sceneObjectsMap),
+            iMSTK_SERIALIZE(DebugRenderGeometryMap),
+            iMSTK_SERIALIZE(lightsMap),
+            iMSTK_SERIALIZE(globalIBLProbe),
+            iMSTK_SERIALIZE(camera),
+            iMSTK_SERIALIZE(collisionGraph),
+            iMSTK_SERIALIZE(objectControllers),
+            iMSTK_SERIALIZE(cameraControllers),
+            iMSTK_SERIALIZE(threadMap),
+            iMSTK_SERIALIZE(computeTimesLock),
+            iMSTK_SERIALIZE(nodeComputeTimes),
+            iMSTK_SERIALIZE(fps),
+            iMSTK_SERIALIZE(elapsedTime),
+            iMSTK_SERIALIZE(isInitialized),
+            iMSTK_SERIALIZE(resetRequested)
+        );
+    }
+#endif
 
 protected:
     std::shared_ptr<SceneConfig> m_config;

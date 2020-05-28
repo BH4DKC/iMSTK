@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -78,6 +79,21 @@ public:
     /// \param setB The point set where neighbor indices will be collected
     ///
     void getNeighbors(std::vector<std::vector<size_t>>& result, const StdVectorOfVec3r& setA, const StdVectorOfVec3r& setB);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(Method),
+            iMSTK_SERIALIZE(SearchRadius),
+            iMSTK_SERIALIZE(GridBasedSearcher),
+            iMSTK_SERIALIZE(SpatialHashSearcher)
+            );
+    }
+#endif
 
 private:
     Method m_Method;

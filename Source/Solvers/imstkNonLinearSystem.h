@@ -22,6 +22,7 @@
 #pragma once
 
 #include "imstkMath.h"
+#include "imstkSerialize.h"
 
 namespace imstk
 {
@@ -127,6 +128,20 @@ public:
     {
         return *m_DynamicLinearProjConstraints;
     }*/
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(F),
+            iMSTK_SERIALIZE(dF),
+            iMSTK_SERIALIZE(FUpdate)
+        );
+    }
+#endif
 
 public:
     VectorFunctionType m_F;  ///> Nonlinear function

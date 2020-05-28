@@ -21,6 +21,11 @@
 
 #pragma once
 
+
+// imstk
+#include "imstkSerialize.h"
+#include "imstkCollidingObject.h"
+
 #include <memory>
 
 namespace imstk
@@ -82,6 +87,21 @@ public:
     const Side& getSide() const { return m_side; }
 
     std::shared_ptr<TaskNode> getTaskNode() const { return m_taskNode; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(side),
+            iMSTK_SERIALIZE(colData),
+            iMSTK_SERIALIZE(taskNode)
+        );
+    }
+#endif
 
 protected:
     Type m_type;                                              ///< Collision handling algorithm type

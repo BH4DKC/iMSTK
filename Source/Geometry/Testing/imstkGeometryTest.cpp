@@ -128,16 +128,18 @@ TEST_F(imstkGeometryTest, Serialization)
     m_geometry.setRotation(q1);
     m_geometry.setScaling(2);
 
+    std::shared_ptr<Geometry> geom = std::make_shared<Plane>(m_geometry);
+
     // Serialize
     {
         std::ofstream os(getTempFolder() + "/imstkGeometry.cereal", std::ios::binary);
         cereal::JSONOutputArchive archive(os);
 
-        archive(m_geometry);
+        archive(geom);
     }
 
     // Deserialize
-    auto newGeometry = Plane();
+    auto newGeometry = std::shared_ptr<Geometry>();
     {
         std::ifstream is(getTempFolder() + "/imstkGeometry.cereal", std::ios::binary);
         cereal::JSONInputArchive dearchive(is);
@@ -145,11 +147,11 @@ TEST_F(imstkGeometryTest, Serialization)
         dearchive(newGeometry);
     }
 
-    EXPECT_EQ(m_geometry.getTranslation(), newGeometry.getTranslation());
-    EXPECT_EQ(m_geometry.getRotation(), newGeometry.getRotation());
-    EXPECT_EQ(m_geometry.getScaling(), newGeometry.getScaling());
-    EXPECT_EQ(m_geometry.getTotalNumberGeometries(), newGeometry.getTotalNumberGeometries());
-    EXPECT_EQ(m_geometry.getGlobalIndex(), newGeometry.getGlobalIndex());
+    EXPECT_EQ(geom->getTranslation(), newGeometry->getTranslation());
+    EXPECT_EQ(geom->getRotation(), newGeometry->getRotation());
+    EXPECT_EQ(geom->getScaling(), newGeometry->getScaling());
+    EXPECT_EQ(geom->getTotalNumberGeometries(), newGeometry->getTotalNumberGeometries());
+    EXPECT_EQ(geom->getGlobalIndex(), newGeometry->getGlobalIndex());
 }
 #endif
 

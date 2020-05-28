@@ -21,6 +21,8 @@
 
 #pragma once
 
+// imstk
+#include "imstkSerialize.h"
 #include "imstkCollisionHandling.h"
 #include "imstkMath.h"
 
@@ -81,6 +83,31 @@ public:
     /// \brief Set damping coefficient
     ///
     void setDamping(const double d) { m_damping = d; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(CollisionHandling),
+            iMSTK_SERIALIZE(bone),
+            iMSTK_SERIALIZE(drill),
+            iMSTK_SERIALIZE(stiffness),
+            iMSTK_SERIALIZE(damping),
+            iMSTK_SERIALIZE(angularSpeed),
+            iMSTK_SERIALIZE(BoneHardness),
+            iMSTK_SERIALIZE(nodalDensity),
+            iMSTK_SERIALIZE(initialBoneDensity),
+            iMSTK_SERIALIZE(nodeRemovalStatus),
+            iMSTK_SERIALIZE(nodalCardinalSet),
+            iMSTK_SERIALIZE(nodeRemovalStatus),
+            iMSTK_SERIALIZE(initialStep),
+            iMSTK_SERIALIZE(prevPos),
+        );
+    }
+#endif
 
 private:
     std::shared_ptr<CollidingObject> m_bone;    ///> bone object

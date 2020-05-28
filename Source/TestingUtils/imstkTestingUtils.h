@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
+#include "imstkCollisionHandling.h"
+
 #include "gmock/gmock.h"
 
 namespace imstk {

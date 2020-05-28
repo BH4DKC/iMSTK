@@ -26,13 +26,11 @@
 #include "imstkPbdCollisionConstraint.h"
 #include "imstkPbdFEMConstraint.h"
 #include "imstkPbdState.h"
+#include "imstkPointSet.h"
 #include "imstkSerialize.h"
 
 namespace imstk
 {
-class PointSet;
-class PbdSolver;
-
 ///
 /// \struct PBDModelConfig
 /// \brief Parameters for PBD simulation
@@ -97,7 +95,7 @@ struct PBDModelConfig
             iMSTK_SERIALIZE(uniformMassValue),
             iMSTK_SERIALIZE(viscousDampingCoeff),
             iMSTK_SERIALIZE(contactStiffness),
-            iMSTK_SERIALIZE(proximity)
+            iMSTK_SERIALIZE(proximity),
             iMSTK_SERIALIZE(maxIter),
             iMSTK_SERIALIZE(dt),
             iMSTK_SERIALIZE(DefaultDt),
@@ -294,11 +292,11 @@ public:
     template<class Archive> void serialize(Archive & archive)
     {
         archive(
-            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<PdbState>)
+            iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<PbdState>),
             iMSTK_SERIALIZE(partitionThreshold),
             iMSTK_SERIALIZE(mesh),
             iMSTK_SERIALIZE(mass),
-            iMSTK_SERIALIZE(invMass)
+            iMSTK_SERIALIZE(invMass),
             iMSTK_SERIALIZE(constraints),
             iMSTK_SERIALIZE(partitionedConstraints),
             iMSTK_SERIALIZE(Parameters)

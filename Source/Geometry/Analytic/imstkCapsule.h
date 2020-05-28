@@ -103,5 +103,5 @@ protected:
 } // imstk
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
-CEREAL_REGISTER_TYPE(imstk::Capsule)
+iMSTK_REGISTER_SERIALIZATION(imstk::Capsule)
 #endif

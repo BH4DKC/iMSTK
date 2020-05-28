@@ -107,6 +107,20 @@ public:
     ///
     Type getType() { return m_type; };
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(type),
+            iMSTK_SERIALIZE(tolerance),
+            iMSTK_SERIALIZE(linearSystem)
+        );
+    }
+#endif
+
 protected:
     Type   m_type      = Type::None;                    ///> Type of the scene object
     double m_tolerance = 1.0e-4;                        ///> default tolerance

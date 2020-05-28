@@ -20,6 +20,9 @@
 =========================================================================*/
 
 #pragma once
+
+#include "imstkSerialize.h"
+
 #include <chrono>
 #include <ctime>
 #include <memory>
@@ -105,6 +108,21 @@ public:
     /// \brief Print the elapsed time
     ///
     void printTimeElapsed(std::string const& name = std::string("noName"), const TimeUnitType unitType = TimeUnitType::milliSeconds);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            state,
+            lapTimes,
+            lapNames
+        );
+    }
+    #endif
+
 private:
     TimerState state;
     std::vector<double>      lapTimes;
@@ -141,6 +159,19 @@ public:
     /// CPU time used by certain calls in a multi-threaded application.
     ///
     double getTimeElapsed(const TimeUnitType unitType = TimeUnitType::milliSeconds) override;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(StopWatch),
+            cpuTimeKeeper
+        );
+    }
+#endif
 
 private:
     std::clock_t cpuTimeKeeper; ///> time keeper for cpu time
@@ -183,6 +214,21 @@ public:
     /// \brief Get the updates per second
     ///
     unsigned int getUPS() const { return m_ups; }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(timer),
+            iMSTK_SERIALIZE(accumulatedTimer),
+            iMSTK_SERIALIZE(ups),
+            iMSTK_SERIALIZE(updateCount)
+        );
+    }
+#endif
 
 protected:
 

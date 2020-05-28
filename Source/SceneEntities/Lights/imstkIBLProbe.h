@@ -67,11 +67,11 @@ public:
     ///
     template<class Archive> void serialize(Archive & archive)
     {
-      archive(
-        iMSTK_SERIALIZE(irradianceCubemapTexture),
-        iMSTK_SERIALIZE(radianceCubemapTexture),
-        iMSTK_SERIALIZE(brdfLUTTexture)
-      );
+        archive(
+            iMSTK_SERIALIZE(irradianceCubemapPath),
+            iMSTK_SERIALIZE(radianceCubemapPath),
+            iMSTK_SERIALIZE(brdfLUTPath)
+        );
     }
 
     template <class Archive>

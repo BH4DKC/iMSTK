@@ -25,6 +25,14 @@
 #include <unordered_map>
 #include <vector>
 
+// imstk
+#include "imstkCollidingObject.h"
+#include "imstkInteractionPair.h"
+#include "imstkCollisionDetection.h"
+#include "imstkCollisionHandling.h"
+#include "imstkPbdInteractionPair.h"
+#include "imstkSerialize.h"
+
 namespace imstk
 {
 class SceneObject;
@@ -77,6 +85,20 @@ public:
     /// \brief Returns a map of all interaction pairs per object
     ///
     const std::unordered_map<SceneObjectPtr, std::vector<ObjectInteractionPtr>>& getInteractionPairMap() const;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(interactionPbdPairList),
+            iMSTK_SERIALIZE(interactionPairList),
+            iMSTK_SERIALIZE(interactionPairMap)
+        );
+    }
+#endif
 
 protected:
     std::vector<ObjectInteractionPtr> m_interactionPairs;                                       ///< All interaction pairs in the collision graph
