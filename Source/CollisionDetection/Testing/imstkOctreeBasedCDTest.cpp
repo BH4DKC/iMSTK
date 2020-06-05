@@ -174,8 +174,6 @@ generateMesh()
     return mesh;
 }
 
-namespace imstk
-{
 class OctreeBasedCDTest : public ::testing::Test
 {
 public:
@@ -482,7 +480,6 @@ public:
 protected:
     std::shared_ptr<OctreeBasedCD> m_OctreeCD;
 };
-} // end namespace imstk
 
 ///
 /// \brief Test collision detection between pointset and surface mesh

@@ -41,9 +41,9 @@ OctreeNode::OctreeNode(LooseOctree* const tree, OctreeNode* const pParent, const
     m_bIsLeaf(true)
 {
     // Must initialize primitive linked lists and counters
-    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
     {
-        clearPrimitiveData(static_cast<OctreePrimitiveType>(type));
+        clearPrimitiveData(static_cast<OctreePrimitive::Type>(type));
     }
 }
 
@@ -57,7 +57,7 @@ OctreeNode::getChildNode(const uint32_t childIdx) const
 }
 
 void
-OctreeNode::clearPrimitiveData(const OctreePrimitiveType type)
+OctreeNode::clearPrimitiveData(const OctreePrimitive::Type type)
 {
     m_pPrimitiveListHeads[type] = nullptr;
     m_PrimitiveCounts[type]     = 0;
@@ -160,7 +160,7 @@ OctreeNode::removeEmptyDescendants()
         pChildNode.removeEmptyDescendants();
         bAllLeaves &= pChildNode.isLeaf();
 
-        for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+        for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
         {
             bAllEmpty &= (pChildNode.m_PrimitiveCounts[i] == 0);
         }
@@ -175,7 +175,7 @@ OctreeNode::removeEmptyDescendants()
 }
 
 void
-OctreeNode::keepPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type)
+OctreeNode::keepPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type)
 {
     pPrimitive->m_pNode  = this;
     pPrimitive->m_bValid = true;
@@ -191,7 +191,7 @@ void
 OctreeNode::insertPoint(OctreePrimitive* const pPrimitive)
 {
     // Type alias, to reduce copy/past errors
-    static const auto type = OctreePrimitiveType::Point;
+    static const auto type = OctreePrimitive::Type::Point;
 
     if (m_Depth == m_MaxDepth)
     {
@@ -216,7 +216,7 @@ OctreeNode::insertPoint(OctreePrimitive* const pPrimitive)
 }
 
 void
-OctreeNode::insertNonPointPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type)
+OctreeNode::insertNonPointPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type)
 {
     const auto  lowerCorner = pPrimitive->m_LowerCorner;
     const auto  upperCorner = pPrimitive->m_UpperCorner;
@@ -332,9 +332,9 @@ OctreeNode::updateDebugGeometry()
     //--------------------------------------------------------
 
     // No primitive in this node
-    if (m_PrimitiveCounts[OctreePrimitiveType::Point] == 0
-        && m_PrimitiveCounts[OctreePrimitiveType::Triangle] == 0
-        && m_PrimitiveCounts[OctreePrimitiveType::AnalyticalGeometry] == 0)
+    if (m_PrimitiveCounts[OctreePrimitive::Type::Point] == 0
+        && m_PrimitiveCounts[OctreePrimitive::Type::Triangle] == 0
+        && m_PrimitiveCounts[OctreePrimitive::Type::AnalyticalGeometry] == 0)
     {
         if (!m_pTree->m_bDrawNonEmptyParent)
         {
@@ -403,9 +403,9 @@ LooseOctree::clear()
     // Return all tree nodes to memory pool except the root node
     m_pRootNode->removeAllDescendants();
 
-    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
     {
-        clearPrimitive(static_cast<OctreePrimitiveType>(type));
+        clearPrimitive(static_cast<OctreePrimitive::Type>(type));
     }
     // Remove all geometry pointers
     m_sGeometryIndices.clear();
@@ -415,7 +415,7 @@ LooseOctree::clear()
 }
 
 void
-LooseOctree::clearPrimitive(const OctreePrimitiveType type)
+LooseOctree::clearPrimitive(const OctreePrimitive::Type type)
 {
     // Recursively clear primitive data
     m_pRootNode->clearPrimitiveData(type);
@@ -451,7 +451,7 @@ LooseOctree::getMaxNumPrimitivesInNodes() const
                 for (uint32_t childIdx = 0; childIdx < 8u; ++childIdx)
                 {
                     const auto& pNode = pNodeBlock->m_Nodes[childIdx];
-                    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+                    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
                     {
                         if (prevResult < pNode.m_PrimitiveCounts[type])
                         {
@@ -472,7 +472,7 @@ uint32_t
 LooseOctree::addPointSet(const std::shared_ptr<PointSet>& pointset)
 {
     // Type alias, to reduce copy/past errors
-    static const auto type = static_cast<int>(OctreePrimitiveType::Point);
+    static const auto type = static_cast<int>(OctreePrimitive::Type::Point);
 
     const auto pGeometry = static_cast<Geometry*>(pointset.get());
     const auto geomIdx   = pGeometry->getGlobalIndex();
@@ -499,7 +499,7 @@ uint32_t
 LooseOctree::addTriangleMesh(const std::shared_ptr<SurfaceMesh>& surfMesh)
 {
     // Type alias, to reduce copy/past errors
-    static const auto type = static_cast<int>(OctreePrimitiveType::Triangle);
+    static const auto type = static_cast<int>(OctreePrimitive::Type::Triangle);
 
     const auto pGeometry = static_cast<Geometry*>(surfMesh.get());
     const auto geomIdx   = pGeometry->getGlobalIndex();
@@ -526,7 +526,7 @@ uint32_t
 LooseOctree::addAnalyticalGeometry(const std::shared_ptr<Geometry>& geometry)
 {
     // Type alias, to reduce copy/past errors
-    static const auto type = static_cast<int>(OctreePrimitiveType::AnalyticalGeometry);
+    static const auto type = static_cast<int>(OctreePrimitive::Type::AnalyticalGeometry);
 
     const auto pGeometry = geometry.get();
     const auto geomIdx   = pGeometry->getGlobalIndex();
@@ -570,12 +570,12 @@ LooseOctree::build()
     }
 
     // Compute the minimum bounding box of non-point primitives
-    if (m_vPrimitivePtrs[OctreePrimitiveType::Point].size() == 0
-        && (m_vPrimitivePtrs[OctreePrimitiveType::Triangle].size() > 0
-            || m_vPrimitivePtrs[OctreePrimitiveType::AnalyticalGeometry].size() > 0))
+    if (m_vPrimitivePtrs[OctreePrimitive::Type::Point].size() == 0
+        && (m_vPrimitivePtrs[OctreePrimitive::Type::Triangle].size() > 0
+            || m_vPrimitivePtrs[OctreePrimitive::Type::AnalyticalGeometry].size() > 0))
     {
         Real minWidth = MAX_REAL;
-        for (int type = OctreePrimitiveType::Triangle; type <= OctreePrimitiveType::AnalyticalGeometry; ++type)
+        for (int type = OctreePrimitive::Type::Triangle; type <= OctreePrimitive::Type::AnalyticalGeometry; ++type)
         {
             const auto& vPrimitivePtrs = m_vPrimitivePtrs[type];
             if (vPrimitivePtrs.size() == 0)
@@ -588,7 +588,7 @@ LooseOctree::build()
                     for (auto i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
                     {
                         const auto pPrimitive = vPrimitivePtrs[i];
-                        computePrimitiveBoundingBox(pPrimitive, static_cast<OctreePrimitiveType>(type));
+                        computePrimitiveBoundingBox(pPrimitive, static_cast<OctreePrimitive::Type>(type));
 
                         Vec3r widths;
                         for (uint32_t dim = 0; dim < 3; ++dim)
@@ -657,21 +657,21 @@ LooseOctree::rebuild()
     m_pRootNode->removeAllDescendants();
 
     // Clear root node data
-    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
     {
-        m_pRootNode->clearPrimitiveData(static_cast<OctreePrimitiveType>(type));
+        m_pRootNode->clearPrimitiveData(static_cast<OctreePrimitive::Type>(type));
     }
 
     // Populate all primitives to tree nodes in a top-down manner
     populatePointPrimitives();
-    populateNonPointPrimitives(OctreePrimitiveType::Triangle);
-    populateNonPointPrimitives(OctreePrimitiveType::AnalyticalGeometry);
+    populateNonPointPrimitives(OctreePrimitive::Type::Triangle);
+    populateNonPointPrimitives(OctreePrimitive::Type::AnalyticalGeometry);
 }
 
 void
 LooseOctree::populatePointPrimitives()
 {
-    const auto& vPrimitivePtrs = m_vPrimitivePtrs[OctreePrimitiveType::Point];
+    const auto& vPrimitivePtrs = m_vPrimitivePtrs[OctreePrimitive::Type::Point];
     if (vPrimitivePtrs.size() == 0)
     {
         return;
@@ -687,7 +687,7 @@ LooseOctree::populatePointPrimitives()
 }
 
 void
-LooseOctree::populateNonPointPrimitives(const OctreePrimitiveType type)
+LooseOctree::populateNonPointPrimitives(const OctreePrimitive::Type type)
 {
     const auto& vPrimitivePtrs = m_vPrimitivePtrs[type];
     if (vPrimitivePtrs.size() == 0)
@@ -708,16 +708,16 @@ LooseOctree::incrementalUpdate()
     // For all primitives, update their positions (if point) or bounding box (if non-point)
     // Then, check their validity (valid primitive = it is still loosely contained in the node's bounding box)
     updatePositionAndCheckValidity();
-    updateBoundingBoxAndCheckValidity(OctreePrimitiveType::Triangle);
-    updateBoundingBoxAndCheckValidity(OctreePrimitiveType::AnalyticalGeometry);
+    updateBoundingBoxAndCheckValidity(OctreePrimitive::Type::Triangle);
+    updateBoundingBoxAndCheckValidity(OctreePrimitive::Type::AnalyticalGeometry);
 
     // Remove all invalid primitives from tree nodes
     removeInvalidPrimitivesFromNodes();
 
     // Insert the invalid primitives back to the tree
-    reinsertInvalidPrimitives(OctreePrimitiveType::Point);
-    reinsertInvalidPrimitives(OctreePrimitiveType::Triangle);
-    reinsertInvalidPrimitives(OctreePrimitiveType::AnalyticalGeometry);
+    reinsertInvalidPrimitives(OctreePrimitive::Type::Point);
+    reinsertInvalidPrimitives(OctreePrimitive::Type::Triangle);
+    reinsertInvalidPrimitives(OctreePrimitive::Type::AnalyticalGeometry);
 
     // Recursively remove all empty nodes, returning them to memory pool for recycling
     m_pRootNode->removeEmptyDescendants();
@@ -726,7 +726,7 @@ LooseOctree::incrementalUpdate()
 void
 LooseOctree::updatePositionAndCheckValidity()
 {
-    const auto& vPrimitivePtrs = m_vPrimitivePtrs[OctreePrimitiveType::Point];
+    const auto& vPrimitivePtrs = m_vPrimitivePtrs[OctreePrimitive::Type::Point];
     if (vPrimitivePtrs.size() == 0)
     {
         return;
@@ -762,7 +762,7 @@ LooseOctree::updatePositionAndCheckValidity()
 }
 
 void
-LooseOctree::updateBoundingBoxAndCheckValidity(const OctreePrimitiveType type)
+LooseOctree::updateBoundingBoxAndCheckValidity(const OctreePrimitive::Type type)
 {
     const auto& vPrimitivePtrs = m_vPrimitivePtrs[type];
     if (vPrimitivePtrs.size() == 0)
@@ -858,7 +858,7 @@ LooseOctree::removeInvalidPrimitivesFromNodes()
                 for (uint32_t childIdx = 0; childIdx < 8u; ++childIdx)
                 {
                     auto& pNode = pNodeBlock->m_Nodes[childIdx];
-                    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+                    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
                     {
                         const auto pOldHead = pNode.m_pPrimitiveListHeads[type];
                         if (!pOldHead)
@@ -888,7 +888,7 @@ LooseOctree::removeInvalidPrimitivesFromNodes()
 }
 
 void
-LooseOctree::reinsertInvalidPrimitives(const OctreePrimitiveType type)
+LooseOctree::reinsertInvalidPrimitives(const OctreePrimitive::Type type)
 {
     const auto& vPrimitivePtrs = m_vPrimitivePtrs[type];
     if (vPrimitivePtrs.size() == 0)
@@ -904,22 +904,22 @@ LooseOctree::reinsertInvalidPrimitives(const OctreePrimitiveType type)
             }
 
             const auto pNode = pPrimitive->m_pNode;
-            (type == OctreePrimitiveType::Point) ? pNode->insertPoint(pPrimitive) : pNode->insertNonPointPrimitive(pPrimitive, type);
+            (type == OctreePrimitive::Type::Point) ? pNode->insertPoint(pPrimitive) : pNode->insertNonPointPrimitive(pPrimitive, type);
         });
 }
 
 void
-LooseOctree::computePrimitiveBoundingBox(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type)
+LooseOctree::computePrimitiveBoundingBox(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type)
 {
 #if defined(DEBUG) || defined(_DEBUG) || !defined(NDEBUG)
-    LOG_IF(FATAL, (type == OctreePrimitiveType::Point))
+    LOG_IF(FATAL, (type == OctreePrimitive::Type::Point))
         << "Cannot compute bounding box for point primitive";
 #endif
 
     Vec3r lowerCorner;
     Vec3r upperCorner;
 
-    if (type == OctreePrimitiveType::Triangle)
+    if (type == OctreePrimitive::Type::Triangle)
     {
         const auto surfMesh = static_cast<SurfaceMesh*>(pPrimitive->m_pGeometry);
         const auto face     = surfMesh->getTrianglesVertices()[pPrimitive->m_Idx];

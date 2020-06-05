@@ -116,7 +116,7 @@ private:
     ///
     void checkNonPointWithSubtree(OctreeNode* const pNode, OctreePrimitive* const pPrimitive, const uint32_t geomIdx,
                                   const std::array<Real, 3>& lowerCorner, const std::array<Real, 3>& upperCorner,
-                                  const OctreePrimitiveType type);
+                                  const OctreePrimitive::Type type);
 
     ///
     /// \brief Check for narrow-phase collision between a point primitive with another primitive

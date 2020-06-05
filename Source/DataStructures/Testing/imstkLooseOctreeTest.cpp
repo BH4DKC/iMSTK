@@ -158,15 +158,15 @@ public:
 
         m_PointSet = generatePointSet();
         m_Octree->addPointSet(m_PointSet);
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Point].size(), m_PointSet->getNumVertices());
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Triangle].size(), 0);
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::AnalyticalGeometry].size(), 0);
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Point].size(), m_PointSet->getNumVertices());
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Triangle].size(), 0);
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::AnalyticalGeometry].size(), 0);
 
         m_Mesh = generateMesh();
         m_Octree->addTriangleMesh(m_Mesh);
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Point].size(), m_PointSet->getNumVertices());
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Triangle].size(), m_Mesh->getNumTriangles());
-        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::AnalyticalGeometry].size(), 0);
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Point].size(), m_PointSet->getNumVertices());
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Triangle].size(), m_Mesh->getNumTriangles());
+        EXPECT_EQ(m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::AnalyticalGeometry].size(), 0);
 
         m_Octree->build();
     }
@@ -208,8 +208,8 @@ public:
 
         // Check primitives in nodes
         {
-            unsigned int primitiveCounts[OctreePrimitiveType::NumPrimitiveTypes];
-            for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+            unsigned int primitiveCounts[OctreePrimitive::Type::NumPrimitiveTypes];
+            for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
             {
                 primitiveCounts[i] = 0;
             }
@@ -218,7 +218,7 @@ public:
             {
                 for (unsigned int idx = 0; idx < 8u; ++idx)
                 {
-                    for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+                    for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
                     {
                         primitiveCounts[i] += it->m_Nodes[idx].m_PrimitiveCounts[i];
 
@@ -233,7 +233,7 @@ public:
                 }
             }
 
-            for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+            for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
             {
                 EXPECT_EQ(primitiveCounts[i], m_Octree->m_vPrimitivePtrs[i].size());
             }
@@ -241,7 +241,7 @@ public:
 
         // Check validity of primitives
         {
-            for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+            for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
             {
                 for (const auto& pPrimitive : m_Octree->m_vPrimitivePtrs[i])
                 {
@@ -277,7 +277,7 @@ public:
 
             m_Octree->build();
             EXPECT_EQ(m_Octree->m_MaxDepth, 10);
-            const auto vPrimitives = m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Point];
+            const auto vPrimitives = m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Point];
             EXPECT_EQ(vPrimitives.size(), iter + 1);
 
             const auto pPrimitive = vPrimitives.back();
@@ -306,7 +306,7 @@ public:
                     meshes.push_back(std::move(surfMesh));
 
                     m_Octree->build();
-                    const auto vPrimitives = m_Octree->m_vPrimitivePtrs[OctreePrimitiveType::Triangle];
+                    const auto vPrimitives = m_Octree->m_vPrimitivePtrs[OctreePrimitive::Type::Triangle];
                     EXPECT_EQ(vPrimitives.size(), iter + 1);
                     const auto pPrimitive = vPrimitives.back();
                     const auto pNode      = pPrimitive->m_pNode;

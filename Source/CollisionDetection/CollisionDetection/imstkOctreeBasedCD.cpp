@@ -66,14 +66,14 @@ OctreeBasedCD::addCollisionPair(const std::shared_ptr<Geometry>& geom1, const st
     if (geomType1 == Geometry::Type::PointSet
         || geomType2 == Geometry::Type::PointSet)
     {
-        const uint32_t mask = 1 << static_cast<int>(OctreePrimitiveType::Point);
+        const uint32_t mask = 1 << static_cast<int>(OctreePrimitive::Type::Point);
         m_sCollidingPrimitiveTypes |= mask;
     }
 
     if (geomType1 == Geometry::Type::SurfaceMesh
         || geomType2 == Geometry::Type::SurfaceMesh)
     {
-        const uint32_t mask = 1 << static_cast<int>(OctreePrimitiveType::Triangle);
+        const uint32_t mask = 1 << static_cast<int>(OctreePrimitive::Type::Triangle);
         m_sCollidingPrimitiveTypes |= mask;
     }
 
@@ -82,7 +82,7 @@ OctreeBasedCD::addCollisionPair(const std::shared_ptr<Geometry>& geom1, const st
         || geomType1 != Geometry::Type::SurfaceMesh
         || geomType2 != Geometry::Type::SurfaceMesh)
     {
-        const uint32_t mask = 1 << static_cast<int>(OctreePrimitiveType::AnalyticalGeometry);
+        const uint32_t mask = 1 << static_cast<int>(OctreePrimitive::Type::AnalyticalGeometry);
         m_sCollidingPrimitiveTypes |= mask;
     }
 
@@ -113,7 +113,7 @@ OctreeBasedCD::detectCollision()
     // Clear invalid flags for point-mesh collision pairs
     m_mInvalidPointMeshCollisions.clear();
 
-    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
     {
         const auto& vPrimitivePtrs = m_vPrimitivePtrs[type];
         if (vPrimitivePtrs.size() > 0 && hasCollidingPrimitive(type))
@@ -122,7 +122,7 @@ OctreeBasedCD::detectCollision()
                 [&](const size_t idx)
                 {
                     const auto pPrimitive = vPrimitivePtrs[idx];
-                    if (type == OctreePrimitiveType::Point)
+                    if (type == OctreePrimitive::Type::Point)
                     {
                         checkPointWithSubtree(m_pRootNode, pPrimitive, pPrimitive->m_GeomIdx);
                     }
@@ -135,7 +135,7 @@ OctreeBasedCD::detectCollision()
                             (lowerCorner[1] + upperCorner[1]) * 0.5,
                             (lowerCorner[2] + upperCorner[2]) * 0.5);
                         checkNonPointWithSubtree(m_pRootNode, pPrimitive, pPrimitive->m_GeomIdx,
-                                                 lowerCorner, upperCorner, static_cast<OctreePrimitiveType>(type));
+                                                 lowerCorner, upperCorner, static_cast<OctreePrimitive::Type>(type));
                     }
                 });
         }
@@ -211,10 +211,10 @@ OctreeBasedCD::checkPointWithSubtree(OctreeNode* const pNode, OctreePrimitive* c
         }
     }
 
-    for (int type = 0; type < OctreePrimitiveType::NumPrimitiveTypes; ++type)
+    for (int type = 0; type < OctreePrimitive::Type::NumPrimitiveTypes; ++type)
     {
         // Points do not collide with points
-        if (type == OctreePrimitiveType::Point)
+        if (type == OctreePrimitive::Type::Point)
         {
             continue;
         }
@@ -255,7 +255,7 @@ OctreeBasedCD::checkPointWithSubtree(OctreeNode* const pNode, OctreePrimitive* c
 void
 OctreeBasedCD::checkNonPointWithSubtree(OctreeNode* const pNode, OctreePrimitive* const pPrimitive,
                                         const uint32_t geomIdx, const std::array<Real, 3>& lowerCorner, const std::array<Real, 3>& upperCorner,
-                                        const OctreePrimitiveType type)
+                                        const OctreePrimitive::Type type)
 {
     if (!pNode->looselyOverlaps(lowerCorner, upperCorner))
     {
@@ -271,7 +271,7 @@ OctreeBasedCD::checkNonPointWithSubtree(OctreeNode* const pNode, OctreePrimitive
         }
     }
 
-    for (int i = 0; i < OctreePrimitiveType::NumPrimitiveTypes; ++i)
+    for (int i = 0; i < OctreePrimitive::Type::NumPrimitiveTypes; ++i)
     {
         auto pIter = pNode->m_pPrimitiveListHeads[i];
 #if defined(DEBUG) || defined(_DEBUG) || !defined(NDEBUG)

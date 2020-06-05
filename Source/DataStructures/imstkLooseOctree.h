@@ -38,24 +38,24 @@ class SurfaceMesh;
 class DebugRenderGeometry;
 
 ///
-/// \brief The OctreePrimitiveType enum
-/// Type of primitive stored in the octree
-/// \todo Add line primitive to geometry
-///
-enum OctreePrimitiveType
-{
-    Point = 0,
-    Triangle,
-    AnalyticalGeometry,
-    NumPrimitiveTypes
-};
-
-///
 /// \brief The OctreePrimitive struct
 /// For each octree primitive (point/triangle/analytical geometry), store its relevant data
 ///
 struct OctreePrimitive
 {
+    ///
+    /// \brief The OctreePrimitive Type enum
+    /// Type of primitive stored in the octree
+    /// \todo Add line primitive to geometry
+    ///
+    enum Type
+    {
+        Point = 0,
+        Triangle,
+        AnalyticalGeometry,
+        NumPrimitiveTypes
+    };
+
     OctreePrimitive(const OctreePrimitive&) = delete;
     OctreePrimitive& operator=(const OctreePrimitive&) = delete;
 
@@ -135,12 +135,12 @@ public:
     ///
     /// \brief For the given primitive type, return the head node of the primitive list of that type
     ///
-    OctreePrimitive* getPrimitiveList(const OctreePrimitiveType type) const { return m_pPrimitiveListHeads[type]; }
+    OctreePrimitive* getPrimitiveList(const OctreePrimitive::Type type) const { return m_pPrimitiveListHeads[type]; }
 
     ///
     /// \brief Get the number of primitives of the given type in this node
     ///
-    uint32_t getPrimitiveCount(const OctreePrimitiveType type) const { return m_PrimitiveCounts[type]; }
+    uint32_t getPrimitiveCount(const OctreePrimitive::Type type) const { return m_PrimitiveCounts[type]; }
 
     ///
     /// \brief Get the bounds of the node
@@ -167,7 +167,7 @@ public:
     /// Note that the primitives are still exist in the octree primitive list, they are just removed from the node
     /// \param type The type of primitives that will be clear
     ///
-    void clearPrimitiveData(const OctreePrimitiveType type);
+    void clearPrimitiveData(const OctreePrimitive::Type type);
 
     ///
     /// \brief Split node (requesting 8 children nodes from memory pool)
@@ -188,7 +188,7 @@ public:
     ///
     /// \brief Keep the primitive at this node as cannot pass it down further to any child node
     ///
-    void keepPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type);
+    void keepPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type);
 
     ///
     /// \brief Insert a point primitive into the subtree in a top-down manner
@@ -198,7 +198,7 @@ public:
     ///
     /// \brief Insert a non-point primitive into the subtree in a top-down manner
     ///
-    void insertNonPointPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type);
+    void insertNonPointPrimitive(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type);
 
     ///
     /// \brief Check if the given point is contained exactly in the node boundary (bounding box)
@@ -299,13 +299,13 @@ private:
     bool m_bIsLeaf = true;                  ///> True if this node does not have any child node (a node should have either 0 or 8 children)
 
     /// Heads of the link lists storing (Classified) primitives
-    OctreePrimitive* m_pPrimitiveListHeads[OctreePrimitiveType::NumPrimitiveTypes];
+    OctreePrimitive* m_pPrimitiveListHeads[OctreePrimitive::Type::NumPrimitiveTypes];
 
     /// Count the number of (classified) primitives stored in this node
-    uint32_t m_PrimitiveCounts[OctreePrimitiveType::NumPrimitiveTypes];
+    uint32_t m_PrimitiveCounts[OctreePrimitive::Type::NumPrimitiveTypes];
 
     /// Mutex lock for thread-safe primitive list modification
-    ParallelUtils::SpinLock m_PrimitiveLock[OctreePrimitiveType::NumPrimitiveTypes];
+    ParallelUtils::SpinLock m_PrimitiveLock[OctreePrimitive::Type::NumPrimitiveTypes];
 
     /// Mutex lock for thread-safe splitting node
     ParallelUtils::SpinLock m_NodeSplitingLock;
@@ -358,7 +358,7 @@ public:
     ///
     /// \brief Completely remove all data of the given primitive type in the tree
     ///
-    void clearPrimitive(const OctreePrimitiveType type);
+    void clearPrimitive(const OctreePrimitive::Type type);
 
     ///
     /// \brief Return center of the tree
@@ -398,7 +398,7 @@ public:
     ///
     /// \brief Get the number of primitives of the given type
     ///
-    size_t getPrimitiveCount(const OctreePrimitiveType type) const { return m_vPrimitivePtrs[type].size(); }
+    size_t getPrimitiveCount(const OctreePrimitive::Type type) const { return m_vPrimitivePtrs[type].size(); }
 
     ///
     /// \brief Count the maximum number of primitives stored in a tree node
@@ -484,7 +484,7 @@ protected:
     /// \brief Populate non-point primitive (triangle/analytical geometry) to tree nodes, from top (root node) down to leaf nodes
     /// \param type Type of primitive (must not point, but triangle/analytical geometry)
     ///
-    void populateNonPointPrimitives(const OctreePrimitiveType type);
+    void populateNonPointPrimitives(const OctreePrimitive::Type type);
 
     ///
     /// \brief Incrementally update octree from current state
@@ -501,7 +501,7 @@ protected:
     /// \brief For each non-point primitive, update its bounding box from its parent geometry and check if it is still loosely contained in the tree node
     /// If the primitive is not loosely contained in tree node, set it to invalid state and set m_pNode to the lowest ancestor node that tightly contains it
     ///
-    void updateBoundingBoxAndCheckValidity(const OctreePrimitiveType type);
+    void updateBoundingBoxAndCheckValidity(const OctreePrimitive::Type type);
 
     ///
     /// \brief Remove all invalid primitives from the tree nodes previously contained them
@@ -512,12 +512,12 @@ protected:
     /// \brief For each invalid primitive, insert it back to the tree in a top-down manner
     /// starting from the lowest ancestor node that tightly contains it (that node was found during validity check)
     ///
-    void reinsertInvalidPrimitives(const OctreePrimitiveType type);
+    void reinsertInvalidPrimitives(const OctreePrimitive::Type type);
 
     ///
     /// \brief Compute the AABB bounding box of a non-point primitive
     ///
-    void computePrimitiveBoundingBox(OctreePrimitive* const pPrimitive, const OctreePrimitiveType type);
+    void computePrimitiveBoundingBox(OctreePrimitive* const pPrimitive, const OctreePrimitive::Type type);
 
     ///
     /// \brief Request a block of 8 tree nodes from memory pool (this is called only during splitting node)
@@ -565,11 +565,11 @@ protected:
     std::vector<OctreeNodeBlock*> m_pNodeBigBlocks;
 
     /// Store pointers of primitives created from geometry elements, such as points, triangles, analytical geometries
-    std::vector<OctreePrimitive*> m_vPrimitivePtrs[OctreePrimitiveType::NumPrimitiveTypes];
+    std::vector<OctreePrimitive*> m_vPrimitivePtrs[OctreePrimitive::Type::NumPrimitiveTypes];
 
     /// During memory allocation for primitives, multiple primitives are allocated at the same time from a big memory block
     /// This variable store the first address of such big memory block, used during primitive deallocation
-    std::vector<OctreePrimitive*> m_pPrimitiveBlocks[OctreePrimitiveType::NumPrimitiveTypes];
+    std::vector<OctreePrimitive*> m_pPrimitiveBlocks[OctreePrimitive::Type::NumPrimitiveTypes];
 
     /// List of all indices of the added geometries, to check for duplication such that one geometry cannot be mistakenly added multiple times
     std::unordered_set<uint32_t> m_sGeometryIndices;
