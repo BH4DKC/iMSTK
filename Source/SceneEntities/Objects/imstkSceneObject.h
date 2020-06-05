@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
 #include "imstkSceneEntity.h"
 
 #include <memory>
@@ -59,7 +60,7 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit SceneObject(const std::string& name);
+    SceneObject(const std::string& name = "");
 
     ///
     /// \brief Destructor
@@ -182,3 +183,7 @@ private:
 
 using VisualObject = SceneObject;
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::SceneObject)
+#endif

@@ -55,7 +55,8 @@ public:
         NodalPicking,
         BoneDrilling,
         SPH,
-        PBD
+        PBD,
+        Undefined
     };
 
     ///

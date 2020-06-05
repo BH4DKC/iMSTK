@@ -46,8 +46,22 @@ public:
         Points,
         Lines,
         Triangles,
-        Tetrahedra
+        Tetrahedra,
+        Undefined
     };
+
+    ///
+    /// \brief Constructor
+    ///
+    DebugRenderGeometry(
+        const std::string& name = "",
+        const Type type = Type::Undefined
+    );
+
+    ///
+    /// \brief Destructor
+    ///
+    virtual ~DebugRenderGeometry() = default;
 
     ///
     /// \brief Clear the vertex buffer
@@ -124,21 +138,6 @@ public:
             iMSTK_SERIALIZE(renderMaterial)
         );
     }
-
-    template <class Archive>
-    static void load_and_construct(Archive& archive, cereal::construct<DebugRenderGeometry>& construct)
-    {
-        std::string name;
-        Type type;
-        archive(
-            name,
-            type
-        );
-        construct(
-            name,
-            type
-        );
-    }
 #endif
 
 protected:
@@ -173,7 +172,17 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit DebugRenderPoints(const std::string& name) : DebugRenderGeometry(name, Type::Points) {}
+    explicit DebugRenderPoints(const std::string& name = "") : DebugRenderGeometry(name, Type::Points) {}
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(iMSTK_SERIALIZE_SUPERCLASS(DebugRenderGeometry));
+    }
+#endif
 };
 
 ///
@@ -187,12 +196,22 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit DebugRenderLines(const std::string& name) : DebugRenderGeometry(name, Type::Lines) {}
+    explicit DebugRenderLines(const std::string& name = "") : DebugRenderGeometry(name, Type::Lines) {}
 
     ///
     /// \brief Reserve memory for fast push_back
     ///
     virtual void reserve(const size_t size) override { m_VertexBuffer.reserve(size * 2); }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(iMSTK_SERIALIZE_SUPERCLASS(DebugRenderGeometry));
+    }
+#endif
 };
 
 ///
@@ -206,11 +225,28 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit DebugRenderTriangles(const std::string& name) : DebugRenderGeometry(name, Type::Triangles) {}
+    explicit DebugRenderTriangles(const std::string& name = "") : DebugRenderGeometry(name, Type::Triangles) {}
 
     ///
     /// \brief Reserve memory for fast push_back
     ///
     virtual void reserve(const size_t size) override { m_VertexBuffer.reserve(size * 3); }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(iMSTK_SERIALIZE_SUPERCLASS(DebugRenderGeometry));
+    }
+#endif
 };
 }
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::DebugRenderPoints);
+iMSTK_REGISTER_SERIALIZATION(imstk::DebugRenderLines);
+iMSTK_REGISTER_SERIALIZATION(imstk::DebugRenderTriangles);
+#endif
+

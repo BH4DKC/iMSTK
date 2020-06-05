@@ -39,7 +39,10 @@ public:
     ///
     /// \brief TODO
     ///
-    CameraController(std::shared_ptr<Camera> camera, std::shared_ptr<DeviceClient> deviceClient);
+    CameraController(
+        std::shared_ptr<Camera> camera = nullptr,
+        std::shared_ptr<DeviceClient> deviceClient = nullptr
+    );
 
     ///
     /// \brief

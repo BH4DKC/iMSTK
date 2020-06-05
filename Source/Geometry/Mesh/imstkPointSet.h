@@ -227,3 +227,7 @@ protected:
     size_t m_originalNumVertices = 0;
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::PointSet)
+#endif

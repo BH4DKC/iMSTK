@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "imstkSerialize.h"
 #include "imstkAbstractDynamicalModel.h"
 
 namespace imstk

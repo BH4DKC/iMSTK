@@ -66,6 +66,7 @@ public:
         SphereToCylinder,
         SphereToSphere,
 
+        Undefined,
         Custom
     };
 

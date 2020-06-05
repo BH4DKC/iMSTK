@@ -336,3 +336,8 @@ protected:
     std::shared_ptr<TaskNode> m_updateVelocityNode   = nullptr;
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::DynamicalModel<imstk::PbdState>)
+iMSTK_REGISTER_SERIALIZATION(imstk::PbdModel)
+#endif

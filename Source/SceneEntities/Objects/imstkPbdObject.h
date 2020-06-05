@@ -78,3 +78,7 @@ protected:
     std::shared_ptr<PbdModel> m_pbdModel = nullptr;  ///> PBD mathematical model
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::PbdObject)
+#endif

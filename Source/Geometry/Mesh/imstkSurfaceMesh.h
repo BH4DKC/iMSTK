@@ -21,6 +21,7 @@
 
 #pragma once
 #include "imstkPointSet.h"
+#include "imstkSerialize.h"
 #include <array>
 #include <set>
 
@@ -33,6 +34,19 @@ struct NormalGroup
 {
     Vec3d position;
     Vec3d normal;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            position,
+            normal
+        );
+    }
+#endif
 };
 }
 
@@ -214,6 +228,29 @@ public:
     ///
     void deepCopy(std::shared_ptr<SurfaceMesh> srcMesh);
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE_SUPERCLASS(PointSet),
+            iMSTK_SERIALIZE(trianglesVertices),
+            iMSTK_SERIALIZE(vertexPositions),
+            iMSTK_SERIALIZE(vertexNeighborTriangles),
+            iMSTK_SERIALIZE(vertexNeighborVertices),
+            iMSTK_SERIALIZE(triangleNormals),
+            iMSTK_SERIALIZE(triangleTangents),
+            iMSTK_SERIALIZE(vertexNormals),
+            iMSTK_SERIALIZE(UVSeamVertexGroups),
+            iMSTK_SERIALIZE(defaultTCoords),
+            iMSTK_SERIALIZE(originalNumTriangles),
+            iMSTK_SERIALIZE(maxNumTriangles)
+        );
+    }
+#endif
+
 protected:
     friend class VTKSurfaceMeshRenderDelegate;
 
@@ -239,3 +276,7 @@ protected:
     size_t      m_maxNumTriangles      = 0;
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::SurfaceMesh)
+#endif

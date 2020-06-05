@@ -33,8 +33,8 @@
 #include "imstkSerialize.h"
 
 #include "cereal/archives/json.hpp"
-//#include "cereal/archives/binary.hpp"
 
+#include <fstream>
 #include <iostream>
 
 using namespace imstk;
@@ -42,9 +42,7 @@ using namespace imstk;
 ///
 /// \brief \todo
 ///
-int
-
-main()
+int main()
 {
     auto dynoObject = std::make_shared<DynamicObject>("Dyno");
 
@@ -154,7 +152,14 @@ main()
     // Add in scene
     scene->addLight(whiteLight);
     scene->addLight(colorLight);
-    //scene->addSceneObject(deformableObj);
+    scene->addSceneObject(deformableObj);
+
+    auto debugPoints = std::make_shared<DebugRenderPoints>("Debug Points");
+    auto debugMaterial = std::make_shared<RenderMaterial>();
+    debugMaterial->setDebugColor(Color::Yellow);
+    debugMaterial->setSphereGlyphSize(.01);
+    debugPoints->setRenderMaterial(debugMaterial);
+    scene->addDebugGeometry(debugPoints);
 
     scene->getCamera()->setFocalPoint(0, -5, 5);
     scene->getCamera()->setPosition(-15., -5.0, 15.0);
@@ -169,17 +174,17 @@ main()
     }
 
     // Deserialize
-    //auto newLight = std::make_shared <DirectionalLight>("newLight");
-    //{
-   //     //std::ifstream is("test.out.cereal", std::ios::binary);
-    //    std::ifstream is("out.cereal", std::ios::binary);
-    //    cereal::JSONInputArchive dearchive(is);
+    std::unordered_map<std::string, std::shared_ptr<DirectionalLight> > newMap;
+    auto newScene = simManager->createNewScene("deserialized_PBDCloth");
+    {
+        std::ifstream is("out.cereal", std::ios::binary);
+        cereal::JSONInputArchive dearchive(is);
 
-    //    dearchive(newLight);
-    //}
+        dearchive(newScene);
+    }
 
-    //simManager->setActiveScene(scene);
-    //BsimManager->start(SimulationStatus::Paused);
+    simManager->setActiveScene(newScene);
+    simManager->start(SimulationStatus::Paused);
 
     return 0;
 }

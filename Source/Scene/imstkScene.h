@@ -33,19 +33,13 @@
 #include "imstkSolverBase.h"
 #include "imstkSceneObjectControllerBase.h"
 #include "imstkCameraController.h"
+#include "imstkLight.h"
 
 namespace imstk
 {
 class Camera;
 class CameraController;
 class CollisionGraph;
-class IBLProbe;
-class Light;
-class SceneObject;
-class SceneObjectControllerBase;
-class TaskGraph;
-class TaskGraphController;
-class VisualModel;
 
 namespace ParallelUtils { class SpinLock; }
 

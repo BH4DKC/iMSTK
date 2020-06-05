@@ -37,7 +37,8 @@ enum class LightType
 {
     Directional,
     Point,
-    Spot
+    Spot,
+    Undefined
 };
 
 ///
@@ -49,6 +50,12 @@ class Light : public SceneEntity
 {
 public:
     virtual ~Light() override = default;
+
+    ///
+    /// \brief Constructor
+    ///
+    explicit Light(const std::string& name = "", const LightType& type = LightType::Undefined)
+        : m_name(name), m_type(type), SceneEntity() {};
 
     ///
     /// \brief Returns the type of light (see imstk::LightType)
@@ -135,8 +142,6 @@ public:
 #endif
 
 protected:
-    explicit Light(const std::string& name, const LightType& type) : m_name(name), m_type(type), SceneEntity() {};
-
     // properties with defaults
     float m_intensity   = 1.;
     Color m_color       = Color::White;
@@ -330,6 +335,7 @@ protected:
 } // imstk
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::Light);
 iMSTK_REGISTER_SERIALIZATION(imstk::DirectionalLight);
 iMSTK_REGISTER_SERIALIZATION(imstk::PointLight);
 iMSTK_REGISTER_SERIALIZATION(imstk::SpotLight);

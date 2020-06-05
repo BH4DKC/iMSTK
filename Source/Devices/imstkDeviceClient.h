@@ -35,6 +35,10 @@ namespace imstk
 class DeviceClient
 {
 public:
+    ///
+    /// \brief Constructor
+    ///
+    DeviceClient(const std::string& name = "", const std::string& ip = "");
 
     ///
     /// \brief Destructor
@@ -119,12 +123,6 @@ public:
 #endif
 
 protected:
-
-    ///
-    /// \brief Constructor
-    ///
-    DeviceClient(const std::string& name, const std::string& ip);
-
     std::string m_deviceName;                ///< Device Name
     std::string m_ip;                        ///< Connection device IP
 

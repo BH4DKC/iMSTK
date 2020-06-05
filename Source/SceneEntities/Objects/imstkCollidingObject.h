@@ -24,11 +24,11 @@
 #include "imstkSceneObject.h"
 #include "imstkMath.h"
 #include "imstkSerialize.h"
+#include "imstkGeometryMap.h"
 
 namespace imstk
 {
 class Geometry;
-class GeometryMap;
 
 /// \brief TODO
 class CollidingObject : public SceneObject
@@ -105,3 +105,7 @@ protected:
 
 using StaticObject = CollidingObject;
 }// imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::CollidingObject)
+#endif

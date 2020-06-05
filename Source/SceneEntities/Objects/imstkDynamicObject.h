@@ -23,13 +23,12 @@
 
 #include "imstkCollidingObject.h"
 #include "imstkSerialize.h"
+#include "imstkGeometry.h"
+#include "imstkGeometryMap.h"
+#include "imstkAbstractDynamicalModel.h"
 
 namespace imstk
 {
-class Geometry;
-class GeometryMap;
-class AbstractDynamicalModel;
-
 ///
 /// \class DynamicObject
 ///
@@ -133,3 +132,7 @@ protected:
     bool m_updateVisualFromPhysicsGeometry = true;                      ///> Defines if visual is updated from colliding mapping or physics mapping
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::DynamicObject)
+#endif
