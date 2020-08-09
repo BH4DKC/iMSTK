@@ -28,6 +28,7 @@
 #include "imstkPbdState.h"
 #include "imstkPointSet.h"
 #include "imstkSerialize.h"
+#include "imstkPbdSolver.h"
 
 namespace imstk
 {
@@ -40,7 +41,7 @@ struct PBDModelConfig
     double m_uniformMassValue    = 1.0;  ///> Mass properties
     double m_viscousDampingCoeff = 0.01; ///> Viscous damping coefficient [0, 1]
 
-    std::shared_ptr<PbdCollisionConstraintConfig> collisionParams =
+    std::shared_ptr<PbdCollisionConstraintConfig> m_collisionParams =
         std::make_shared<PbdCollisionConstraintConfig>(PbdCollisionConstraintConfig
         {
             0.1,                             // Proximity
@@ -94,19 +95,14 @@ struct PBDModelConfig
         archive(
             iMSTK_SERIALIZE(uniformMassValue),
             iMSTK_SERIALIZE(viscousDampingCoeff),
-            iMSTK_SERIALIZE(contactStiffness),
-            iMSTK_SERIALIZE(proximity),
-            iMSTK_SERIALIZE(maxIter),
+            iMSTK_SERIALIZE(collisionParams),
+            iMSTK_SERIALIZE(iterations),
+            iMSTK_SERIALIZE(collisionIterations),
             iMSTK_SERIALIZE(dt),
-            iMSTK_SERIALIZE(DefaultDt),
-            iMSTK_SERIALIZE(maxIter),
             iMSTK_SERIALIZE(fixedNodeIds),
             iMSTK_SERIALIZE(gravity),
-            iMSTK_SERIALIZE(mu),
-            iMSTK_SERIALIZE(lambda),
-            iMSTK_SERIALIZE(mu),
-            iMSTK_SERIALIZE(YoungModulus),
-            iMSTK_SERIALIZE(RegularConstraints),
+            iMSTK_SERIALIZE(femParams),
+            iMSTK_SERIALIZE(regularConstraints),
             iMSTK_SERIALIZE(FEMConstraints)
         );
     }
@@ -293,13 +289,19 @@ public:
     {
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<PbdState>),
+            iMSTK_SERIALIZE(partitioned),
             iMSTK_SERIALIZE(partitionThreshold),
+            iMSTK_SERIALIZE(pbdSolver),
             iMSTK_SERIALIZE(mesh),
             iMSTK_SERIALIZE(mass),
             iMSTK_SERIALIZE(invMass),
             iMSTK_SERIALIZE(constraints),
             iMSTK_SERIALIZE(partitionedConstraints),
-            iMSTK_SERIALIZE(Parameters)
+            iMSTK_SERIALIZE(parameters),
+            iMSTK_SERIALIZE(integrationPositionNode),
+            iMSTK_SERIALIZE(updateCollisionGeometryNode),
+            iMSTK_SERIALIZE(solveConstraintsNode),
+            iMSTK_SERIALIZE(updateVelocityNode)
         );
     }
 #endif

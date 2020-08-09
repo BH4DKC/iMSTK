@@ -131,7 +131,7 @@ generateDragon(const std::shared_ptr<imstk::Scene>& scene,
     pbdParams->m_gravity    = Vec3d(0, -1.0, 0);
     pbdParams->m_defaultDt  = 0.01;
     pbdParams->m_iterations = 20;
-    pbdParams->collisionParams->m_proximity = 0.5;
+    pbdParams->m_collisionParams->m_proximity = 0.5;
 
     pbdModel->configure(pbdParams);
     deformableObj->setDynamicalModel(pbdModel);
@@ -180,7 +180,7 @@ main()
     // configure model
     auto pbdParams2 = std::make_shared<PBDModelConfig>();
     pbdParams2->m_uniformMassValue = 0.0;
-    pbdParams2->collisionParams->m_proximity = 0.1;
+    pbdParams2->m_collisionParams->m_proximity = 0.1;
     pbdParams2->m_iterations = 0;
 
     // Set the parameters

@@ -22,7 +22,6 @@
 #pragma once
 
 #include "imstkMath.h"
-#include "imstkRenderMaterial.h"
 #include "imstkSerialize.h"
 
 namespace imstk
@@ -55,8 +54,9 @@ public:
     ///
     DebugRenderGeometry(
         const std::string& name = "",
-        const Type type = Type::Undefined
-    );
+        const Type type = Type::Undefined) :
+        m_name(name),
+        m_type(type) {}
 
     ///
     /// \brief Destructor
@@ -133,9 +133,7 @@ public:
             iMSTK_SERIALIZE(name),
             iMSTK_SERIALIZE(type),
             iMSTK_SERIALIZE(VertexBuffer),
-            iMSTK_SERIALIZE(renderDelegateCreated),
-            iMSTK_SERIALIZE(isModified),
-            iMSTK_SERIALIZE(renderMaterial)
+            iMSTK_SERIALIZE(isModified)
         );
     }
 #endif
@@ -143,16 +141,6 @@ public:
 protected:
     friend class VTKRenderer;
     friend class VTKRenderDelegate;
-
-    ///
-    /// \brief Constructor
-    ///
-    explicit DebugRenderGeometry(const std::string& name,
-                                 const Type         type) :
-        m_name(name),
-        m_type(type) {}
-
-    virtual ~DebugRenderGeometry() = default;
 
     std::string m_name;                   ///> Custom name of the scene object
     Type m_type;                          ///> Debug geometry type

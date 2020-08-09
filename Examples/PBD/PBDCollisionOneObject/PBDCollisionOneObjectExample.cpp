@@ -113,8 +113,8 @@ main()
     pbdParams->m_gravity    = Vec3d(0, -10.0, 0);
     pbdParams->m_defaultDt  = timeStep;
     pbdParams->m_iterations = maxIter;
-    pbdParams->collisionParams->m_proximity = 0.3;
-    pbdParams->collisionParams->m_stiffness = 0.1;
+    pbdParams->m_collisionParams->m_proximity = 0.3;
+    pbdParams->m_collisionParams->m_stiffness = 0.1;
 
     pbdModel->configure(pbdParams);
     deformableObj->setDynamicalModel(pbdModel);
@@ -141,7 +141,7 @@ main()
     auto pbdParams2 = std::make_shared<PBDModelConfig>();
     pbdParams2->m_uniformMassValue = 0.0;
     pbdParams2->m_iterations       = 0;
-    pbdParams2->collisionParams->m_proximity = -0.1;
+    pbdParams2->m_collisionParams->m_proximity = -0.1;
 
     // Set the parameters
     pbdModel2->configure(pbdParams2);

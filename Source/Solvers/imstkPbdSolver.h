@@ -23,6 +23,7 @@
 
 #include "imstkPbdConstraint.h"
 #include "imstkSolverBase.h"
+#include "imstkPbdCollisionConstraint.h"
 
 namespace imstk
 {
@@ -34,10 +35,10 @@ class PbdCollisionConstraint;
 ///
 struct CollisionConstraintData
 {
-    CollisionConstraintData(std::shared_ptr<StdVectorOfVec3d> posA,
-                            std::shared_ptr<StdVectorOfReal>  invMassA,
-                            std::shared_ptr<StdVectorOfVec3d> posB,
-                            std::shared_ptr<StdVectorOfReal>  invMassB) :
+    CollisionConstraintData(std::shared_ptr<StdVectorOfVec3d> posA = nullptr,
+                            std::shared_ptr<StdVectorOfReal>  invMassA = nullptr,
+                            std::shared_ptr<StdVectorOfVec3d> posB = nullptr,
+                            std::shared_ptr<StdVectorOfReal>  invMassB = nullptr) :
         m_posA(posA), m_invMassA(invMassA), m_posB(posB), m_invMassB(invMassB)
     {
     }
@@ -46,6 +47,21 @@ struct CollisionConstraintData
     std::shared_ptr<StdVectorOfReal> m_invMassA = nullptr;
     std::shared_ptr<StdVectorOfVec3d> m_posB    = nullptr;
     std::shared_ptr<StdVectorOfReal> m_invMassB = nullptr;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(posA),
+            iMSTK_SERIALIZE(invMassA),
+            iMSTK_SERIALIZE(posB),
+            iMSTK_SERIALIZE(invMassB)
+        );
+    }
+#endif
 };
 
 ///
@@ -58,13 +74,14 @@ struct CollisionConstraintData
 class PbdSolver : public SolverBase
 {
 public:
+    typedef std::list<std::shared_ptr<std::vector<std::shared_ptr<PbdCollisionConstraint>>>> PbdCollisionList;
+
     ///
     /// \brief Constructors/Destructor
     ///
     PbdSolver();
     virtual ~PbdSolver() override = default;
 
-public:
     ///
     /// \brief Set Iterations. The number of nonlinear iterations.
     ///
@@ -112,6 +129,25 @@ public:
     ///
     void solve() override;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            // No need to serialize SolverBase, it's empty
+            iMSTK_SERIALIZE(iterations),
+            iMSTK_SERIALIZE(dt),
+            iMSTK_SERIALIZE(partitionedConstraints),
+            iMSTK_SERIALIZE(constraints),
+            iMSTK_SERIALIZE(positions),
+            iMSTK_SERIALIZE(invMasses),
+            iMSTK_SERIALIZE(solverType)
+        );
+    }
+#endif
+
 private:
     size_t m_iterations = 20;                                                             ///> Number of NL Gauss-Seidel iterations for regular constraints
     double m_dt;                                                                          ///> time step
@@ -136,7 +172,6 @@ public:
     PbdCollisionSolver();
     virtual ~PbdCollisionSolver() override = default;
 
-public:
     ///
     /// \brief Get CollisionIterations
     ///
@@ -145,7 +180,7 @@ public:
     ///
     /// \brief Add the global collision contraints to this solver
     ///
-    void addCollisionConstraints(std::vector<PbdCollisionConstraint*>* constraints,
+    void addCollisionConstraints(std::shared_ptr<PBDCollisionConstraintVector> constraints,
                                  std::shared_ptr<StdVectorOfVec3d> posA, std::shared_ptr<StdVectorOfReal> invMassA,
                                  std::shared_ptr<StdVectorOfVec3d> posB, std::shared_ptr<StdVectorOfReal> invMassB);
 
@@ -154,10 +189,33 @@ public:
     ///
     void solve() override;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void save(Archive & archive) const
+    {
+        archive(
+            // No need to serialize SolverBase, it's empty
+            iMSTK_SERIALIZE(collisionIterations),
+            iMSTK_SERIALIZE(collisionConstraints),
+            iMSTK_SERIALIZE(collisionConstraintsData)
+        );
+    }
+#endif
+
 private:
     size_t m_collisionIterations = 5;                                                                   ///> Number of NL Gauss-Seidel iterations for collision constraints
 
-    std::shared_ptr<std::list<std::vector<PbdCollisionConstraint*>*>> m_collisionConstraints = nullptr; ///< Collision contraints charged to this solver
+    std::shared_ptr<std::list<std::shared_ptr<PBDCollisionConstraintVector>>> m_collisionConstraints = nullptr;///< Collision contraints charged to this solver
     std::shared_ptr<std::list<CollisionConstraintData>> m_collisionConstraintsData = nullptr;
 };
 } // imstk
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+iMSTK_REGISTER_SERIALIZATION(imstk::PbdCollisionSolver)
+iMSTK_REGISTER_SERIALIZATION(imstk::PbdSolver)
+#endif

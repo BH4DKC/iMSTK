@@ -21,7 +21,6 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "vtksys/SystemTools.hxx"
 
 #include "imstkTestingUtils.h"
 #include "imstkPbdObject.h"

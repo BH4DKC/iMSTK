@@ -31,10 +31,24 @@ namespace imstk
 ///
 struct PbdCollisionConstraintConfig
 {
+    PbdCollisionConstraintConfig() = default;
     PbdCollisionConstraintConfig(double proximity, double stiffness) : m_proximity(proximity), m_stiffness(stiffness) { }
 
     double m_proximity = 0.1; ///> Proximity for static collision
     double m_stiffness = 1.0; ///> Stiffness for collision
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(proximity),
+            iMSTK_SERIALIZE(stiffness)
+        );
+    }
+#endif
 };
 
 ///
@@ -54,7 +68,7 @@ public:
     ///
     /// \brief
     ///
-    PbdCollisionConstraint(const unsigned int& nA, const unsigned int& nB);
+    PbdCollisionConstraint(const unsigned int& nA = 0, const unsigned int& nB = 0);
 
     ///
     /// \brief Destructor
@@ -91,6 +105,22 @@ public:
                                    const StdVectorOfReal& invMassB,
                                    StdVectorOfVec3d&      posA,
                                    StdVectorOfVec3d&      posB);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(bodiesFirst),
+            iMSTK_SERIALIZE(bodiesSecond),
+            iMSTK_SERIALIZE(configA),
+            iMSTK_SERIALIZE(configB)
+        );
+    }
+#endif
+
 protected:
     std::vector<size_t> m_bodiesFirst;                                 ///> index of points for the first object
     std::vector<size_t> m_bodiesSecond;                                ///> index of points for the second object
@@ -99,5 +129,5 @@ protected:
     std::shared_ptr<PbdCollisionConstraintConfig> m_configB = nullptr; ///> parameters of the collision constraint
 };
 
-using PBDCollisionConstraintVector = std::vector<PbdCollisionConstraint*>;
+using PBDCollisionConstraintVector = std::vector<std::shared_ptr<PbdCollisionConstraint>>;
 }

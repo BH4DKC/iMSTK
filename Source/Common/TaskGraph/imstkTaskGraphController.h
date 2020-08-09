@@ -23,10 +23,11 @@ limitations under the License.
 
 #include <memory>
 
+#include "imstkSerialize.h"
+#include "imstkTaskGraph.h"
+
 namespace imstk
 {
-class TaskGraph;
-
 ///
 /// \class TaskGraphController
 ///
@@ -54,6 +55,18 @@ public:
     /// \brief Executes the TaskGraph
     ///
     virtual void execute() = 0;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(graph)
+        );
+    }
+#endif
 
 protected:
     ///

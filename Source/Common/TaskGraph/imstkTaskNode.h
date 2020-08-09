@@ -21,6 +21,8 @@ limitations under the License.
 
 #pragma once
 
+#include "imstkSerialize.h"
+
 #include <functional>
 #include <string>
 
@@ -41,6 +43,22 @@ public:
     }
 
     virtual ~TaskNode() = default;
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(name),
+            iMSTK_SERIALIZE(enabled),
+            iMSTK_SERIALIZE(isCritical),
+            iMSTK_SERIALIZE(computeTime),
+            iMSTK_SERIALIZE(enableTiming)
+        );
+    }
+#endif
 
 public:
     void setFunction(std::function<void()> func) { this->m_func = func; }

@@ -23,13 +23,13 @@
 
 #include "imstkGeometry.h"
 #include "imstkSerialize.h"
+#include "imstkTaskNode.h"
 
 #include <set>
 
 namespace imstk
 {
 class TaskGraph;
-class TaskNode;
 
 ///
 /// \brief Type of the time dependent mathematical model

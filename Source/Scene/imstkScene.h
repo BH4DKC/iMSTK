@@ -31,9 +31,11 @@
 #include "imstkSerialize.h"
 #include "imstkIBLProbe.h"
 #include "imstkSolverBase.h"
+#include "imstkSceneObject.h"
 #include "imstkSceneObjectControllerBase.h"
 #include "imstkCameraController.h"
 #include "imstkLight.h"
+#include "imstkTaskGraphController.h"
 
 namespace imstk
 {
@@ -106,11 +108,7 @@ public:
     ///
     /// \brief Constructor
     ///
-    Scene(const std::string& name = "", std::shared_ptr<SceneConfig> config = std::make_shared<SceneConfig>()) :
-        m_name(name),
-        m_camera(std::make_shared<Camera>()),
-        m_collisionGraph(std::make_shared<CollisionGraph>()),
-        m_config(config) {}
+    Scene(const std::string& name = "", std::shared_ptr<SceneConfig> config = std::make_shared<SceneConfig>());
 
     ///
     /// \brief Destructor
@@ -307,7 +305,7 @@ public:
             iMSTK_SERIALIZE(config),
             iMSTK_SERIALIZE(name),
             iMSTK_SERIALIZE(sceneObjectsMap),
-            iMSTK_SERIALIZE(DebugRenderGeometryMap),
+            iMSTK_SERIALIZE(DebugRenderModelMap),
             iMSTK_SERIALIZE(lightsMap),
             iMSTK_SERIALIZE(globalIBLProbe),
             iMSTK_SERIALIZE(camera),
@@ -315,6 +313,8 @@ public:
             iMSTK_SERIALIZE(objectControllers),
             iMSTK_SERIALIZE(cameraControllers),
             iMSTK_SERIALIZE(threadMap),
+            iMSTK_SERIALIZE(taskGraph),
+            iMSTK_SERIALIZE(taskGraphController),
             iMSTK_SERIALIZE(computeTimesLock),
             iMSTK_SERIALIZE(nodeComputeTimes),
             iMSTK_SERIALIZE(fps),

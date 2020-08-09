@@ -25,12 +25,11 @@
 
 #include "imstkSerialize.h"
 #include "imstkRenderMaterial.h"
+#include "imstkGeometry.h"
+#include "imstkDebugRenderGeometry.h"
 
 namespace imstk
 {
-class Geometry;
-class DebugRenderGeometry;
-
 ///
 /// \class VisualModel
 ///
@@ -42,14 +41,12 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit VisualModel(std::shared_ptr<Geometry> geometry  = nullptr);
+    VisualModel(std::shared_ptr<Geometry> geometry  = nullptr);
     explicit VisualModel(std::shared_ptr<Geometry>       geometry,
                          std::shared_ptr<RenderMaterial> renderMaterial);
     explicit VisualModel(std::shared_ptr<DebugRenderGeometry> geometry);
     explicit VisualModel(std::shared_ptr<DebugRenderGeometry> geometry,
                          std::shared_ptr<RenderMaterial>      renderMaterial);
-
-    VisualModel() = delete;
 
     ///
     /// \brief Get/set geometry
@@ -89,6 +86,7 @@ public:
     {
         archive(
             iMSTK_SERIALIZE(geometry),
+            iMSTK_SERIALIZE(DbgGeometry),
             iMSTK_SERIALIZE(renderMaterial),
             iMSTK_SERIALIZE(isVisible),
             iMSTK_SERIALIZE(renderDelegateCreated)

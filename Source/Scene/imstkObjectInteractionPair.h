@@ -55,6 +55,18 @@ public:
     ///
     virtual void apply() = 0;
 
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(objects)
+        );
+    }
+#endif
+
 protected:
     SceneObjectPair m_objects; ///> The two objects interacting
 };

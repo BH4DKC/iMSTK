@@ -132,9 +132,7 @@ TEST_F(imstkRenderMaterialTest, Serialization)
     material.setLineWidth(-0.10f);
     material.setLineWidth(3);
     material.setBackFaceCulling(false);
-    material.setSphereGlyphSize(500.12);
     material.setColor(Color::DarkGray);
-    material.setDebugColor(Color::White);
     material.setMetalness(0.3f);
     material.setRoughness(0.2f);
     material.setEmissivity(5.19323329f);
@@ -177,11 +175,9 @@ TEST_F(imstkRenderMaterialTest, Serialization)
     EXPECT_EQ(material.getPointSize(), newMaterial.getPointSize());
     EXPECT_EQ(material.getBackFaceCulling(), newMaterial.getBackFaceCulling());
     EXPECT_EQ(material.getColor(), newMaterial.getColor());
-    EXPECT_EQ(material.getDebugColor(), newMaterial.getDebugColor());
     EXPECT_EQ(material.getMetalness(), newMaterial.getMetalness());
     EXPECT_EQ(material.getRoughness(), newMaterial.getRoughness());
     EXPECT_EQ(material.getEmissivity(), newMaterial.getEmissivity());
-    EXPECT_EQ(material.getSphereGlyphSize(), newMaterial.getSphereGlyphSize());
     EXPECT_EQ(material.getReceivesShadows(), newMaterial.getReceivesShadows());
     EXPECT_EQ(material.getCastsShadows(), newMaterial.getCastsShadows());
     EXPECT_EQ(material.getBlendMode(), newMaterial.getBlendMode());

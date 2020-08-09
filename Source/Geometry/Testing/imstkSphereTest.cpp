@@ -100,7 +100,7 @@ TEST_F(imstkSphereTest, Serialization)
 
 TEST_F(imstkSphereTest, SerializationSharedPointer)
 {
-    auto sphere = std::make_shared<Sphere>("SphereSharedPointer");
+    auto sphere = std::make_shared<Sphere>();
     sphere->setRadius(3*PI);
 
     // Serialize

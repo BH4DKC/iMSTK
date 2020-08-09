@@ -21,7 +21,7 @@
 
 #include "imstkTestingUtils.h"
 
-#include "vtksys/SystemTools.hxx"
+#include "vtkDirectory.h"
 
 namespace imstk
 {
@@ -35,12 +35,12 @@ void TestWithTempFolder::SetUp()
     m_tempFolder = std::string("./");
     m_tempFolder += ::testing::UnitTest::GetInstance()->current_test_info()->name();
 
-    ASSERT_TRUE(vtksys::SystemTools::MakeDirectory(m_tempFolder));
+    ASSERT_TRUE(vtkDirectory::MakeDirectory(m_tempFolder.c_str()));
 }
 
 void TestWithTempFolder::TearDown()
 {
-    ASSERT_TRUE(vtksys::SystemTools::RemoveADirectory(m_tempFolder));
+    ASSERT_TRUE(vtkDirectory::DeleteDirectory(m_tempFolder.c_str()));
 }
 
 }

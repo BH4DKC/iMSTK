@@ -24,14 +24,6 @@
 
 namespace imstk
 {
-DebugRenderGeometry::DebugRenderGeometry(const std::string& name,
-                                         const Type type) :
-    m_name(name),
-    m_type(type),
-    m_renderMaterial(std::make_shared<RenderMaterial>())
-{
-}
-
 const Vec3d&
 DebugRenderGeometry::getVertex(const size_t idx) const
 {

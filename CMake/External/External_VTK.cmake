@@ -51,6 +51,13 @@ else()
   set(${PROJECT_NAME}_VTK_HASH GIT_TAG origin/${${PROJECT_NAME}_VTK_REPO_SOURCE})
 endif()
 
+if( ${PROJECT_NAME}_BUILD_TESTING )
+  set(VTK_MODULE_SETTINGS
+    ${VTK_MODULE_SETTINGS}
+    -DVTK_MODULE_ENABLE_VTK_CommonSystem:STRING=YES
+    )
+endif()
+
 #-----------------------------------------------------------------------------
 # Add External Project
 #-----------------------------------------------------------------------------

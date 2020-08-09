@@ -42,18 +42,6 @@ PBDCollisionHandling::PBDCollisionHandling(const Side&                          
 {
 }
 
-PBDCollisionHandling::~PBDCollisionHandling()
-{
-    for (const auto ptr: m_EEConstraintPool)
-    {
-        delete ptr;
-    }
-    for (const auto ptr: m_VTConstraintPool)
-    {
-        delete ptr;
-    }
-}
-
 void
 PBDCollisionHandling::processCollisionData()
 {
@@ -64,7 +52,8 @@ PBDCollisionHandling::processCollisionData()
         return;
     }
 
-    m_pbdCollisionSolver->addCollisionConstraints(&m_PBDConstraints,
+    m_pbdCollisionSolver->addCollisionConstraints(
+        std::make_shared<PBDCollisionConstraintVector>(m_PBDConstraints),
         m_PbdObject1->getPbdModel()->getCurrentState()->getPositions(),
         m_PbdObject1->getPbdModel()->getInvMasses(),
         m_PbdObject2->getPbdModel()->getCurrentState()->getPositions(),
@@ -74,8 +63,8 @@ PBDCollisionHandling::processCollisionData()
 void
 PBDCollisionHandling::generatePBDConstraints()
 {
-    std::shared_ptr<PbdCollisionConstraintConfig> config1 = m_PbdObject1->getPbdModel()->getParameters()->collisionParams;
-    std::shared_ptr<PbdCollisionConstraintConfig> config2 = m_PbdObject2->getPbdModel()->getParameters()->collisionParams;
+    std::shared_ptr<PbdCollisionConstraintConfig> config1 = m_PbdObject1->getPbdModel()->getParameters()->m_collisionParams;
+    std::shared_ptr<PbdCollisionConstraintConfig> config2 = m_PbdObject2->getPbdModel()->getParameters()->m_collisionParams;
 
     const auto colGeo2 = std::static_pointer_cast<SurfaceMesh>(m_PbdObject2->getCollidingGeometry());
 
@@ -89,7 +78,7 @@ PBDCollisionHandling::generatePBDConstraints()
     {
         for (size_t i = m_EEConstraintPool.size(); i < m_colData->EEColData.getSize(); ++i)
         {
-            m_EEConstraintPool.push_back(new PbdEdgeEdgeConstraint);
+            m_EEConstraintPool.push_back(std::make_shared<PbdEdgeEdgeConstraint>());
         }
     }
 
@@ -131,7 +120,7 @@ PBDCollisionHandling::generatePBDConstraints()
     {
         for (size_t i = m_VTConstraintPool.size(); i < m_colData->VTColData.getSize(); ++i)
         {
-            m_VTConstraintPool.push_back(new PbdPointTriangleConstraint);
+            m_VTConstraintPool.push_back(std::make_shared<PbdPointTriangleConstraint>());
         }
     }
 
@@ -168,12 +157,12 @@ PBDCollisionHandling::generatePBDConstraints()
 
     for (size_t i = 0; i < m_colData->EEColData.getSize(); ++i)
     {
-        m_PBDConstraints.push_back(static_cast<PbdCollisionConstraint*>(m_EEConstraintPool[i]));
+        m_PBDConstraints.push_back(m_EEConstraintPool[i]);
     }
 
     for (size_t i = 0; i < m_colData->VTColData.getSize(); ++i)
     {
-        m_PBDConstraints.push_back(static_cast<PbdCollisionConstraint*>(m_VTConstraintPool[i]));
+        m_PBDConstraints.push_back(m_VTConstraintPool[i]);
     }
 }
 }

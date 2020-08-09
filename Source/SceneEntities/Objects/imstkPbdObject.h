@@ -46,8 +46,6 @@ public:
         m_type = SceneObject::Type::Pbd;
     }
 
-    PbdObject() = delete;
-
     virtual ~PbdObject() override = default;
 
 public:

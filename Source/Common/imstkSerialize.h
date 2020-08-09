@@ -33,6 +33,7 @@
 #include <cereal/types/atomic.hpp>
 #include <cereal/types/utility.hpp>
 #include <cereal/types/set.hpp>
+#include <cereal/types/list.hpp>
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/xml.hpp>

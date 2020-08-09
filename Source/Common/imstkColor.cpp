@@ -173,13 +173,14 @@ std::string
 Color::rgbHex()
 {
     std::stringstream ss;
-    const int         red   = static_cast<int>(r * 255.0);
+    const int         red = static_cast<int>(r * 255.0);
     const int         green = static_cast<int>(g * 255.0);
-    const int         blue  = static_cast<int>(b * 255.0);
+    const int         blue = static_cast<int>(b * 255.0);
     ss << std::setfill('0') << std::setw(2) << std::hex << red;
     ss << std::setfill('0') << std::setw(2) << std::hex << green;
     ss << std::setfill('0') << std::setw(2) << std::hex << blue;
     return ss.str();
+}
 
 bool
 operator==(const Color& color_lhs, const Color& color_rhs)

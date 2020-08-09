@@ -20,7 +20,6 @@ limitations under the License.
 =========================================================================*/
 
 #include "imstkTaskGraphController.h"
-#include "imstkTaskGraph.h"
 #include "imstkLogger.h"
 
 namespace imstk

@@ -81,8 +81,6 @@ public:
 #endif
 
 protected:
-    explicit AnalyticalGeometry(Type type, const std::string& name = std::string(""));
-
     ///
     /// \brief Apply translation vector \p t
     ///

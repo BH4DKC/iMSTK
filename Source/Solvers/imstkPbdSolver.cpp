@@ -98,13 +98,13 @@ PbdSolver::solve()
 }
 
 PbdCollisionSolver::PbdCollisionSolver() :
-    m_collisionConstraints(std::make_shared<std::list<PBDCollisionConstraintVector*>>()),
+    m_collisionConstraints(std::make_shared<std::list<std::shared_ptr<PBDCollisionConstraintVector>>>()),
     m_collisionConstraintsData(std::make_shared<std::list<CollisionConstraintData>>())
 {
 }
 
 void
-PbdCollisionSolver::addCollisionConstraints(PBDCollisionConstraintVector* constraints,
+PbdCollisionSolver::addCollisionConstraints(std::shared_ptr<PBDCollisionConstraintVector> constraints,
                                             std::shared_ptr<StdVectorOfVec3d> posA, std::shared_ptr<StdVectorOfReal> invMassA,
                                             std::shared_ptr<StdVectorOfVec3d> posB, std::shared_ptr<StdVectorOfReal> invMassB)
 {

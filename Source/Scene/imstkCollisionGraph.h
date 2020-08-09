@@ -30,7 +30,6 @@
 #include "imstkInteractionPair.h"
 #include "imstkCollisionDetection.h"
 #include "imstkCollisionHandling.h"
-#include "imstkPbdInteractionPair.h"
 #include "imstkSerialize.h"
 
 namespace imstk

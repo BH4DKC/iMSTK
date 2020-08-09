@@ -37,11 +37,11 @@ class imstkIdentityMapTest : public TestWithTempFolder
 public:
     imstkIdentityMapTest()
     {
-        m_master = std::make_shared<Sphere>("Master");
+        m_master = std::make_shared<Sphere>();
         m_master->setPosition(Vec3d(0, 0, 0));
         m_master->setRadius(1.0);
 
-        m_puppet = std::make_shared<Sphere>("Puppet");
+        m_puppet = std::make_shared<Sphere>();
         m_puppet->setPosition(Vec3d(5, 0, 0));
         m_puppet->setRadius(1.0);
     }

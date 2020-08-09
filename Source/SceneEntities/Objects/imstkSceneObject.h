@@ -23,6 +23,7 @@
 
 #include "imstkSerialize.h"
 #include "imstkSceneEntity.h"
+#include "imstkVisualModel.h"
 
 #include <memory>
 #include <string>
@@ -30,7 +31,6 @@
 
 namespace imstk
 {
-class VisualModel;
 class DeviceClient;
 class Geometry;
 class TaskGraph;

@@ -79,7 +79,7 @@ main()
     // Configure model
     auto pbdParams2 = std::make_shared<PBDModelConfig>();
     pbdParams2->m_uniformMassValue = 0.0;
-    pbdParams2->collisionParams->m_proximity = 0.1;
+    pbdParams2->m_collisionParams->m_proximity = 0.1;
 
     pbdModel2->configure(pbdParams2);
     floor->setDynamicalModel(pbdModel2);
@@ -144,7 +144,7 @@ createAndAddPbdObject(std::shared_ptr<Scene> scene,
     pbdParams->m_gravity    = Vec3d(0, -9.8, 0);
     pbdParams->m_defaultDt  = 0.01;
     pbdParams->m_iterations = 2;
-    pbdParams->collisionParams->m_proximity = 0.01;
+    pbdParams->m_collisionParams->m_proximity = 0.01;
 
     // Set the parameters
     pbdModel->configure(pbdParams);

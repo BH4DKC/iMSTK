@@ -253,7 +253,7 @@ public:
             iMSTK_SERIALIZE(edgeVisibility),
             iMSTK_SERIALIZE(vertexVisibility),
             iMSTK_SERIALIZE(emissivity),
-            iMSTK_SERIALIZE(emissivityColor),
+            iMSTK_SERIALIZE(emissiveColor),
             iMSTK_SERIALIZE(metalness),
             iMSTK_SERIALIZE(roughness),
             iMSTK_SERIALIZE(occlusionStrength),
@@ -308,7 +308,7 @@ protected:
 
     ///----------------PBR specific properties-------------------
     float m_emissivity    = 0.f;
-    Color m_emmisiveColor = Color::White;
+    Color m_emissiveColor = Color::White;
 
     float m_metalness = 0.f;  ///< Value for metalness with range: [0.0, 1.0]
     float m_roughness = 10.f; ///< Value for roughness with range: [0.0, 1.0]

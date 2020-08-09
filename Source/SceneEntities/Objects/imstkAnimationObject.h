@@ -21,12 +21,12 @@
 
 #pragma once
 
+#include "imstkGeometry.h"
 #include "imstkSceneObject.h"
 #include "imstkSerialize.h"
 
 namespace imstk
 {
-class Geometry;
 class AnimationModel;
 
 ///

@@ -32,6 +32,7 @@ namespace imstk
 ///
 struct PbdFEMConstraintConfig
 {
+    PbdFEMConstraintConfig() = default;
     PbdFEMConstraintConfig(double mu, double lambda, double youngModulus, double poissonRatio) :
         m_mu(mu), m_lambda(lambda), m_YoungModulus(youngModulus), m_PoissonRatio(poissonRatio)
     {
@@ -42,6 +43,21 @@ struct PbdFEMConstraintConfig
 
     double m_YoungModulus = 1000; ///> FEM parameter, if constraint type is FEM
     double m_PoissonRatio = 0.2;  ///> FEM parameter, if constraint type is FEM
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(mu),
+            iMSTK_SERIALIZE(lambda),
+            iMSTK_SERIALIZE(YoungModulus),
+            iMSTK_SERIALIZE(PoissonRatio)
+        );
+    }
+#endif
 };
 
 ///
@@ -67,7 +83,22 @@ public:
     ///
     /// \brief Constructor
     ///
-    explicit PbdFEMConstraint(const unsigned int cardinality, MaterialType mtype = MaterialType::StVK);
+    explicit PbdFEMConstraint(const unsigned int cardinality = 0, MaterialType mtype = MaterialType::StVK);
+
+#ifdef iMSTK_ENABLE_SERIALIZATION
+    ///
+    /// \brief Serialization
+    ///
+    template<class Archive> void serialize(Archive & archive)
+    {
+        archive(
+            iMSTK_SERIALIZE(elementVolume),
+            iMSTK_SERIALIZE(material),
+            iMSTK_SERIALIZE(invRestMat),
+            iMSTK_SERIALIZE(config)
+        );
+    }
+#endif
 
 public:
     double       m_elementVolume = 0.0; ///> Volume of the element

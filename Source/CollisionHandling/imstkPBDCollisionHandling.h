@@ -53,12 +53,7 @@ public:
                          std::shared_ptr<PbdObject>           pbdObject1,
                          std::shared_ptr<PbdObject>           pbdObject2);
 
-    PBDCollisionHandling() = delete;
-
-    ///
-    /// \brief Destructor, clear memory pool
-    ///
-    virtual ~PBDCollisionHandling() override;
+    PBDCollisionHandling() = default;
 
     ///
     /// \brief Compute forces based on collision data
@@ -95,9 +90,9 @@ private:
     std::shared_ptr<PbdObject> m_PbdObject2 = nullptr; ///> PBD object
     std::shared_ptr<PbdCollisionSolver> m_pbdCollisionSolver = nullptr;
 
-    std::vector<PbdCollisionConstraint*> m_PBDConstraints; ///> List of PBD constraints
+    std::vector<std::shared_ptr<PbdCollisionConstraint>> m_PBDConstraints; ///> List of PBD constraints
 
-    std::vector<PbdEdgeEdgeConstraint*>      m_EEConstraintPool;
-    std::vector<PbdPointTriangleConstraint*> m_VTConstraintPool;
+    std::vector<std::shared_ptr<PbdEdgeEdgeConstraint>>      m_EEConstraintPool;
+    std::vector<std::shared_ptr<PbdPointTriangleConstraint>> m_VTConstraintPool;
 };
 }

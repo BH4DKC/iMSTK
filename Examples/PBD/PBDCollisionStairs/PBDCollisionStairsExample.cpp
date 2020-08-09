@@ -119,8 +119,8 @@ makeArmadilloPbdObject(const std::string& name)
     pbdParams->m_gravity    = Vec3d(0, -10.0, 0);
     pbdParams->m_defaultDt  = 0.01;
     pbdParams->m_iterations = 5;
-    pbdParams->collisionParams->m_proximity = 0.3;
-    pbdParams->collisionParams->m_stiffness = 0.1;
+    pbdParams->m_collisionParams->m_proximity = 0.3;
+    pbdParams->m_collisionParams->m_stiffness = 0.1;
 
     // Setup the Model
     auto pbdModel = std::make_shared<PbdModel>();
@@ -153,7 +153,7 @@ makeStairsPbdObject(const std::string& name, int numSteps, double width, double 
     // Setup the parameters
     auto pbdParams = std::make_shared<PBDModelConfig>();
     pbdParams->m_uniformMassValue = 0.0;
-    pbdParams->collisionParams->m_proximity = -0.1;
+    pbdParams->m_collisionParams->m_proximity = -0.1;
     pbdParams->m_iterations = 0;
 
     // Setup the model
