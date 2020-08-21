@@ -223,7 +223,7 @@ template <class Archive,
     {
         for (int j = 0; j < cols; j++)
         {
-            archive(m(i, j));
+        archive(m(i, j));
         }
     }
 }
@@ -245,7 +245,7 @@ template <class Archive,
     {
         for (int j = 0; j < cols; j++)
         {
-            archive(m(i, j));
+        archive(m(i, j));
         }
     }
 }

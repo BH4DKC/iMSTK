@@ -47,8 +47,9 @@ struct RigidBodyConfig
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE(rigidBodyType),
             iMSTK_SERIALIZE(staticFriction),
@@ -168,8 +169,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive) const
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version) const
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<RigidBodyState>)
             iMSTK_SERIALIZE(config),

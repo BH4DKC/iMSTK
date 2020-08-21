@@ -110,7 +110,7 @@ TEST_F(imstkLightTest, PointLightSerialization)
         std::ofstream os("imstkPointLight.cereal", std::ios::binary);
         cereal::JSONOutputArchive archive(os);
 
-        archive(m_point);
+       archive(m_point);
     }
 
     // Deserialize

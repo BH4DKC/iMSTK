@@ -279,8 +279,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive) const
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version) const
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<RigidBodyState>)
             iMSTK_SERIALIZE(internalForceModel),

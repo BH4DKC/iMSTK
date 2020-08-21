@@ -100,8 +100,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE(Data)
             // Don't serialize the SpinLock
@@ -131,8 +132,9 @@ struct PositionDirectionCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(posA, posB, dirAtoB, penetrationDepth);
     }
 #endif
@@ -155,8 +157,9 @@ struct MeshToAnalyticalCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(nodeIdx, penetrationVector);
     }
 #endif
@@ -180,8 +183,9 @@ struct VertexTriangleCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(vertexIdx, triIdx, closestDistance);
     }
 #endif
@@ -205,8 +209,9 @@ struct TriangleVertexCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(triIdx, vertexIdx, closestDistance);
     }
 #endif
@@ -230,8 +235,9 @@ struct EdgeEdgeCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(edgeIdA, edgeIdB, time);
     }
 #endif
@@ -264,8 +270,9 @@ struct PointTetrahedronCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(vertexIdx, tetreahedronIdx, BarycentricCoordinates);
     }
 #endif
@@ -288,8 +295,9 @@ struct PickingCollisionDataElement
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(ptPos, nodeIdx, touchStatus);
     }
 #endif
@@ -320,8 +328,9 @@ struct CollisionData
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             PDColData,
             VTColData,

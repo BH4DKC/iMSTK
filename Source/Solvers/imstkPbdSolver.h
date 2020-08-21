@@ -52,8 +52,9 @@ struct CollisionConstraintData
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE(posA),
             iMSTK_SERIALIZE(invMassA),
@@ -133,8 +134,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             // No need to serialize SolverBase, it's empty
             iMSTK_SERIALIZE(iterations),
@@ -196,8 +198,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void save(Archive & archive) const
+    template<class Archive> void save(Archive & archive, std::uint32_t const version) const
     {
+        UNUSED(version);
         archive(
             // No need to serialize SolverBase, it's empty
             iMSTK_SERIALIZE(collisionIterations),

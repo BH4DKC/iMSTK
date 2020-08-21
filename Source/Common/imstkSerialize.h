@@ -21,6 +21,8 @@
 
 #pragma once
 
+#define UNUSED(x) (void)(x)
+
 #ifdef iMSTK_ENABLE_SERIALIZATION
 
 #include <cereal/access.hpp> // For LoadAndConstruct
@@ -54,5 +56,8 @@ namespace imstk {
 
 #define iMSTK_REGISTER_SERIALIZATION(className) \
  CEREAL_REGISTER_TYPE(##className)
+
+#define iMSTK_VERSION(className, version) \
+ CEREAL_CLASS_VERSION(##className, ##version)
 
 #endif // iMSTK_ENABLE_SERIALIZATION

@@ -79,8 +79,9 @@ struct SceneConfig
         ///
         /// \brief Serialization
         ///
-        template<class Archive> void serialize(Archive & archive)
+        template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             lazyInitialization,
             timeStepping,
@@ -299,8 +300,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE(config),
             iMSTK_SERIALIZE(name),
@@ -312,11 +314,7 @@ public:
             iMSTK_SERIALIZE(collisionGraph),
             iMSTK_SERIALIZE(objectControllers),
             iMSTK_SERIALIZE(cameraControllers),
-            iMSTK_SERIALIZE(threadMap),
-            iMSTK_SERIALIZE(taskGraph),
-            iMSTK_SERIALIZE(taskGraphController),
-            iMSTK_SERIALIZE(computeTimesLock),
-            iMSTK_SERIALIZE(nodeComputeTimes),
+            // no task serialization
             iMSTK_SERIALIZE(fps),
             iMSTK_SERIALIZE(elapsedTime),
             iMSTK_SERIALIZE(isInitialized),

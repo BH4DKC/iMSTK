@@ -68,8 +68,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(Geometry),
             iMSTK_SERIALIZE(position),
@@ -104,4 +105,5 @@ protected:
 
 #ifdef iMSTK_ENABLE_SERIALIZATION
 iMSTK_REGISTER_SERIALIZATION(imstk::AnalyticalGeometry)
+iMSTK_VERSION(imstk::AnalyticalGeometry, 0)
 #endif

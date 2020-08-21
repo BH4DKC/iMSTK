@@ -103,6 +103,7 @@ public:
     ///
     template<class Archive> void save(Archive & archive) const
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(GeometryMap),
             iMSTK_SERIALIZE(oneToOneMap),
@@ -111,6 +112,7 @@ public:
     }
     template<class Archive> void load(Archive & archive) const
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(GeometryMap),
             iMSTK_SERIALIZE(oneToOneMap)

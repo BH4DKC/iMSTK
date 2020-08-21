@@ -133,9 +133,10 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-        archive(
+        UNUSED(version);
+    archive(
             iMSTK_SERIALIZE(F),
             iMSTK_SERIALIZE(dF),
             iMSTK_SERIALIZE(FUpdate)

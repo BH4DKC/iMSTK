@@ -128,8 +128,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(iMSTK_SERIALIZE_SUPERCLASS(SceneEntity),
             iMSTK_SERIALIZE(name),
             iMSTK_SERIALIZE(type),
@@ -202,8 +203,9 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
             iMSTK_SERIALIZE(castShadow),
             iMSTK_SERIALIZE(shadowCenter),
@@ -273,12 +275,13 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-      archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
-        iMSTK_SERIALIZE(position),
-        iMSTK_SERIALIZE(coneAngle)
-      );
+        UNUSED(version);
+        archive(iMSTK_SERIALIZE_SUPERCLASS(Light),
+            iMSTK_SERIALIZE(position),
+            iMSTK_SERIALIZE(coneAngle)
+        );
     }
 #endif
 
@@ -321,11 +324,12 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-      archive(iMSTK_SERIALIZE_SUPERCLASS(PointLight),
-              iMSTK_SERIALIZE(spotAngle)
-      );
+        UNUSED(version);
+        archive(iMSTK_SERIALIZE_SUPERCLASS(PointLight),
+            iMSTK_SERIALIZE(spotAngle)
+        );
     }
 #endif
 

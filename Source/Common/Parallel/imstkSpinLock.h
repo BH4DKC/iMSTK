@@ -60,7 +60,7 @@ public:
     ///
     void lock()
     {
-        while (m_Lock.test_and_set(std::memory_order_acquire)) {}
+        while (m_lock.test_and_set(std::memory_order_acquire)) {}
     }
 
     ///
@@ -68,11 +68,11 @@ public:
     ///
     void unlock()
     {
-        m_Lock.clear(std::memory_order_release);
+        m_lock.clear(std::memory_order_release);
     }
 
 private:
-    std::atomic_flag m_Lock;
+    std::atomic_flag m_lock;
 };
 } // end namespace ParallelUtils
 } // end namespace imstk

@@ -90,9 +90,10 @@ struct PBDModelConfig
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-        archive(
+        UNUSED(version);
+    archive(
             iMSTK_SERIALIZE(uniformMassValue),
             iMSTK_SERIALIZE(viscousDampingCoeff),
             iMSTK_SERIALIZE(collisionParams),
@@ -285,9 +286,10 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-        archive(
+        UNUSED(version);
+    archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicalModel<PbdState>),
             iMSTK_SERIALIZE(partitioned),
             iMSTK_SERIALIZE(partitionThreshold),

@@ -129,8 +129,9 @@ struct Color
     ///
     /// \brief cereal :: Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(r, g, b, a);
     }
 #endif

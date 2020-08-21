@@ -111,9 +111,10 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
-        archive(
+        UNUSED(version);
+    archive(
             iMSTK_SERIALIZE(type),
             iMSTK_SERIALIZE(tolerance),
             iMSTK_SERIALIZE(linearSystem)

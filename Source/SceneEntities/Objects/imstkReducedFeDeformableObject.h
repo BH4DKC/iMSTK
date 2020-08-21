@@ -112,6 +112,7 @@ public:
     ///
     template<class Archive> void serialize(Archive & archive)
     {
+        UNUSED(version);
         archive(
             iMSTK_SERIALIZE_SUPERCLASS(DynamicObject),
             iMSTK_SERIALIZE(defModel)

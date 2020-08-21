@@ -30,12 +30,12 @@
 #include "imstkInteractionPair.h"
 #include "imstkCollisionDetection.h"
 #include "imstkCollisionHandling.h"
+#include "imstkObjectInteractionPair.h"
 #include "imstkSerialize.h"
 
 namespace imstk
 {
 class SceneObject;
-class ObjectInteractionPair;
 
 ///
 /// \class CollisionGraph
@@ -89,11 +89,11 @@ public:
     ///
     /// \brief Serialization
     ///
-    template<class Archive> void serialize(Archive & archive)
+    template<class Archive> void serialize(Archive & archive, std::uint32_t const version)
     {
+        UNUSED(version);
         archive(
-            iMSTK_SERIALIZE(interactionPbdPairList),
-            iMSTK_SERIALIZE(interactionPairList),
+            iMSTK_SERIALIZE(interactionPairs),
             iMSTK_SERIALIZE(interactionPairMap)
         );
     }
