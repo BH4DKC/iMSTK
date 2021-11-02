@@ -228,7 +228,7 @@ main()
         int   sphereSelected = -1;
         Vec3d planePos;
         // Perform picking on to figure out which sphere was clicked
-        connect<MouseEvent>(viewer->getMouseDevice(), &MouseDeviceClient::mouseButtonPress,
+        connect<MouseEvent>(viewer->getMouseDevice(), &MouseDeviceClient::buttonPressed,
             [&](MouseEvent* e)
         {
             if (e->m_buttonId == 0)
@@ -260,7 +260,7 @@ main()
             }
             });
         // Unselect/drop the sphere
-        connect<MouseEvent>(viewer->getMouseDevice(), &MouseDeviceClient::mouseButtonRelease,
+        connect<MouseEvent>(viewer->getMouseDevice(), &MouseDeviceClient::buttonReleased,
             [&](MouseEvent* e)
         {
             if (e->m_buttonId == 0)

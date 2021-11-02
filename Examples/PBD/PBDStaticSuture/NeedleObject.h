@@ -43,8 +43,8 @@ public:
 
 public:
     // *INDENT-OFF*
-    SIGNAL(NeedleObject, inserted);
-    SIGNAL(NeedleObject, removed);
+    IMSTK_SIGNAL(NeedleObject, inserted);
+    IMSTK_SIGNAL(NeedleObject, removed);
     // *INDENT-ON*
 
 public:

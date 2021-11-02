@@ -109,7 +109,7 @@ main()
 
         cdDebugObj->debugUpdate();
 
-        connect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPress, [&](KeyEvent* e)
+        connect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPressed, [&](KeyEvent* e)
         {
             const double s = 0.05;
             if (e->m_key == 'i')

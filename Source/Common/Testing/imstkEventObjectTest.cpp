@@ -31,9 +31,9 @@ class MockSender : public imstk::EventObject
 {
 public:
     /* *INDENT-OFF* */
-    SIGNAL(MockSender,SignalOne);
+    IMSTK_SIGNAL(MockSender,SignalOne);
 
-    SIGNAL(MockSender,SignalTwo);
+    IMSTK_SIGNAL(MockSender,SignalTwo);
     /* *INDENT-ON* */
 
     void postOne()

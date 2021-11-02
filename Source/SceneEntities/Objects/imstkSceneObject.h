@@ -48,7 +48,7 @@ public:
 
 public:
     // *INDENT-OFF*
-    SIGNAL(SceneObject, modified);
+    IMSTK_SIGNAL(SceneObject, modified);
     // *INDENT-ON*
 
 public:

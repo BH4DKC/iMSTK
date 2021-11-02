@@ -80,7 +80,7 @@ Scene::initialize()
     buildTaskGraph();
 
     // Opportunity for user configuration
-    this->postEvent(Event(Scene::configureTaskGraph()));
+    this->postEvent(Event(Scene::taskGraphConfigured()));
 
     // Initialize the task graph
     initTaskGraph();

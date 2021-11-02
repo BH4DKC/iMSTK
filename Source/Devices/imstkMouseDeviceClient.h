@@ -91,22 +91,22 @@ public:
     ///
     /// \brief Posted when a button on the mouse is pressed (not continuously)
     ///
-    SIGNAL(MouseDeviceClient, mouseButtonPress);
+    IMSTK_SIGNAL(MouseDeviceClient, buttonPressed);
 
     ///
     /// \brief Posted when a button on the mouse is released (not continuously)
     ///
-    SIGNAL(MouseDeviceClient, mouseButtonRelease);
+    IMSTK_SIGNAL(MouseDeviceClient, buttonReleased);
 
     ///
     /// \brief Posted when mouse scrolls
     ///
-    SIGNAL(MouseDeviceClient, mouseScroll);
+    IMSTK_SIGNAL(MouseDeviceClient, scrolled);
 
     ///
     /// \brief Posted when mouse moves
     ///
-    SIGNAL(MouseDeviceClient, mouseMove);
+    IMSTK_SIGNAL(MouseDeviceClient, moved);
     // *INDENT-ON*
 
 public:
@@ -143,7 +143,7 @@ protected:
     {
         m_prevPos = m_pos;
         m_pos     = pos;
-        this->postEvent(MouseEvent(MouseDeviceClient::mouseMove()));
+        this->postEvent(MouseEvent(MouseDeviceClient::moved()));
     }
 
     ///
@@ -152,7 +152,7 @@ protected:
     void emitButtonPress(const MouseButtonType buttonId)
     {
         m_buttons[buttonId] = MOUSE_PRESS;
-        this->postEvent(MouseEvent(MouseDeviceClient::mouseButtonPress(), buttonId));
+        this->postEvent(MouseEvent(MouseDeviceClient::buttonPressed(), buttonId));
     }
 
     ///
@@ -161,13 +161,13 @@ protected:
     void emitButtonRelease(const MouseButtonType buttonId)
     {
         m_buttons[buttonId] = MOUSE_RELEASE;
-        this->postEvent(MouseEvent(MouseDeviceClient::mouseButtonRelease(), buttonId));
+        this->postEvent(MouseEvent(MouseDeviceClient::buttonReleased(), buttonId));
     }
 
     ///
     /// \brief Post a mouse scroll event
     ///
-    void emitScroll(const double dx) { this->postEvent(MouseEvent(MouseDeviceClient::mouseScroll(), dx)); }
+    void emitScroll(const double dx) { this->postEvent(MouseEvent(MouseDeviceClient::scrolled(), dx)); }
 
 protected:
     Vec2d m_prevPos;

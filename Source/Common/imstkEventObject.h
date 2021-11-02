@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-#define SIGNAL(className,signalName) static std::string signalName() { return #className "::"#signalName; }
+#define IMSTK_SIGNAL(className,signalName) static std::string signalName() { return #className "::"#signalName; }
 
 namespace imstk
 {

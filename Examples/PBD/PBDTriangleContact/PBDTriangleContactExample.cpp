@@ -159,7 +159,7 @@ main()
         driver->setDesiredDt(0.01);
 
         Vec3d initPos[3] = { (*pbdVerticesPtr)[0], (*pbdVerticesPtr)[1], (*pbdVerticesPtr)[2] };
-        connect<Event>(scene, &Scene::configureTaskGraph,
+        connect<Event>(scene, &Scene::taskGraphConfigured,
             [&](Event*)
         {
             // Add a manual constraint after the pbd solve

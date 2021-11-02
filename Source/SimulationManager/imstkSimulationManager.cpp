@@ -58,7 +58,7 @@ SimulationManager::start()
     // exit message happens all modules need to stop
     for (auto module : m_modules)
     {
-        connect<Event>(module, &Module::end, this, &SimulationManager::requestStop);
+        connect<Event>(module, &Module::ending, this, &SimulationManager::requestStop);
     }
 
     // Initialization

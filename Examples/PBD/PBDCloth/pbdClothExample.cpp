@@ -233,7 +233,7 @@ main()
         }
 
         using Vec3uc = Eigen::Matrix<unsigned char, 3, 1>;
-        queueConnect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPress, sceneManager, [&](KeyEvent* e)
+        queueConnect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPressed, sceneManager, [&](KeyEvent* e)
         {
             // Set new textures
             if (e->m_key == '1')

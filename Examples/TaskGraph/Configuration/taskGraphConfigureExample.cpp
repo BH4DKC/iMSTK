@@ -172,7 +172,7 @@ main()
     material->setColorLookupTable(colorFunc);
 
     // Adds a custom physics step to print out maximum velocity
-    connect<Event>(scene, &Scene::configureTaskGraph,
+    connect<Event>(scene, &Scene::taskGraphConfigured,
         [&](Event*)
     {
         // Get the graph

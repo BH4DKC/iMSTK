@@ -59,17 +59,17 @@ public:
     ///
     /// \brief Posted before updateModule is called
     ///
-    SIGNAL(Module, preUpdate);
+    IMSTK_SIGNAL(Module, preUpdate);
 
     ///
     /// \brief Posted after updateModule is called
     ///
-    SIGNAL(Module, postUpdate);
+    IMSTK_SIGNAL(Module, postUpdate);
 
     ///
     /// \brief Posted when module wants to end
     ///
-    SIGNAL(Module, end);
+    IMSTK_SIGNAL(Module, ending);
     // *INDENT-ON*
 
 public:

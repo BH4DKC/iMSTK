@@ -83,12 +83,12 @@ public:
 
 public:
     // *INDENT-OFF*
-    SIGNAL(Scene, configureTaskGraph);
+    IMSTK_SIGNAL(Scene, taskGraphConfigured);
     ///
     /// \brief Called when scene is modified, when scene objects
     /// or interactions are added/removed
     ///
-    SIGNAL(Scene, modified);
+    IMSTK_SIGNAL(Scene, modified);
     // *INDENT-ON*
 
 public:

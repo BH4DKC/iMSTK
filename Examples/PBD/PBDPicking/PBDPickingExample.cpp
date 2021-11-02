@@ -267,7 +267,7 @@ main()
             clothObj->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
         });
 
-        connect<Event>(controller, &LaparoscopicToolController::JawClosed,
+        connect<Event>(controller, &LaparoscopicToolController::jawClosed,
             [&](Event*)
         {
             LOG(INFO) << "Jaw Closed!";
@@ -277,7 +277,7 @@ main()
             chUpper->beginPick();
             chLower->beginPick();
             });
-        connect<Event>(controller, &LaparoscopicToolController::JawOpened,
+        connect<Event>(controller, &LaparoscopicToolController::jawOpened,
             [&](Event*)
         {
             LOG(INFO) << "Jaw Opened!";

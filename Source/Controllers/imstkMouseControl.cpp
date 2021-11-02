@@ -36,10 +36,10 @@ MouseControl::setDevice(std::shared_ptr<DeviceClient> device)
     // Remove old observer if it exists
     if (m_mouseDeviceClient != nullptr)
     {
-        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::mouseButtonPress);
-        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::mouseButtonRelease);
-        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::mouseScroll);
-        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::mouseMove);
+        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::buttonPressed);
+        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::buttonReleased);
+        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::scrolled);
+        disconnect(m_mouseDeviceClient, this, &MouseDeviceClient::moved);
     }
 
     // Set the new device
@@ -47,10 +47,10 @@ MouseControl::setDevice(std::shared_ptr<DeviceClient> device)
     DeviceControl::setDevice(device);
 
     // Subscribe to the device clients events
-    connect(m_mouseDeviceClient, &MouseDeviceClient::mouseButtonPress, this, &MouseControl::mouseButtonPressEvent);
-    connect(m_mouseDeviceClient, &MouseDeviceClient::mouseButtonRelease, this, &MouseControl::mouseButtonReleaseEvent);
-    connect(m_mouseDeviceClient, &MouseDeviceClient::mouseScroll, this, &MouseControl::mouseScrollEvent);
-    connect(m_mouseDeviceClient, &MouseDeviceClient::mouseMove, this, &MouseControl::mouseMoveEvent);
+    connect(m_mouseDeviceClient, &MouseDeviceClient::buttonPressed, this, &MouseControl::mouseButtonPressEvent);
+    connect(m_mouseDeviceClient, &MouseDeviceClient::buttonReleased, this, &MouseControl::mouseButtonReleaseEvent);
+    connect(m_mouseDeviceClient, &MouseDeviceClient::scrolled, this, &MouseControl::mouseScrollEvent);
+    connect(m_mouseDeviceClient, &MouseDeviceClient::moved, this, &MouseControl::mouseMoveEvent);
 }
 
 void

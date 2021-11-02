@@ -92,7 +92,7 @@ public:
 
 public:
     // *INDENT-OFF*
-    SIGNAL(Texture, modified);
+    IMSTK_SIGNAL(Texture, modified);
     // *INDENT-ON*
 
     void postModified() { this->postEvent(Event(modified())); }

@@ -249,7 +249,7 @@ main()
             viewer->addControl(keyControl);
         }
 
-        connect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPress,
+        connect<KeyEvent>(viewer->getKeyboardDevice(), &KeyboardDeviceClient::keyPressed,
             [&](KeyEvent* e)
         {
             int indexToShow = -1;

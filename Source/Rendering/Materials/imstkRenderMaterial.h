@@ -81,12 +81,12 @@ public:
     ///
     /// \brief Posted when material parameters are modified
     ///
-    SIGNAL(RenderMaterial, modified);
+    IMSTK_SIGNAL(RenderMaterial, modified);
 
     ///
     /// \brief Posted when textures are modified
     ///
-    SIGNAL(RenderMaterial, texturesModified);
+    IMSTK_SIGNAL(RenderMaterial, texturesModified);
     // *INDENT-ON*
 
 public:

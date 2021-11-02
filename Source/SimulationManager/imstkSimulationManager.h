@@ -62,12 +62,12 @@ public:
     ///
     /// \brief Called after initialization but before starting the loop
     ///
-    SIGNAL(SimulationManager, starting);
+    IMSTK_SIGNAL(SimulationManager, starting);
 
     ///
     /// \brief Called after ending, but before un initialization
     ///
-    SIGNAL(SimulationManager, ending);
+    IMSTK_SIGNAL(SimulationManager, ending);
     // *INDENT-ON*
 
 public:

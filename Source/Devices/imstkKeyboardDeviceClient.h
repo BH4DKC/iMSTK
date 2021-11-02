@@ -72,12 +72,12 @@ public:
     ///
     /// \brief Posted when key is pressed (not continuously)
     ///
-    SIGNAL(KeyboardDeviceClient, keyPress);
+    IMSTK_SIGNAL(KeyboardDeviceClient, keyPressed);
 
     ///
     /// \brief Posted when key is released (not continuously)
     ///
-    SIGNAL(KeyboardDeviceClient, keyRelease);
+    IMSTK_SIGNAL(KeyboardDeviceClient, keyReleased);
     // *INDENT-ON*
 
 public:
