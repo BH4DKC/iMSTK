@@ -151,7 +151,7 @@ GeometryUtils::copyToVtkDataArray(std::shared_ptr<AbstractDataArray> imstkArray)
     arr->SetNumberOfTuples(imstkArray->size() / imstkArray->getNumberOfComponents());
     switch (imstkArray->getScalarType())
     {
-        TemplateMacro(std::copy_n(static_cast<IMSTK_TT*>(imstkArray->getVoidPointer()), imstkArray->size(), static_cast<IMSTK_TT*>(arr->GetVoidPointer(0))); );
+        IMSTK_TYPE_CASE(std::copy_n(static_cast<IMSTK_TT*>(imstkArray->getVoidPointer()), imstkArray->size(), static_cast<IMSTK_TT*>(arr->GetVoidPointer(0))); );
     default:
         LOG(WARNING) << "Unknown scalar type";
         break;
@@ -172,7 +172,7 @@ GeometryUtils::copyToDataArray(vtkSmartPointer<vtkDataArray> vtkArray)
     // Create and copy the array
     switch (vtkToImstkScalarType[vtkArray->GetDataType()])
     {
-        TemplateMacro(
+        IMSTK_TYPE_CASE(
             // We enumerate a number of different common # of components
             // There's long reasoning but ultimately this is because we use eigen for DataArrays. limiting
             if (numComps == 1)

@@ -111,7 +111,7 @@ VTKFluidRenderDelegate::processEvents()
 }
 
 void
-VTKFluidRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKFluidRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     // Called when the geometry posts modified
     auto geometry = std::static_pointer_cast<PointSet>(m_visualModel->getGeometry());
@@ -131,7 +131,7 @@ VTKFluidRenderDelegate::geometryModified(Event* imstkNotUsed(e))
 }
 
 void
-VTKFluidRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKFluidRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<PointSet>(m_visualModel->getGeometry());
     m_vertices = geometry->getVertexPositions();

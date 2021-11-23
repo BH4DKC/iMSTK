@@ -23,9 +23,9 @@
 
 namespace imstk
 {
-#define imstkNotUsed(x)
+#define IMSTK_NOT_USED(x)
 
-#define imstkSetMacro(name, dataType)       \
+#define IMSTK_SET(name, dataType)           \
     virtual void set ## name(dataType _arg) \
     {                                       \
         if (this->m_ ## name != _arg)       \
@@ -33,33 +33,34 @@ namespace imstk
             this->m_ ## name = _arg;        \
         }                                   \
     }
-#define imstkGetMacro(name, dataType) \
+#define IMSTK_GET(name, dataType) \
     virtual dataType get ## name() { return this->m_ ## name; }
 
 // \todo Switch to template type lists
 ///
 /// \brief Maps ScalarType type to templated function call
 ///
-#define TemplateMacroCase(typeN, type, call) \
+#define IMSTK_TYPE_CASE_STATEMENT(typeN, type, call) \
 case typeN: { using IMSTK_TT = type; call; }; break
-#define TemplateMacro(call)                                        \
-    TemplateMacroCase(IMSTK_CHAR, char, call);                     \
-    TemplateMacroCase(IMSTK_UNSIGNED_CHAR, unsigned char, call);   \
-    TemplateMacroCase(IMSTK_SHORT, short, call);                   \
-    TemplateMacroCase(IMSTK_UNSIGNED_SHORT, unsigned short, call); \
-    TemplateMacroCase(IMSTK_INT, int, call);                       \
-    TemplateMacroCase(IMSTK_UNSIGNED_INT, unsigned int, call);     \
-    TemplateMacroCase(IMSTK_LONG, long, call);                     \
-    TemplateMacroCase(IMSTK_UNSIGNED_LONG, unsigned long, call);   \
-    TemplateMacroCase(IMSTK_FLOAT, float, call);                   \
-    TemplateMacroCase(IMSTK_DOUBLE, double, call);                 \
-    TemplateMacroCase(IMSTK_LONG_LONG, long long, call);           \
-    TemplateMacroCase(IMSTK_UNSIGNED_LONG_LONG, unsigned long long, call)
+
+#define IMSTK_TYPE_CASE(call)                                              \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_CHAR, char, call);                     \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_UNSIGNED_CHAR, unsigned char, call);   \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_SHORT, short, call);                   \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_UNSIGNED_SHORT, unsigned short, call); \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_INT, int, call);                       \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_UNSIGNED_INT, unsigned int, call);     \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_LONG, long, call);                     \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_UNSIGNED_LONG, unsigned long, call);   \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_FLOAT, float, call);                   \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_DOUBLE, double, call);                 \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_LONG_LONG, long long, call);           \
+    IMSTK_TYPE_CASE_STATEMENT(IMSTK_UNSIGNED_LONG_LONG, unsigned long long, call)
 
 ///
 /// \brief Returns scalar type given template
 ///
-#define TypeTemplateMacro(templateType)                                              \
+#define IMSTK_TYPE_TEMPLATE(templateType)                                            \
     (std::is_same<templateType, char>::value ? IMSTK_CHAR :                          \
      (std::is_same<templateType, unsigned char>::value ? IMSTK_UNSIGNED_CHAR :       \
       (std::is_same<templateType, short>::value ? IMSTK_SHORT :                      \
@@ -78,38 +79,39 @@ case typeN: { using IMSTK_TT = type; call; }; break
 // When adding new warnings remember to add the DISABLE_ macro
 // for all three sections MSVC, GCC/CLANG, other
 #if defined(_MSC_VER)
-#define DISABLE_WARNING_PUSH           __pragma(warning( push ))
-#define DISABLE_WARNING_POP            __pragma(warning( pop ))
-#define DISABLE_WARNING(warningNumber) __pragma(warning( disable : warningNumber ))
+#define IMSTK_DISABLE_WARNING_PUSH           __pragma(warning( push ))
+#define IMSTK_DISABLE_WARNING_POP            __pragma(warning( pop ))
+#define IMSTK_DISABLE_WARNING(warningNumber) __pragma(warning( disable : warningNumber ))
 
-#define DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    DISABLE_WARNING(4100)
-#define DISABLE_WARNING_UNREFERENCED_FUNCTION            DISABLE_WARNING(4505)
-#define DISABLE_WARNING_HIDES_CLASS_MEMBER               DISABLE_WARNING(4458)
-#define DISABLE_WARNING_PADDING                          DISABLE_WARNING(4324)
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    IMSTK_DISABLE_WARNING(4100)
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FUNCTION            IMSTK_DISABLE_WARNING(4505)
+#define IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER               IMSTK_DISABLE_WARNING(4458)
+#define IMSTK_DISABLE_WARNING_PADDING                          IMSTK_DISABLE_WARNING(4324)
 // other warnings you want to deactivate...
 
 // Not seen in msvc or not checked, fix when working with windows
 
 #elif defined(__GNUC__) || defined(__clang__)
 #define DO_PRAGMA(X) _Pragma(#X)
-#define DISABLE_WARNING_PUSH           DO_PRAGMA(GCC diagnostic push)
-#define DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop)
-#define DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
 
-#define DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    DISABLE_WARNING(-Wunused - parameter)
-#define DISABLE_WARNING_UNREFERENCED_FUNCTION            DISABLE_WARNING(-Wunused - function)
+#define IMSTK_DISABLE_WARNING_PUSH           DO_PRAGMA(GCC diagnostic push)
+#define IMSTK_DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop)
+#define IMSTK_DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
+
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    IMSTK_DISABLE_WARNING(-Wunused - parameter)
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FUNCTION            IMSTK_DISABLE_WARNING(-Wunused - function)
 // other warnings you want to deactivate...
 
 // Not seen in gcc or not checked, fix when working with linux
-#define DISABLE_WARNING_HIDES_CLASS_MEMBER
-#define DISABLE_WARNING_PADDING
+#define IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER
+#define IMSTK_DISABLE_WARNING_PADDING
 
 #else
-#define DISABLE_WARNING_PUSH
-#define DISABLE_WARNING_POP
-#define DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER
-#define DISABLE_WARNING_UNREFERENCED_FUNCTION
-#define DISABLE_WARNING_HIDES_CLASS_MEMBER
+#define IMSTK_DISABLE_WARNING_PUSH
+#define IMSTK_DISABLE_WARNING_POP
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER
+#define IMSTK_DISABLE_WARNING_UNREFERENCED_FUNCTION
+#define IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER
 // other warnings you want to deactivate...
 
 #endif

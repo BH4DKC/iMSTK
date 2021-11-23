@@ -181,7 +181,7 @@ VTKRenderDelegate::processEvents()
 }
 
 void
-VTKRenderDelegate::visualModelModified(Event* imstkNotUsed(e))
+VTKRenderDelegate::visualModelModified(Event* IMSTK_NOT_USED(e))
 {
     // Remove all modified's from the old material
     disconnect(m_material, this, &RenderMaterial::modified);

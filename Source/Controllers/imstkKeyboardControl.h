@@ -47,9 +47,9 @@ public:
     virtual void setDevice(std::shared_ptr<DeviceClient> device) override;
 
 public:
-    virtual void OnKeyPress(const char imstkNotUsed(key)) { }
+    virtual void OnKeyPress(const char IMSTK_NOT_USED(key)) { }
 
-    virtual void OnKeyRelease(const char imstkNotUsed(key)) { }
+    virtual void OnKeyRelease(const char IMSTK_NOT_USED(key)) { }
 
     ///
     /// \brief Recieves key press event

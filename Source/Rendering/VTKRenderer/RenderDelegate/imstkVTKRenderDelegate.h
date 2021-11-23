@@ -95,7 +95,7 @@ protected:
     ///
     /// \brief Callback for updating render properties
     ///
-    void materialModified(Event* imstkNotUsed(e)) { updateRenderProperties(); }
+    void materialModified(Event* IMSTK_NOT_USED(e)) { updateRenderProperties(); }
 
     ///
     /// \brief Callback for visual model modifications

@@ -45,8 +45,8 @@ public:
     ///
     void setInputImage(std::shared_ptr<ImageData> refImage);
 
-    imstkGetMacro(UseUnsigned, bool);
-    imstkSetMacro(UseUnsigned, bool);
+    IMSTK_GET(UseUnsigned, bool);
+    IMSTK_SET(UseUnsigned, bool);
 
 protected:
     void requestUpdate() override;

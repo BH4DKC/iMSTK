@@ -38,9 +38,9 @@ PbdConstantDensityConstraint::initConstraint(const VecDataArray<double, 3>& init
 }
 
 void
-PbdConstantDensityConstraint::projectConstraint(const DataArray<double>& imstkNotUsed(currInvMasses),
-                                                const double imstkNotUsed(dt),
-                                                const PbdConstraint::SolverType& imstkNotUsed(type),
+PbdConstantDensityConstraint::projectConstraint(const DataArray<double>& IMSTK_NOT_USED(currInvMasses),
+                                                const double IMSTK_NOT_USED(dt),
+                                                const PbdConstraint::SolverType& IMSTK_NOT_USED(type),
                                                 VecDataArray<double, 3>& currVertexPositions)
 {
     const size_t numParticles = currVertexPositions.size();

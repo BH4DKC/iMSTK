@@ -140,14 +140,6 @@ using AffineTransform3d = Eigen::Affine3d;
 #define LN2              0.693147180559945309417
 #define LN10             2.30258509299404568402
 
-#define MAX_D                std::numeric_limits<double>::max()
-#define MIN_D                std::numeric_limits<double>::min()
-#define VERY_SMALL_EPSILON_D std::numeric_limits<double>::epsilon()
-
-#define MAX_F                std::numeric_limits<float>::max()
-#define MIN_F                std::numeric_limits<float>::min()
-#define VERY_SMALL_EPSILON_F std::numeric_limits<float>::epsilon()
-
 static inline Mat4d
 mat4dTranslate(const Vec3d& translate)
 {

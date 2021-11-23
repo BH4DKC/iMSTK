@@ -114,7 +114,7 @@ Cylinder::updatePostTransformData() const
 }
 
 void
-Cylinder::computeBoundingBox(Vec3d& min, Vec3d& max, const double imstkNotUsed(paddingPercent))
+Cylinder::computeBoundingBox(Vec3d& min, Vec3d& max, const double IMSTK_NOT_USED(paddingPercent))
 {
     updatePostTransformData();
 

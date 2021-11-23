@@ -163,7 +163,7 @@ BoneDrillingCH::handle(
 
     // Aggregate collision data
     Vec3d  t = Vec3d::Zero();
-    double maxDepthSqr = MIN_D;
+    double maxDepthSqr = std::numeric_limits<double>::min();
     for (size_t i = 0; i < elementsB.size(); i++)
     {
         const CollisionElement& elementA = elementsA[i];

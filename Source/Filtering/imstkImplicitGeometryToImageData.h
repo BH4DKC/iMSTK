@@ -48,11 +48,11 @@ public:
     ///
     void setInputGeometry(std::shared_ptr<ImplicitGeometry> inputGeometry);
 
-    imstkGetMacro(Dimensions, const Vec3i&);
-    imstkGetMacro(Bounds, const Vec6d&);
+    IMSTK_GET(Dimensions, const Vec3i&);
+    IMSTK_GET(Bounds, const Vec6d&);
 
-    imstkSetMacro(Dimensions, const Vec3i&);
-    imstkSetMacro(Bounds, const Vec6d&);
+    IMSTK_SET(Dimensions, const Vec3i&);
+    IMSTK_SET(Bounds, const Vec6d&);
 
 protected:
     void requestUpdate() override;

@@ -44,9 +44,9 @@ public:
 
     void setInputImage(std::shared_ptr<ImageData> inputData);
 
-    imstkGetMacro(Dimensions, const Vec3i&);
+    IMSTK_GET(Dimensions, const Vec3i&);
 
-    imstkSetMacro(Dimensions, const Vec3i&);
+    IMSTK_SET(Dimensions, const Vec3i&);
 
 protected:
     void requestUpdate() override;

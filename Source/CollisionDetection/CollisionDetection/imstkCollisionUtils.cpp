@@ -30,7 +30,8 @@ testLineToLineAABB(const double x1, const double y1, const double z1,
                    const double x2, const double y2, const double z2,
                    const double x3, const double y3, const double z3,
                    const double x4, const double y4, const double z4,
-                   const double prox1 /*= VERY_SMALL_EPSILON_D*/, const double prox2 /*= VERY_SMALL_EPSILON_D*/)
+                   const double prox1 /*= std::numeric_limits<double>::epsilon()*/,
+                   const double prox2 /*= std::numeric_limits<double>::epsilon()*/)
 {
     double min1_x, max1_x, min1_y, max1_y, min1_z, max1_z;
 

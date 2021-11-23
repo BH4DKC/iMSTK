@@ -181,7 +181,7 @@ size_t
 TetraTriangleMap::findClosestTetrahedron(const Vec3d& pos) const
 {
     auto   tetMesh = std::dynamic_pointer_cast<TetrahedralMesh>(m_parentGeom);
-    double closestDistanceSqr = MAX_D;
+    double closestDistanceSqr = std::numeric_limits<double>::max();
     size_t closestTetrahedron = std::numeric_limits<size_t>::max();
     Vec3d  center(0, 0, 0);
 

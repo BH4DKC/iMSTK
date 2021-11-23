@@ -72,7 +72,7 @@ MouseControl::mouseScrollEvent(MouseEvent* e)
 }
 
 void
-MouseControl::mouseMoveEvent(MouseEvent* imstkNotUsed(e))
+MouseControl::mouseMoveEvent(MouseEvent* IMSTK_NOT_USED(e))
 {
     OnMouseMove(m_mouseDeviceClient->getPos());
 }

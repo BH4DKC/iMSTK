@@ -48,13 +48,13 @@ public:
     virtual void setDevice(std::shared_ptr<DeviceClient> device) override;
 
 public:
-    virtual void OnButtonPress(const int imstkNotUsed(key)) { }
+    virtual void OnButtonPress(const int IMSTK_NOT_USED(key)) { }
 
-    virtual void OnButtonRelease(const int imstkNotUsed(key)) { }
+    virtual void OnButtonRelease(const int IMSTK_NOT_USED(key)) { }
 
-    virtual void OnScroll(const double imstkNotUsed(dx)) { }
+    virtual void OnScroll(const double IMSTK_NOT_USED(dx)) { }
 
-    virtual void OnMouseMove(const Vec2d& imstkNotUsed(pos)) { }
+    virtual void OnMouseMove(const Vec2d& IMSTK_NOT_USED(pos)) { }
 
 private:
     ///

@@ -131,7 +131,7 @@ public:
         return m_bounds;
     }
 
-    void computeBoundingBox(Vec3d& lowerCorner, Vec3d& upperCorner, const double imstkNotUsed(paddingPercent)) override
+    void computeBoundingBox(Vec3d& lowerCorner, Vec3d& upperCorner, const double IMSTK_NOT_USED(paddingPercent)) override
     {
         const Vec6d& bounds = getBounds();
         lowerCorner = Vec3d(bounds[0], bounds[2], bounds[4]);

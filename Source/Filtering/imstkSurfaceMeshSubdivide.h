@@ -52,10 +52,10 @@ public:
 
     void setInputMesh(std::shared_ptr<SurfaceMesh> inputMesh);
 
-    imstkGetMacro(SubdivisionType, Type);
-    imstkGetMacro(NumberOfSubdivisions, int);
-    imstkSetMacro(SubdivisionType, Type);
-    imstkSetMacro(NumberOfSubdivisions, int);
+    IMSTK_GET(SubdivisionType, Type);
+    IMSTK_GET(NumberOfSubdivisions, int);
+    IMSTK_SET(SubdivisionType, Type);
+    IMSTK_SET(NumberOfSubdivisions, int);
 
 protected:
     void requestUpdate() override;

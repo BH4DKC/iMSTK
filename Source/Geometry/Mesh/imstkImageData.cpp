@@ -102,7 +102,7 @@ ImageData::allocate(const ScalarTypeId type, const int numComps, const Vec3i& di
     const int numVals = dims[0] * dims[1] * dims[2];
     switch (type)
     {
-        TemplateMacro(m_scalarArray = std::make_shared<DataArray<IMSTK_TT>>(numVals * numComps); );
+        IMSTK_TYPE_CASE(m_scalarArray = std::make_shared<DataArray<IMSTK_TT>>(numVals * numComps); );
     default:
         LOG(WARNING) << "Tried to allocate unknown scalar type";
         break;

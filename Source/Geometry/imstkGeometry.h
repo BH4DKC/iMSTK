@@ -213,7 +213,7 @@ protected:
     ///
     /// \brief Directly apply transform to data
     ///
-    virtual void applyTransform(const Mat4d& imstkNotUsed(m)) { }
+    virtual void applyTransform(const Mat4d& IMSTK_NOT_USED(m)) { }
 
     std::string m_name;                     ///> Unique name for each geometry
     uint32_t    m_geometryIndex;            ///> Unique ID assigned to each geometry upon construction

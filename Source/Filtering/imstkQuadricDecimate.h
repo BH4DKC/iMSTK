@@ -43,18 +43,18 @@ public:
     ///
     void setInputMesh(std::shared_ptr<SurfaceMesh> inputMesh);
 
-    imstkGetMacro(VolumePreserving, bool);
-    imstkGetMacro(TargetReduction, double);
+    IMSTK_GET(VolumePreserving, bool);
+    IMSTK_GET(TargetReduction, double);
 
     ///
     /// \brief Set whether to preserve volume or not, default on
     ///
-    imstkSetMacro(VolumePreserving, bool);
+    IMSTK_SET(VolumePreserving, bool);
 
     ///
     /// \brief Set the target reduction ratio
     ///
-    imstkSetMacro(TargetReduction, double);
+    IMSTK_SET(TargetReduction, double);
 
 protected:
     void requestUpdate() override;

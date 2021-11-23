@@ -52,18 +52,18 @@ public:
 
     void setInputImage(std::shared_ptr<ImageData> inputData);
 
-    imstkGetMacro(Transform, const Mat4d&);
-    imstkGetMacro(InterpolationType, const InterpolateType&);
+    IMSTK_GET(Transform, const Mat4d&);
+    IMSTK_GET(InterpolationType, const InterpolateType&);
 
     ///
     /// \brief Set the transformation matrix
     ///
-    imstkSetMacro(Transform, const Mat4d&);
+    IMSTK_SET(Transform, const Mat4d&);
 
     ///
     /// \brief Set the interpolation type to use when resampling
     ///
-    imstkSetMacro(InterpolationType, const InterpolateType&);
+    IMSTK_SET(InterpolationType, const InterpolateType&);
 
 protected:
     void requestUpdate() override;

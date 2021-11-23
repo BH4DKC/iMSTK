@@ -46,12 +46,12 @@ public:
 
     std::shared_ptr<SurfaceMesh> getOutputMesh() const;
 
-    imstkGetMacro(IsoValue, double);
+    IMSTK_GET(IsoValue, double);
 
     ///
     /// \brief Get the value at which the surface should be produced
     ///
-    imstkSetMacro(IsoValue, double);
+    IMSTK_SET(IsoValue, double);
 
 protected:
     void requestUpdate() override;

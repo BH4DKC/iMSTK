@@ -23,14 +23,14 @@
 
 #include "imstkMacros.h"
 
-DISABLE_WARNING_PUSH
-    DISABLE_WARNING_HIDES_CLASS_MEMBER
+IMSTK_DISABLE_WARNING_PUSH
+    IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER
 
 #include <StVKElementABCDLoader.h>
 #include <StVKStiffnessMatrix.h>
 #include <tetMesh.h>
 
-DISABLE_WARNING_POP
+IMSTK_DISABLE_WARNING_POP
 
 namespace imstk
 {

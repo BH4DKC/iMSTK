@@ -45,14 +45,14 @@ public:
     void setInputPoints(std::shared_ptr<PointSet> inputPoints);
     std::shared_ptr<PointSet> getOutputPoints() const;
 
-    imstkGetMacro(UsePruning, bool);
-    imstkGetMacro(Tolerance, double);
-    imstkGetMacro(InsideOut, bool);
-    imstkGetMacro(IsInsideMask, std::shared_ptr<DataArray<unsigned char>>);
+    IMSTK_GET(UsePruning, bool);
+    IMSTK_GET(Tolerance, double);
+    IMSTK_GET(InsideOut, bool);
+    IMSTK_GET(IsInsideMask, std::shared_ptr<DataArray<unsigned char>>);
 
-    imstkSetMacro(UsePruning, bool);
-    imstkSetMacro(Tolerance, double);
-    imstkSetMacro(InsideOut, bool);
+    IMSTK_SET(UsePruning, bool);
+    IMSTK_SET(Tolerance, double);
+    IMSTK_SET(InsideOut, bool);
 
 protected:
     void requestUpdate() override;

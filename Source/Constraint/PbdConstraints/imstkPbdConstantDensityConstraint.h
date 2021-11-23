@@ -63,9 +63,9 @@ public:
                            VecDataArray<double, 3>& currVertexPositions) override;
 
     bool computeValueAndGradient(
-        const VecDataArray<double, 3>& imstkNotUsed(currVertexPositions),
-        double& imstkNotUsed(c),
-        std::vector<Vec3d>& imstkNotUsed(dcdx)) const override
+        const VecDataArray<double, 3>& IMSTK_NOT_USED(currVertexPositions),
+        double& IMSTK_NOT_USED(c),
+        std::vector<Vec3d>& IMSTK_NOT_USED(dcdx)) const override
     {
         return true;
     }

@@ -114,7 +114,7 @@ NewtonSolver<SystemMatrix>::solve()
     size_t      iterNum;
     const auto& u      = this->m_nonLinearSystem->getUnknownVector();
     Vectord     du     = u; // make this a class member in future
-    double      error0 = MAX_D;
+    double      error0 = std::numeric_limits<double>::max();
 
     double epsilon = m_relativeTolerance * m_relativeTolerance;
     for (iterNum = 0; iterNum < m_maxIterations; ++iterNum)

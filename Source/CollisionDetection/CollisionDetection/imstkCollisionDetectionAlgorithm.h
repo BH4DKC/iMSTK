@@ -116,17 +116,17 @@ protected:
     /// \brief Compute collision data for side A (implement as if flip=true)
     ///
     virtual void computeCollisionDataA(
-        std::shared_ptr<Geometry>      imstkNotUsed(geomA),
-        std::shared_ptr<Geometry>      imstkNotUsed(geomB),
-        std::vector<CollisionElement>& imstkNotUsed(elementsA)) { m_computeColDataAImplemented = false; }
+        std::shared_ptr<Geometry>      IMSTK_NOT_USED(geomA),
+        std::shared_ptr<Geometry>      IMSTK_NOT_USED(geomB),
+        std::vector<CollisionElement>& IMSTK_NOT_USED(elementsA)) { m_computeColDataAImplemented = false; }
 
     ///
     /// \brief Compute collision data for side B (implement as if flip=true)
     ///
     virtual void computeCollisionDataB(
-        std::shared_ptr<Geometry>      imstkNotUsed(geomA),
-        std::shared_ptr<Geometry>      imstkNotUsed(geomB),
-        std::vector<CollisionElement>& imstkNotUsed(elementsB)) { m_computeColDataBImplemented = false; }
+        std::shared_ptr<Geometry>      IMSTK_NOT_USED(geomA),
+        std::shared_ptr<Geometry>      IMSTK_NOT_USED(geomB),
+        std::vector<CollisionElement>& IMSTK_NOT_USED(elementsB)) { m_computeColDataBImplemented = false; }
 
 protected:
     std::shared_ptr<CollisionData> m_colData  = nullptr;    ///> Collision data

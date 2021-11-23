@@ -38,7 +38,7 @@ RbdFrictionConstraint::RbdFrictionConstraint(
 }
 
 void
-RbdFrictionConstraint::compute(double imstkNotUsed(dt))
+RbdFrictionConstraint::compute(double IMSTK_NOT_USED(dt))
 {
     // Displacement from center of mass
     //const Vec3d r1 = m_contactPt - m_obj1->getPosition();

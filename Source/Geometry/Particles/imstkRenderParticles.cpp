@@ -93,7 +93,7 @@ RenderParticles::getMaxNumParticles()
 }
 
 void
-RenderParticles::applyTransform(const Mat4d& imstkNotUsed(m))
+RenderParticles::applyTransform(const Mat4d& IMSTK_NOT_USED(m))
 {
     LOG(WARNING) << "applyTransform Not implemented!";
 }

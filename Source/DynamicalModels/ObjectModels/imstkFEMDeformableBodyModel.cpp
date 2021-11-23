@@ -34,15 +34,15 @@
 #include "imstkVegaMeshIO.h"
 #include "imstkVolumetricMesh.h"
 
-DISABLE_WARNING_PUSH
-    DISABLE_WARNING_HIDES_CLASS_MEMBER
+IMSTK_DISABLE_WARNING_PUSH
+    IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER
 #include "imstkStVKForceModel.h"
 
 #include <generateMassMatrix.h>
 #include <generateMeshGraph.h>
 #include <configFile.h>
 
-DISABLE_WARNING_POP
+IMSTK_DISABLE_WARNING_POP
 
 namespace imstk
 {
@@ -315,7 +315,7 @@ FEMDeformableBodyModel::initializeForceModel()
         m_internalForceModel = std::make_shared<IsotropicHyperelasticFEForceModel>(
                                         m_FEModelConfig->m_hyperElasticMaterialType,
                                         m_vegaPhysicsMesh,
-                                        -MAX_D,
+                                        -std::numeric_limits<double>::max(),
                                         isGravityPresent,
                                         g);
         break;
@@ -523,7 +523,7 @@ FEMDeformableBodyModel::computeSemiImplicitSystemRHS(kinematicState&       state
 }
 
 void
-FEMDeformableBodyModel::computeImplicitSystemLHS(const kinematicState& imstkNotUsed(stateAtT),
+FEMDeformableBodyModel::computeImplicitSystemLHS(const kinematicState& IMSTK_NOT_USED(stateAtT),
                                                  kinematicState&       newState,
                                                  const StateUpdateType updateType)
 {

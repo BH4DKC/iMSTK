@@ -136,7 +136,7 @@ VTKHexahedralMeshRenderDelegate::processEvents()
 }
 
 void
-VTKHexahedralMeshRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKHexahedralMeshRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<HexahedralMesh>(m_visualModel->getGeometry());
 
@@ -177,7 +177,7 @@ VTKHexahedralMeshRenderDelegate::geometryModified(Event* imstkNotUsed(e))
 }
 
 void
-VTKHexahedralMeshRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKHexahedralMeshRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<HexahedralMesh>(m_visualModel->getGeometry());
     m_vertices = geometry->getVertexPositions();

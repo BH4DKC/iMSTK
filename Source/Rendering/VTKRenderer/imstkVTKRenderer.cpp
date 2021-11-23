@@ -561,7 +561,7 @@ VTKRenderer::removeSceneObject(std::shared_ptr<SceneObject> sceneObject)
 }
 
 void
-VTKRenderer::sceneModifed(Event* imstkNotUsed(e))
+VTKRenderer::sceneModifed(Event* IMSTK_NOT_USED(e))
 {
     // If the SceneObject is in the scene but not being rendered
     for (auto sceneObject : m_scene->getSceneObjects())

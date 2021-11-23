@@ -26,13 +26,13 @@
 #include "imstkVecDataArray.h"
 #include "imstkVegaMeshIO.h"
 
-DISABLE_WARNING_PUSH
-    DISABLE_WARNING_HIDES_CLASS_MEMBER
+IMSTK_DISABLE_WARNING_PUSH
+    IMSTK_DISABLE_WARNING_HIDES_CLASS_MEMBER
 
 #include <tetMesh.h>
 #include <volumetricMeshLoader.h>
 
-DISABLE_WARNING_POP
+IMSTK_DISABLE_WARNING_POP
 
 namespace imstk
 {

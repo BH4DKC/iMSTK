@@ -54,9 +54,9 @@ public:
     ///
     /// \brief Dimensions of distance transform to fill
     ///@{
-    imstkSetMacro(Dimensions, const Vec3i&);
+    IMSTK_SET(Dimensions, const Vec3i&);
     void setDimensions(int dimX, int dimY, int dimZ) { setDimensions(Vec3i(dimX, dimY, dimZ)); }
-    imstkGetMacro(Dimensions, const Vec3i&);
+    IMSTK_GET(Dimensions, const Vec3i&);
     ///@}
 
     ///
@@ -67,26 +67,26 @@ public:
     ///@{
     void setBounds(const Vec3d& min, const Vec3d& max);
     void setBounds(const Vec6d&);
-    imstkGetMacro(Bounds, const Vec6d&);
+    IMSTK_GET(Bounds, const Vec6d&);
     ///@}
 
     ///
     /// \brief If on, will compute only a narrow banded transform
     ///@{
-    imstkSetMacro(NarrowBanded, bool);
-    imstkGetMacro(NarrowBanded, bool);
+    IMSTK_SET(NarrowBanded, bool);
+    IMSTK_GET(NarrowBanded, bool);
     ///@}
 
     ///
     /// \brief Width of the band
     ///@{
-    imstkSetMacro(DilateSize, int);
-    imstkGetMacro(DilateSize, int);
+    IMSTK_SET(DilateSize, int);
+    IMSTK_GET(DilateSize, int);
     ///@}
 
     ///@{
-    imstkSetMacro(Tolerance, double);
-    imstkGetMacro(Tolerance, double);
+    IMSTK_SET(Tolerance, double);
+    IMSTK_GET(Tolerance, double);
 ///@}
 
 protected:

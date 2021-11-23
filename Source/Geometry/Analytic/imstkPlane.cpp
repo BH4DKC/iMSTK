@@ -92,7 +92,7 @@ Plane::updatePostTransformData() const
 }
 
 void
-Plane::computeBoundingBox(Vec3d& min, Vec3d& max, const double imstkNotUsed(paddingPercent))
+Plane::computeBoundingBox(Vec3d& min, Vec3d& max, const double IMSTK_NOT_USED(paddingPercent))
 {
     updatePostTransformData();
 

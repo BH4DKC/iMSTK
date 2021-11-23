@@ -49,19 +49,19 @@ public:
     void setInputMesh(std::shared_ptr<SurfaceMesh> mesh);
     std::shared_ptr<ImageData> getOutputImage() const;
 
-    imstkGetMacro(BorderExtent, int);
-    imstkGetMacro(Dimensions, const Vec3i&);
+    IMSTK_GET(BorderExtent, int);
+    IMSTK_GET(Dimensions, const Vec3i&);
 
     ///
     /// \brief Adds a border around the generated image of pixel amount
     /// border exists outside of bounds
     ///
-    imstkSetMacro(BorderExtent, int);
+    IMSTK_SET(BorderExtent, int);
 
     ///
     /// \brief The dimensions of the image to generate
     ///
-    imstkSetMacro(Dimensions, const Vec3i&);
+    IMSTK_SET(Dimensions, const Vec3i&);
 
     ///
     /// \brief The dimensions of the image to generate

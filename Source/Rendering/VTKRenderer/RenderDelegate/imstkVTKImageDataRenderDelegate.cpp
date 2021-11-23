@@ -105,7 +105,7 @@ VTKImageDataRenderDelegate::processEvents()
 }
 
 void
-VTKImageDataRenderDelegate::imageDataModified(Event* imstkNotUsed(e))
+VTKImageDataRenderDelegate::imageDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto                                       imageData    = std::static_pointer_cast<ImageData>(m_visualModel->getGeometry());
     vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper = vtkGPUVolumeRayCastMapper::SafeDownCast(m_mapper);
@@ -132,7 +132,7 @@ VTKImageDataRenderDelegate::imageDataModified(Event* imstkNotUsed(e))
 }
 
 void
-VTKImageDataRenderDelegate::imageScalarsModified(Event* imstkNotUsed(e))
+VTKImageDataRenderDelegate::imageScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     auto                                       geometry     = std::static_pointer_cast<ImageData>(m_visualModel->getGeometry());
     vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper = vtkGPUVolumeRayCastMapper::SafeDownCast(m_mapper);

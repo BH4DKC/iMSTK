@@ -157,7 +157,7 @@ KeyboardSceneControl::OnKeyPress(const char key)
 }
 
 void
-KeyboardSceneControl::OnKeyRelease(const char imstkNotUsed(key))
+KeyboardSceneControl::OnKeyRelease(const char IMSTK_NOT_USED(key))
 {
 }
 }

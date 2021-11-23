@@ -42,7 +42,7 @@ PBDPickingCH::PBDPickingCH() :
 void
 PBDPickingCH::handle(
     const std::vector<CollisionElement>& elementsA,
-    const std::vector<CollisionElement>& imstkNotUsed(elementsB))
+    const std::vector<CollisionElement>& IMSTK_NOT_USED(elementsB))
 {
     std::shared_ptr<PbdObject>       pbdObj  = std::dynamic_pointer_cast<PbdObject>(getInputObjectA());
     std::shared_ptr<CollidingObject> pickObj = getInputObjectB();

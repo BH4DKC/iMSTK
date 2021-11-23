@@ -37,7 +37,7 @@ SPHCollisionHandling::setInputSPHObject(std::shared_ptr<SPHObject> sphObj)
 void
 SPHCollisionHandling::handle(
     const std::vector<CollisionElement>& elementsA,
-    const std::vector<CollisionElement>& imstkNotUsed(elementsB))
+    const std::vector<CollisionElement>& IMSTK_NOT_USED(elementsB))
 {
     std::shared_ptr<SPHObject> obj      = std::dynamic_pointer_cast<SPHObject>(getInputObjectA());
     std::shared_ptr<SPHModel>  sphModel = obj->getSPHModel();

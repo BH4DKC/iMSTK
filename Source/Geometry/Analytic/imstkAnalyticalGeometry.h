@@ -70,7 +70,7 @@ public:
     /// \param Position in global space
     /// Note: Called frequently and often in parallel
     ///
-    double getFunctionValue(const Vec3d& imstkNotUsed(pos)) const override { return 0.0; }
+    double getFunctionValue(const Vec3d& IMSTK_NOT_USED(pos)) const override { return 0.0; }
 
     ///
     /// \brief Apply the global transform to the local parameters producing post

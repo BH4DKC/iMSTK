@@ -106,14 +106,14 @@ public:
     void setInputMesh(std::shared_ptr<SurfaceMesh> inputSurf);
     std::shared_ptr<std::map<int, int>> getCutVertMap() { return m_CutVertMap; }
 
-    imstkGetMacro(CutData, std::shared_ptr<std::vector<CutData>>);
-    imstkSetMacro(CutData, std::shared_ptr<std::vector<CutData>>);
-    imstkGetMacro(CutGeometry, std::shared_ptr<Geometry>);
-    imstkSetMacro(CutGeometry, std::shared_ptr<Geometry>);
-    imstkGetMacro(Epsilon, double);
-    imstkSetMacro(Epsilon, double);
-    imstkGetMacro(RemoveConstraintVertices, std::shared_ptr<std::unordered_set<size_t>>);
-    imstkGetMacro(AddConstraintVertices, std::shared_ptr<std::unordered_set<size_t>>);
+    IMSTK_GET(CutData, std::shared_ptr<std::vector<CutData>>);
+    IMSTK_SET(CutData, std::shared_ptr<std::vector<CutData>>);
+    IMSTK_GET(CutGeometry, std::shared_ptr<Geometry>);
+    IMSTK_SET(CutGeometry, std::shared_ptr<Geometry>);
+    IMSTK_GET(Epsilon, double);
+    IMSTK_SET(Epsilon, double);
+    IMSTK_GET(RemoveConstraintVertices, std::shared_ptr<std::unordered_set<size_t>>);
+    IMSTK_GET(AddConstraintVertices, std::shared_ptr<std::unordered_set<size_t>>);
 
 protected:
     void requestUpdate() override;

@@ -134,7 +134,7 @@ public:
     ///
     DataArray() : m_mapped(false), m_data(new T[1])
     {
-        setType(TypeTemplateMacro(T));
+        setType(IMSTK_TYPE_TEMPLATE(T));
         m_capacity = 1;
     }
 
@@ -143,7 +143,7 @@ public:
     ///
     DataArray(const int size) : AbstractDataArray(size), m_mapped(false), m_data(new T[size])
     {
-        setType(TypeTemplateMacro(T));
+        setType(IMSTK_TYPE_TEMPLATE(T));
     }
 
     ///
@@ -158,7 +158,7 @@ public:
             m_data[j] = i;
             j++;
         }
-        setType(TypeTemplateMacro(T));
+        setType(IMSTK_TYPE_TEMPLATE(T));
         m_size = m_capacity = static_cast<int>(list.size());
     }
 
@@ -421,7 +421,7 @@ public:
         }
         switch (type)
         {
-            TemplateMacro(return std::make_shared<DataArray<IMSTK_TT>>(cast<IMSTK_TT>()));
+            IMSTK_TYPE_CASE(return std::make_shared<DataArray<IMSTK_TT>>(cast<IMSTK_TT>()));
         default:
             throw(std::runtime_error("Unknown scalar type"));
         }

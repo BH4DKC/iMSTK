@@ -140,19 +140,19 @@ VTKPointSetRenderDelegate::processEvents()
 }
 
 void
-VTKPointSetRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKPointSetRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexBuffer(m_geometry->getVertexPositions());
 }
 
 void
-VTKPointSetRenderDelegate::vertexScalarsModified(Event* imstkNotUsed(e))
+VTKPointSetRenderDelegate::vertexScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexScalarBuffer(m_geometry->getVertexScalars());
 }
 
 void
-VTKPointSetRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKPointSetRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     // If the vertices were reallocated
     if (m_vertices != m_geometry->getVertexPositions())

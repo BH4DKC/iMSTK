@@ -174,31 +174,31 @@ VTKLineMeshRenderDelegate::processEvents()
 }
 
 void
-VTKLineMeshRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKLineMeshRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexBuffer(m_geometry->getVertexPositions());
 }
 
 void
-VTKLineMeshRenderDelegate::indexDataModified(Event* imstkNotUsed(e))
+VTKLineMeshRenderDelegate::indexDataModified(Event* IMSTK_NOT_USED(e))
 {
     setIndexBuffer(m_geometry->getLinesIndices());
 }
 
 void
-VTKLineMeshRenderDelegate::vertexScalarsModified(Event* imstkNotUsed(e))
+VTKLineMeshRenderDelegate::vertexScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexScalarBuffer(m_geometry->getVertexScalars());
 }
 
 void
-VTKLineMeshRenderDelegate::cellScalarsModified(Event* imstkNotUsed(e))
+VTKLineMeshRenderDelegate::cellScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     setCellScalarBuffer(m_geometry->getCellScalars());
 }
 
 void
-VTKLineMeshRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKLineMeshRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     // If the vertices were reallocated
     if (m_vertices != m_geometry->getVertexPositions())

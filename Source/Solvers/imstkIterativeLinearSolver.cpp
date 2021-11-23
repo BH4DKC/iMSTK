@@ -67,7 +67,7 @@ IterativeLinearSolver::print() const
 }
 
 void
-IterativeLinearSolver::solve(Vectord& imstkNotUsed(x))
+IterativeLinearSolver::solve(Vectord& IMSTK_NOT_USED(x))
 {
     LOG(WARNING) << "IterativeLinearSolver::solve is not implemented!";
     /*

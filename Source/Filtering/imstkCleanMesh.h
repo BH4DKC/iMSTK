@@ -47,9 +47,9 @@ public:
     ///
     void setInputMesh(std::shared_ptr<SurfaceMesh> inputMesh);
 
-    imstkGetMacro(Tolerance, double);
-    imstkGetMacro(AbsoluteTolerance, double);
-    imstkGetMacro(UseAbsolute, bool);
+    IMSTK_GET(Tolerance, double);
+    IMSTK_GET(AbsoluteTolerance, double);
+    IMSTK_GET(UseAbsolute, bool);
 
     ///
     /// \brief Set the tolerance for point merging, fraction of bounding box length

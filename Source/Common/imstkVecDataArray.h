@@ -213,7 +213,7 @@ public:
         }
         switch (type)
         {
-            TemplateMacro(return (std::make_shared<VecDataArray<IMSTK_TT, N>>(cast<IMSTK_TT>())));
+            IMSTK_TYPE_CASE(return (std::make_shared<VecDataArray<IMSTK_TT, N>>(cast<IMSTK_TT>())));
         default:
             throw(std::runtime_error("Unknown scalar type"));
         }

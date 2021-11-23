@@ -126,21 +126,21 @@ VTKTetrahedralMeshRenderDelegate::processEvents()
 }
 
 void
-VTKTetrahedralMeshRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKTetrahedralMeshRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<TetrahedralMesh>(m_visualModel->getGeometry());
     setVertexBuffer(geometry->getVertexPositions());
 }
 
 void
-VTKTetrahedralMeshRenderDelegate::indexDataModified(Event* imstkNotUsed(e))
+VTKTetrahedralMeshRenderDelegate::indexDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<TetrahedralMesh>(m_visualModel->getGeometry());
     setIndexBuffer(geometry->getTetrahedraIndices());
 }
 
 void
-VTKTetrahedralMeshRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKTetrahedralMeshRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<TetrahedralMesh>(m_visualModel->getGeometry());
 

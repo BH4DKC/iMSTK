@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-#define IMSTK_SIGNAL(className,signalName) static std::string signalName() { return #className "::"#signalName; }
+#define IMSTK_SIGNAL(className, signalName) static std::string signalName() { return #className "::"#signalName; }
 
 namespace imstk
 {
@@ -47,8 +47,8 @@ class EventObject;
 class Event
 {
 public:
-    Event(const std::string type) : m_type(type),m_sender(nullptr) { }
-    virtual~Event() = default;
+    Event(const std::string type) : m_type(type), m_sender(nullptr) { }
+    virtual ~Event() = default;
 
 public:
     std::string  m_type;
@@ -62,8 +62,8 @@ public:
 class Command
 {
 public:
-    Command() : m_call(nullptr),m_event(nullptr) { }
-    Command(std::function<void(Event*)> call,std::shared_ptr<Event> event) : m_call(call),m_event(event) { }
+    Command() : m_call(nullptr), m_event(nullptr) { }
+    Command(std::function<void(Event*)> call, std::shared_ptr<Event> event) : m_call(call), m_event(event) { }
 
 public:
     ///
@@ -86,8 +86,8 @@ public:
     std::shared_ptr<Event>      m_event = nullptr;
 };
 
-template<class T,class RecieverType>
-static void connect(EventObject*,std::string(*)(),RecieverType*,void(RecieverType::*)(T*));
+template<class T, class RecieverType>
+static void connect(EventObject*, std::string (*)(), RecieverType*, void (RecieverType::*)(T*));
 template<class T>
 static void connect(EventObject*, std::string (*)(), std::function<void(T*)>);
 

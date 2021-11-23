@@ -65,8 +65,8 @@ struct PbdConstraintFunctor
         /// and a set of newly inserted vertices
         /// This is for dealing with topology diffs during runtime
         ///
-        virtual void addConstraints(PbdConstraintContainer&                     imstkNotUsed(constraints),
-                                    std::shared_ptr<std::unordered_set<size_t>> imstkNotUsed(vertices)) { }
+        virtual void addConstraints(PbdConstraintContainer&                     IMSTK_NOT_USED(constraints),
+                                    std::shared_ptr<std::unordered_set<size_t>> IMSTK_NOT_USED(vertices)) { }
 
         void setGeometry(std::shared_ptr<PointSet> geom) { m_geom = geom; }
 

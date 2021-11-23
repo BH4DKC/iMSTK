@@ -133,8 +133,8 @@ LevelSetModel::evolve()
         {
             baseIndexToImageIndex.push_back(iter->first);
         }
-        DISABLE_WARNING_PUSH
-        DISABLE_WARNING_PADDING
+        IMSTK_DISABLE_WARNING_PUSH
+        IMSTK_DISABLE_WARNING_PADDING
 
         // Compute gradients
         const double                             constantVel = m_config->m_constantVelocity;
@@ -200,7 +200,7 @@ LevelSetModel::evolve()
                     }
             }, noteUpdatePoolSize > m_maxVelocitiesParallel);
         }
-        DISABLE_WARNING_POP
+        IMSTK_DISABLE_WARNING_POP
         m_nodesToUpdate.clear();
     }
     else

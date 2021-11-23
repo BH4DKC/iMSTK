@@ -206,7 +206,7 @@ VTKSurfaceMeshRenderDelegate::processEvents()
 }
 
 void
-VTKSurfaceMeshRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexBuffer(m_geometry->getVertexPositions());
 
@@ -219,37 +219,37 @@ VTKSurfaceMeshRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
 }
 
 void
-VTKSurfaceMeshRenderDelegate::indexDataModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::indexDataModified(Event* IMSTK_NOT_USED(e))
 {
     setIndexBuffer(m_geometry->getTriangleIndices());
 }
 
 void
-VTKSurfaceMeshRenderDelegate::normalDataModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::normalDataModified(Event* IMSTK_NOT_USED(e))
 {
     setNormalBuffer(m_geometry->getVertexNormals());
 }
 
 void
-VTKSurfaceMeshRenderDelegate::vertexScalarsModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::vertexScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     setVertexScalarBuffer(m_geometry->getVertexScalars());
 }
 
 void
-VTKSurfaceMeshRenderDelegate::cellScalarsModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::cellScalarsModified(Event* IMSTK_NOT_USED(e))
 {
     setCellScalarBuffer(m_geometry->getCellScalars());
 }
 
 void
-VTKSurfaceMeshRenderDelegate::textureCoordinatesModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::textureCoordinatesModified(Event* IMSTK_NOT_USED(e))
 {
     setTextureCoordinateBuffer(m_geometry->getVertexTCoords());
 }
 
 void
-VTKSurfaceMeshRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKSurfaceMeshRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     // If the vertices were reallocated
     if (m_vertices != m_geometry->getVertexPositions())

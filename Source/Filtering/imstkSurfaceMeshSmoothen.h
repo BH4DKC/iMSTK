@@ -39,26 +39,26 @@ public:
     virtual ~SurfaceMeshSmoothen() override = default;
 
 public:
-    imstkGetMacro(NumberOfIterations, int);
-    imstkGetMacro(RelaxationFactor, double);
-    imstkGetMacro(Convergence, double);
-    imstkGetMacro(FeatureAngle, double);
-    imstkGetMacro(EdgeAngle, double);
-    imstkGetMacro(FeatureEdgeSmoothing, bool);
-    imstkGetMacro(BoundarySmoothing, bool);
+    IMSTK_GET(NumberOfIterations, int);
+    IMSTK_GET(RelaxationFactor, double);
+    IMSTK_GET(Convergence, double);
+    IMSTK_GET(FeatureAngle, double);
+    IMSTK_GET(EdgeAngle, double);
+    IMSTK_GET(FeatureEdgeSmoothing, bool);
+    IMSTK_GET(BoundarySmoothing, bool);
 
     ///
     /// \brief Required input, port 0
     ///
     void setInputMesh(std::shared_ptr<SurfaceMesh> inputMesh);
 
-    imstkSetMacro(NumberOfIterations, int);
-    imstkSetMacro(RelaxationFactor, double);
-    imstkSetMacro(Convergence, double);
-    imstkSetMacro(FeatureAngle, double);
-    imstkSetMacro(EdgeAngle, double);
-    imstkSetMacro(FeatureEdgeSmoothing, bool);
-    imstkSetMacro(BoundarySmoothing, bool);
+    IMSTK_SET(NumberOfIterations, int);
+    IMSTK_SET(RelaxationFactor, double);
+    IMSTK_SET(Convergence, double);
+    IMSTK_SET(FeatureAngle, double);
+    IMSTK_SET(EdgeAngle, double);
+    IMSTK_SET(FeatureEdgeSmoothing, bool);
+    IMSTK_SET(BoundarySmoothing, bool);
 
 protected:
     void requestUpdate() override;

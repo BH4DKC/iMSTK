@@ -150,7 +150,7 @@ OrientedBox::getFunctionValue(const Vec3d& pos) const
 }
 
 void
-OrientedBox::computeBoundingBox(Vec3d& min, Vec3d& max, const double imstkNotUsed(paddingPercent))
+OrientedBox::computeBoundingBox(Vec3d& min, Vec3d& max, const double IMSTK_NOT_USED(paddingPercent))
 {
     updatePostTransformData();
 

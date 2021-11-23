@@ -101,8 +101,8 @@ protected:
     ///
     void setOutput(std::shared_ptr<Geometry> inputGeometry, size_t port = 0);
 
-    imstkGetMacro(NumberOfInputPorts, size_t);
-    imstkGetMacro(NumberOfOutputPorts, size_t);
+    IMSTK_GET(NumberOfInputPorts, size_t);
+    IMSTK_GET(NumberOfOutputPorts, size_t);
 
     ///
     /// \brief Sets the amount of input ports

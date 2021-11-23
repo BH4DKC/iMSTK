@@ -133,7 +133,7 @@ VTKSurfaceNormalRenderDelegate::processEvents()
 }
 
 void
-VTKSurfaceNormalRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
+VTKSurfaceNormalRenderDelegate::vertexDataModified(Event* IMSTK_NOT_USED(e))
 {
     auto geometry = std::static_pointer_cast<SurfaceMesh>(m_visualModel->getGeometry());
     m_surfMeshVertices = geometry->getVertexPositions();
@@ -152,7 +152,7 @@ VTKSurfaceNormalRenderDelegate::vertexDataModified(Event* imstkNotUsed(e))
 }
 
 void
-VTKSurfaceNormalRenderDelegate::geometryModified(Event* imstkNotUsed(e))
+VTKSurfaceNormalRenderDelegate::geometryModified(Event* IMSTK_NOT_USED(e))
 {
     // Called when the geometry posts modified
     auto geometry = std::static_pointer_cast<PointSet>(m_visualModel->getGeometry());

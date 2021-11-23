@@ -35,7 +35,7 @@ RbdDistanceConstraint::RbdDistanceConstraint(
 }
 
 void
-RbdDistanceConstraint::compute(double imstkNotUsed(dt))
+RbdDistanceConstraint::compute(double IMSTK_NOT_USED(dt))
 {
     J = Eigen::Matrix<double, 3, 4>::Zero();
     if ((m_side == Side::AB || m_side == Side::A) && !m_obj1->m_isStatic)

@@ -43,7 +43,7 @@ Geometry::print() const
 }
 
 void
-Geometry::computeBoundingBox(Vec3d& imstkNotUsed(min), Vec3d& imstkNotUsed(max), const double imstkNotUsed(padding))
+Geometry::computeBoundingBox(Vec3d& IMSTK_NOT_USED(min), Vec3d& IMSTK_NOT_USED(max), const double IMSTK_NOT_USED(padding))
 {
     LOG(WARNING) << "computeBoundingBox() must be called from an instance of a specific geometry class";
 }

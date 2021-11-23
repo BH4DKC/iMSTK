@@ -112,7 +112,7 @@ VTKTextureDelegate::VTKTextureDelegate(std::shared_ptr<Texture> texture) : m_vtk
 }
 
 void
-VTKTextureDelegate::textureModified(Event* imstkNotUsed(e))
+VTKTextureDelegate::textureModified(Event* IMSTK_NOT_USED(e))
 {
     //m_vtkTexture->GetInputDataObject();
     m_vtkTexture->Modified();
