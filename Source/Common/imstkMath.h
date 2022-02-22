@@ -125,6 +125,10 @@ using RigidTransform3d = Eigen::Isometry3d;
 using AffineTransform3f = Eigen::Affine3f;
 using AffineTransform3d = Eigen::Affine3d;
 
+// Use for the size of a vector, indexing into a vector, etc ...
+using IndexType = size_t;
+constexpr IndexType IMSTK_NO_INDEX = static_cast<IndexType>(-1);
+
 /// Some commonly used math constants
 #define PI               3.14159265358979323846
 #define PI_2             1.57079632679489661923
