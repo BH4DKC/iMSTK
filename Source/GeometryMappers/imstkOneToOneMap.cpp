@@ -20,6 +20,12 @@
 
 namespace imstk
 {
+OneToOneMap::OneToOneMap(std::shared_ptr<Geometry> parent, std::shared_ptr<Geometry> child)
+{
+    setParentGeometry(parent);
+    setChildGeometry(child);
+}
+
 void
 OneToOneMap::compute()
 {
@@ -27,8 +33,6 @@ OneToOneMap::compute()
 
     auto meshParent = std::dynamic_pointer_cast<PointSet>(m_parentGeom);
     auto meshChild  = std::dynamic_pointer_cast<PointSet>(m_childGeom);
-
-    CHECK(meshParent != nullptr && meshChild != nullptr) << "Fail to cast from geometry to pointset";
 
     m_oneToOneMap.clear();
     ParallelUtils::SpinLock lock;
@@ -43,8 +47,8 @@ OneToOneMap::compute()
         [&](const int nodeId)
         {
             // Find the enclosing or closest tetrahedron
-            int matchingNodeId = findMatchingVertex(parentVertices, childVertices[nodeId]);
-            if (matchingNodeId == -1)
+            IndexType matchingNodeId = findMatchingVertex(parentVertices, childVertices[nodeId]);
+            if (matchingNodeId == IMSTK_NO_INDEX)
             {
                 return;
             }
@@ -62,39 +66,44 @@ OneToOneMap::compute()
     {
         m_oneToOneMapVector.push_back({ kv.first, kv.second });
     }
+    std::sort(m_oneToOneMapVector.begin(), m_oneToOneMapVector.end());
 }
 
-int
+IndexType
 OneToOneMap::findMatchingVertex(const VecDataArray<double, 3>& parentVertices, const Vec3d& p)
 {
     const double eps2 = m_epsilon * m_epsilon;
-    for (int idx = 0; idx < parentVertices.size(); idx++)
+    for (int idx = 0; idx < parentVertices.size(); ++idx)
     {
         if ((parentVertices[idx] - p).squaredNorm() < eps2)
         {
             return idx;
         }
     }
-    return -1;
+    return IMSTK_NO_INDEX;
 }
 
 bool
 OneToOneMap::isValid() const
 {
-    return true;
+    auto meshParent = std::dynamic_pointer_cast<PointSet>(m_parentGeom);
+    auto meshChild  = std::dynamic_pointer_cast<PointSet>(m_childGeom);
+
+    return meshParent != nullptr && meshChild != nullptr;
 }
 
 void
-OneToOneMap::setMap(const std::unordered_map<int, int>& sourceMap)
+OneToOneMap::setMap(const std::unordered_map<IndexType, IndexType>& sourceMap)
 {
     m_oneToOneMap = sourceMap;
 
     // Copy data from map to vector for parallel processing
-    m_oneToOneMapVector.resize(0);
+    m_oneToOneMapVector.clear();
     for (auto kv : m_oneToOneMap)
     {
         m_oneToOneMapVector.push_back({ kv.first, kv.second });
     }
+    std::sort(m_oneToOneMapVector.begin(), m_oneToOneMapVector.end());
 }
 
 void
@@ -118,10 +127,8 @@ OneToOneMap::apply()
 
     CHECK(meshParent != nullptr && meshChild != nullptr) << "Failed to cast from Geometry to PointSet";
 
-    std::shared_ptr<VecDataArray<double, 3>> childVerticesPtr  = meshChild->getVertexPositions();
-    VecDataArray<double, 3>&                 childVertices     = *childVerticesPtr;
-    std::shared_ptr<VecDataArray<double, 3>> parentVerticesPtr = meshParent->getVertexPositions();
-    const VecDataArray<double, 3>&           parentVertices    = *parentVerticesPtr;
+    VecDataArray<double, 3>&       childVertices  = *meshChild->getVertexPositions();
+    const VecDataArray<double, 3>& parentVertices = *meshParent->getVertexPositions();
     ParallelUtils::parallelFor(m_oneToOneMapVector.size(),
         [&](const size_t idx) {
             const auto& mapValue = m_oneToOneMapVector[idx];
@@ -147,32 +154,36 @@ OneToOneMap::print() const
 void
 OneToOneMap::setParentGeometry(std::shared_ptr<Geometry> parent)
 {
-    CHECK(parent != nullptr) << "The parent geometry provided is nullptr";
-    CHECK(std::dynamic_pointer_cast<PointSet>(parent) != nullptr) <<
-        "The parent geometry provided is not PointSet";
+    CHECK(parent != nullptr) << "Can't set parent to nullptr";
+    auto pointSet = std::dynamic_pointer_cast<PointSet>(parent);
+
+    CHECK(pointSet != nullptr) << "The geometry provided is not a PointSet!";
+
+    if (pointSet == getChildGeometry())
+    {
+        LOG(WARNING) << "Parent and Child geometry are the same.";
+    }
+
     GeometryMap::setParentGeometry(parent);
 }
 
 void
 OneToOneMap::setChildGeometry(std::shared_ptr<Geometry> child)
 {
-    CHECK(child != nullptr) << "The child geometry provided is nullptr";
-    CHECK(std::dynamic_pointer_cast<PointSet>(child) != nullptr) <<
-        "The child geometry provided is not PointSet";
+    CHECK(child != nullptr) << "Can't set child to nullptr";
+    auto pointSet = std::dynamic_pointer_cast<PointSet>(child);
+    CHECK(pointSet != nullptr) << "The geometry provided is not a PointSet!\n";
+    if (pointSet == getParentGeometry())
+    {
+        LOG(WARNING) << "Parent and Child geometry are the same.";
+    }
     GeometryMap::setChildGeometry(child);
 }
 
-int
-OneToOneMap::getMapIdx(const int idx) const
+IndexType
+OneToOneMap::getMapIdx(const IndexType idx) const
 {
-    auto citer = m_oneToOneMap.find(idx);
-    if (citer != m_oneToOneMap.end())
-    {
-        return citer->second;
-    }
-    else
-    {
-        return -1;
-    }
+    auto found = m_oneToOneMap.find(idx);
+    return (found != m_oneToOneMap.cend()) ? found->second : IMSTK_NO_INDEX;
 }
 } // namespace imstk

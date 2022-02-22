@@ -55,7 +55,7 @@ struct MeshSide
 static std::array<VertexMassPair, 1>
 getVertex(const CollisionElement& elem, const MeshSide& side)
 {
-    int ptId = -1;
+    IndexType ptId = IMSTK_NO_INDEX;
     if (elem.m_type == CollisionElementType::CellIndex && elem.m_element.m_CellIndexElement.cellType == IMSTK_VERTEX)
     {
         ptId = elem.m_element.m_CellIndexElement.ids[0];
@@ -65,7 +65,7 @@ getVertex(const CollisionElement& elem, const MeshSide& side)
         ptId = elem.m_element.m_PointIndexDirectionElement.ptIndex;
     }
     std::array<VertexMassPair, 1> results;
-    if (ptId != -1)
+    if (ptId != IMSTK_NO_INDEX)
     {
         auto oneToOneMap = dynamic_cast<OneToOneMap*>(side.m_mapPtr);
         if (side.m_mapPtr && oneToOneMap != nullptr)
@@ -80,8 +80,8 @@ getVertex(const CollisionElement& elem, const MeshSide& side)
 static std::array<VertexMassPair, 2>
 getEdge(const CollisionElement& elem, const MeshSide& side)
 {
-    int v1, v2;
-    v1 = v2 = -1;
+    IndexType v1 = IMSTK_NO_INDEX;
+    IndexType v2 = IMSTK_NO_INDEX;
     if (elem.m_type == CollisionElementType::CellIndex && elem.m_element.m_CellIndexElement.cellType == IMSTK_EDGE)
     {
         if (elem.m_element.m_CellIndexElement.idCount == 1)
@@ -97,7 +97,7 @@ getEdge(const CollisionElement& elem, const MeshSide& side)
         }
     }
     std::array<VertexMassPair, 2> results;
-    if (v1 != -1)
+    if (v1 != IMSTK_NO_INDEX)
     {
         auto oneToOneMap = dynamic_cast<OneToOneMap*>(side.m_mapPtr);
         if (side.m_mapPtr && oneToOneMap != nullptr)
@@ -114,8 +114,9 @@ getEdge(const CollisionElement& elem, const MeshSide& side)
 static std::array<VertexMassPair, 3>
 getTriangle(const CollisionElement& elem, const MeshSide& side)
 {
-    int v1, v2, v3;
-    v1 = v2 = v3 = -1;
+    IndexType v1 = IMSTK_NO_INDEX;
+    IndexType v2 = IMSTK_NO_INDEX;
+    IndexType v3 = IMSTK_NO_INDEX;
     if (elem.m_type == CollisionElementType::CellIndex && elem.m_element.m_CellIndexElement.cellType == IMSTK_TRIANGLE)
     {
         if (elem.m_element.m_CellIndexElement.idCount == 1)
@@ -133,7 +134,7 @@ getTriangle(const CollisionElement& elem, const MeshSide& side)
         }
     }
     std::array<VertexMassPair, 3> results;
-    if (v1 != -1)
+    if (v1 != IMSTK_NO_INDEX)
     {
         auto oneToOneMap = dynamic_cast<OneToOneMap*>(side.m_mapPtr);
         if (side.m_mapPtr && oneToOneMap != nullptr)

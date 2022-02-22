@@ -36,15 +36,10 @@ template<typename T, int N> class VecDataArray;
 class TetraTriangleMap : public GeometryMap
 {
 public:
-    TetraTriangleMap() : m_boundingBoxAvailable(false) { }
+    TetraTriangleMap() = default;
     TetraTriangleMap(
         std::shared_ptr<Geometry> parent,
-        std::shared_ptr<Geometry> child)
-        : m_boundingBoxAvailable(false)
-    {
-        this->setParentGeometry(parent);
-        this->setChildGeometry(child);
-    }
+        std::shared_ptr<Geometry> child);
 
     ~TetraTriangleMap() override = default;
 
@@ -103,7 +98,7 @@ protected:
 
     std::vector<Vec3d> m_bBoxMin;
     std::vector<Vec3d> m_bBoxMax;
-    bool m_boundingBoxAvailable;
+    bool m_boundingBoxAvailable = false;
 
 private:
     std::shared_ptr<VecDataArray<double, 3>> m_childVerts;

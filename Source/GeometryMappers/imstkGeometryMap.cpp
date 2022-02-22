@@ -75,8 +75,7 @@ GeometryMap::getChildGeometry() const
 void
 GeometryMap::initialize()
 {
-    CHECK(this->isValid()) << "Map is invalid!";
-
-    this->compute();
+    CHECK(isValid()) << "Map is invalid!";
+    compute();
 }
 } // namespace imstk

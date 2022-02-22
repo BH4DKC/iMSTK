@@ -26,22 +26,22 @@ class PointSet;
 ///
 /// \class OneToOneMap
 ///
-/// \brief OneToOneMap can compute & apply a one-to-one mapping between parent
-/// and child PointSet geometries.
+/// \brief For each vertex on the child geometry OneToOneMap will try and find
+/// a corresponding point on the parent geometry.
+///
+/// In the default configuration only points that _actually_ coincide will be
+/// considered matches (eps = std::numeric_limits<double>::min())
+/// On `apply()` all vertices in the child geometry that have corresponding matches
+/// will be moved to the position of their corresponding point in the parent geometry
 ///
 class OneToOneMap : public GeometryMap
 {
 public:
-    OneToOneMap() : GeometryMap() {}
+    OneToOneMap() = default;
+
     OneToOneMap(
         std::shared_ptr<Geometry> parent,
-        std::shared_ptr<Geometry> child)
-    {
-        this->setParentGeometry(parent);
-        this->setChildGeometry(child);
-    }
-
-    ~OneToOneMap() override = default;
+        std::shared_ptr<Geometry> child);
 
     const std::string getTypeName() const override { return "OneToOneMap"; }
 
@@ -58,7 +58,7 @@ public:
     ///
     /// \brief Sets the one-to-one correspondence directly
     ///
-    void setMap(const std::unordered_map<int, int>& sourceMap);
+    void setMap(const std::unordered_map<IndexType, IndexType>& sourceMap);
 
     ///
     /// \brief Apply (if active) the tetra-triangle mesh map
@@ -81,11 +81,10 @@ public:
     void setChildGeometry(std::shared_ptr<Geometry> child) override;
 
     ///
-    /// \brief Get the mapped/corresponding parent index, given a child index.
-    /// returns -1 if no correspondence found.
+    /// \brief Get the corresponding parent index, given a child index
     /// \param index on the child geometry
     ///
-    int getMapIdx(const int idx) const;
+    IndexType getMapIdx(const IndexType idx) const;
 
     ///
     /// \brief Set/Get the tolerance. The distance to consider
@@ -97,14 +96,15 @@ public:
 
 protected:
     ///
-    /// \brief Returns the first matching vertex, -1 if not found
+    /// \brief Returns the first matching vertex
     ///
-    int findMatchingVertex(const VecDataArray<double, 3>& parentMesh, const Vec3d& p);
+    IndexType findMatchingVertex(const VecDataArray<double, 3>& parentMesh, const Vec3d& p);
 
-    // A map and vector are maintained. The vector for parallel processing, the map for fast lookup
-    std::unordered_map<int, int>     m_oneToOneMap;       ///> One to one mapping data
-    std::vector<std::pair<int, int>> m_oneToOneMapVector; ///> One to one mapping data
+    std::unordered_map<IndexType, IndexType> m_oneToOneMap;   ///> One to one mapping data
 
-    double m_epsilon = IMSTK_DOUBLE_EPS;                  // Tolerance for considering two points equivalent
+    // This vector is for parallel processing, it should contain identical data as m_oneToOneMap
+    std::vector<std::pair<IndexType, IndexType>> m_oneToOneMapVector; ///< One to one mapping data
+
+    double m_epsilon = IMSTK_DOUBLE_EPS;                              ///< Tolerance for considering two points equivalent
 };
 } // namespace imstk

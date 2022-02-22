@@ -28,14 +28,15 @@ namespace imstk
 ///
 /// \class GeometryMap
 ///
-/// \brief Base class for any geometric map
+/// \brief Base class for any geometric map, these classes are intended transfer information
+/// inherent in one geometry into another, for example this may entail copying a transform
+/// or it may be changing vertex positions or other pieces of data.
+///
 ///
 class GeometryMap
 {
-protected:
-    GeometryMap() : m_isActive(true) { }
-
 public:
+    GeometryMap() = default;
     virtual ~GeometryMap() = default;
 
     ///
@@ -49,7 +50,7 @@ public:
     virtual void compute() = 0;
 
     ///
-    /// \brief Apply the map
+    /// \brief Apply the map, when isActive() returns true
     ///
     virtual void apply() = 0;
 
@@ -78,8 +79,6 @@ public:
     ///
     bool isActive() const;
 
-    // Accessors
-
     ///
     /// \brief Get/Set parent geometry
     ///@{
@@ -100,9 +99,9 @@ public:
     virtual void initialize();
 
 protected:
-    bool m_isActive;                        ///> true if the map us active at runtime
+    bool m_isActive = true;                 ///< true if the map us active at runtime
 
-    std::shared_ptr<Geometry> m_parentGeom; ///> the geometry which dictates the configuration
-    std::shared_ptr<Geometry> m_childGeom;  ///> the geometry which follows the parent
+    std::shared_ptr<Geometry> m_parentGeom; ///< the geometry which dictates the configuration
+    std::shared_ptr<Geometry> m_childGeom;  ///< the geometry which follows the parent
 };
 } // namespace imstk
