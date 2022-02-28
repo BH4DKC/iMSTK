@@ -72,7 +72,6 @@ OneToOneMap::compute()
 IndexType
 OneToOneMap::findMatchingVertex(const VecDataArray<double, 3>& parentVertices, const Vec3d& p)
 {
-    const double eps2 = m_epsilon * m_epsilon;
     for (int idx = 0; idx < parentVertices.size(); ++idx)
     {
         if (p.isApprox(parentVertices[idx], m_epsilon)) return idx;
