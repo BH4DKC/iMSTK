@@ -149,7 +149,7 @@ TetraTriangleMap::isValid() const
     CHECK(m_parentGeom != nullptr) << "Fail to cast parent Geometry to TetrahedralMesh";
 
     size_t            totalElementsParent = static_cast<size_t>(meshParent->getNumTetrahedra());
-    std::atomic<bool> bOK = true;
+    std::atomic<bool> bOK{ true };
 
     ParallelUtils::parallelFor(m_verticesEnclosingTetraId.size(), [&](const size_t tetId) {
             if (!bOK) // If map is invalid, no need to check further
