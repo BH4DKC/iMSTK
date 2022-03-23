@@ -35,14 +35,7 @@ private:
 
 public:
     // Need to pass in all data for  PbdCollisionConstraint and RbdConstraint?
-    PbdRigidBaryPointToPointConstraint(std::shared_ptr<RigidBody> obj1) :
-
-        PbdBaryPointToPointConstraint(), // (point on capsue, point on mesh)
-
-        RbdConstraint( // Pass in obj1, nullpt and say side A
-            obj1,
-            nullptr,
-            RbdConstraint::Side::A){};
+    PbdRigidBaryPointToPointConstraint(std::shared_ptr<RigidBody> obj1);
     ~PbdRigidBaryPointToPointConstraint() override = default;
 
 public:
@@ -50,8 +43,8 @@ public:
     /// \brief compute value and gradient of constraint function
     ///
     /// \param[inout] c constraint value
-    /// \param[inout] dcdx constraint gradient for A
-    /// \param[inout] dcdx constraint gradient for B
+    /// \param[inout] dcdxA constraint gradient for A
+    /// \param[inout] dcdxB constraint gradient for B
     /// Call for RBD, push point on mesh to the fixed point
     bool computeValueAndGradient(
         double& c,

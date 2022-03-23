@@ -86,83 +86,6 @@
 
 using namespace imstk;
 
-// Define constraint  Note: can be given to either solver
-// Single point, build multiple of them for each entity in contact
-class PbdRigidBaryPointToPointConstraint : public PbdBaryPointToPointConstraint, public RbdConstraint
-{
-private:
-    double m_beta = 0.0001;
-
-public:
-    // Need to pass in all data for  PbdCollisionConstraint and RbdConstraint?
-    PbdRigidBaryPointToPointConstraint(std::shared_ptr<RigidBody> obj1) :
-
-        PbdBaryPointToPointConstraint(), // (point on capsue, point on mesh)
-
-        RbdConstraint( // Pass in obj1, nullpt and say side A
-            obj1,
-            nullptr,
-            RbdConstraint::Side::A)
-    {
-    }
-    ~PbdRigidBaryPointToPointConstraint() override = default;
-
-public:
-    ///
-    /// \brief compute value and gradient of constraint function
-    ///
-    /// \param[inout] c constraint value
-    /// \param[inout] dcdx constraint gradient for A
-    /// \param[inout] dcdx constraint gradient for B
-    /// Call for RBD, push point on mesh to the fixed point
-    bool computeValueAndGradient(double& c,
-        std::vector<Vec3d>& dcdxA,
-        std::vector<Vec3d>& dcdxB) const override
-    {
-        // Compute the difference between the interpolant points (points in the two cells)
-        Vec3d diff = 0.5*computeInterpolantDifference();
-
-        c = diff.norm();
-
-        if (c < IMSTK_DOUBLE_EPS)
-        {
-            diff = Vec3d::Zero();
-            return false;
-        }
-        diff /= c;
-
-        for (size_t i = 0; i < dcdxA.size(); i++)
-        {
-            dcdxA[i] = diff * m_weightsA[i];
-        }
-        for (size_t i = 0; i < dcdxB.size(); i++)
-        {
-            dcdxB[i] = -diff * m_weightsB[i];
-        }
-
-        return true;
-    }
-
-public:
-    // call for RBD
-    // Give change in impulse in direction of desired deformation
-    void compute(double dt) override
-    {
-        J = Eigen::Matrix<double, 3, 4>::Zero();
-
-        // Compute the difference between the interpolant points (points in the two cells)
-        Vec3d diff = 0.5*computeInterpolantDifference();
-
-        J(0, 0) = -diff[0]; J(0, 1) = 0.0;
-        J(1, 0) = -diff[1]; J(1, 1) = 0.0;
-        J(2, 0) = -diff[2]; J(2, 1) = 0.0;
-
-        // B stabilization term
-        vu = diff.norm() * m_beta / dt;
-    }
-};
-
-
 class PbdRigidObjectGrasping : public PbdObjectGrasping
 {
 protected:
@@ -199,12 +122,11 @@ public:
     }
 
     void addConstraint(
-        std::vector<VertexMassPair> ptsA,   // Point data
-        std::vector<double> weightsA,       // Barycentric weight
-        std::vector<VertexMassPair> ptsB,
-        std::vector<double> weightsB,
-        double stiffnessA, // Constraint stiffness
-        double stiffnessB)
+        const std::vector<VertexMassPair>& ptsA,
+        const std::vector<double>& weightsA,
+        const std::vector<VertexMassPair>& ptsB,
+        const std::vector<double>& weightsB,
+        double stiffnessA, double stiffnessB)
         override
     {
         // Create constraint
@@ -524,7 +446,7 @@ main()
         //controller->setAngularKs(0.0);
         controller->setUseCritDamping(true);
         controller->setForceScaling(0.001);
-        controller->setSmoothingKernelSize(15);
+        controller->setSmoothingKernelSize(10);
         controller->setUseForceSmoothening(true);
         scene->addController(controller);
 
@@ -551,7 +473,10 @@ main()
                 }
                 else if (e->m_buttonState == BUTTON_RELEASED)
                 {
-                    toolPicking->endGrasp();
+                    if (e->m_button == 1)
+                    {
+                        toolPicking->endGrasp();
+                    }
                 }
             });
 #else

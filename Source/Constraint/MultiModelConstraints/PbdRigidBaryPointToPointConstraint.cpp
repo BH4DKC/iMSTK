@@ -45,13 +45,13 @@ PbdRigidBaryPointToPointConstraint::PbdRigidBaryPointToPointConstraint(std::shar
 ///
 /// \param[inout] c constraint value
 /// \param[inout] dcdx constraint gradient for A
-/// \param[inout] dcdx constraint gradient for B
 /// Call for RBD, push point on mesh to the fixed point
+/// \param[inout] dcdx constraint gradient for B
 bool
 PbdRigidBaryPointToPointConstraint::computeValueAndGradient(
     double& c,
     std::vector<Vec3d>& dcdxA,
-    std::vector<Vec3d>& dcdxB) const override
+    std::vector<Vec3d>& dcdxB) const
 {
     // Compute the difference between the interpolant points (points in the two cells)
     Vec3d diff = 0.5*computeInterpolantDifference();
@@ -79,7 +79,7 @@ PbdRigidBaryPointToPointConstraint::computeValueAndGradient(
 
 
 void 
-PbdRigidBaryPointToPointConstraint::compute(double dt) override
+PbdRigidBaryPointToPointConstraint::compute(double dt)
 {
     J = Eigen::Matrix<double, 3, 4>::Zero();
 
