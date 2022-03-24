@@ -23,6 +23,7 @@
 
 #include "imstkPbdBaryPointToPointConstraint.h"
 #include "imstkRbdConstraint.h"
+#include "imstkPbdConstraint.h"
 
 namespace imstk
 {
@@ -34,7 +35,7 @@ private:
     double m_beta = 0.0001;
 
 public:
-    // Need to pass in all data for  PbdCollisionConstraint and RbdConstraint?
+
     PbdRigidBaryPointToPointConstraint(std::shared_ptr<RigidBody> obj1);
     ~PbdRigidBaryPointToPointConstraint() override = default;
 
@@ -45,9 +46,10 @@ public:
     /// \param[inout] c constraint value
     /// \param[inout] dcdxA constraint gradient for A
     /// \param[inout] dcdxB constraint gradient for B
-    /// Call for RBD, push point on mesh to the fixed point
+    /// Call for RBD, push point on mesh to the fixed point halfway
+    /// between the rigid body and the PBD object
     bool computeValueAndGradient(
-        double& c,
+        double&             c,
         std::vector<Vec3d>& dcdxA,
         std::vector<Vec3d>& dcdxB) const override;
 
@@ -55,8 +57,5 @@ public:
     // Constraint call for RBD
     // Give change in impulse in direction of desired deformation
     void compute(double dt) override;
-    
 };
-
-
 } // namespace imstk

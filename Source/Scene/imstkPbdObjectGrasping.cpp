@@ -386,7 +386,8 @@ PbdObjectGrasping::addPickConstraints()
     }
 }
 
-void PbdObjectGrasping::addConstraint(
+void
+PbdObjectGrasping::addConstraint(
     const std::vector<VertexMassPair>& ptsA,
     const std::vector<double>& weightsA,
     const std::vector<VertexMassPair>& ptsB,

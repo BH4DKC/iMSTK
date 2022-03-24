@@ -20,6 +20,9 @@
 =========================================================================*/
 
 #include "imstkCamera.h"
+#include "imstkCapsule.h"
+#include "imstkCollisionDetectionAlgorithm.h"
+#include "imstkCollisionHandling.h"
 #include "imstkDirectionalLight.h"
 #include "imstkImageData.h"
 #include "imstkKeyboardDeviceClient.h"
@@ -28,17 +31,16 @@
 #include "imstkMeshIO.h"
 #include "imstkMeshToMeshBruteForceCD.h"
 #include "imstkMouseControl.h"
+#include "imstkMouseDeviceClient.h"
 #include "imstkMouseSceneControl.h"
 #include "imstkNew.h"
 #include "imstkOneToOneMap.h"
-
 #include "imstkPbdBaryPointToPointConstraint.h"
-
+#include "imstkPbdRigidBaryPointToPointConstraint.h"
+#include "imstkPbdRigidObjectGrasping.h"
 #include "imstkPbdModel.h"
 #include "imstkPbdObject.h"
 #include "imstkPbdObjectCollision.h"
-// #include "imstkPbdObjectPicking.h"
-// #include "imstkPbdPickingCH.h"
 #include "imstkPbdObjectGrasping.h"
 #include "imstkRbdConstraint.h"
 #include "imstkRenderMaterial.h"
@@ -48,35 +50,13 @@
 #include "imstkSceneManager.h"
 #include "imstkSimulationManager.h"
 #include "imstkSurfaceMesh.h"
+#include "imstkSurfaceMeshToCapsuleCD.h"
+#include "imstkSphere.h"
+#include "imstkTaskNode.h"
+#include "imstkTaskGraph.h"
 #include "imstkTetrahedralMesh.h"
 #include "imstkVisualModel.h"
 #include "imstkVTKViewer.h"
-#include "imstkCapsule.h"
-#include "imstkSphere.h"
-#include "imstkCollisionHandling.h"
-#include "imstkPbdObjectCollision.h"
-#include "imstkPointSetToCapsuleCD.h"
-#include "imstkSurfaceMeshToCapsuleCD.h"
-
-#include "imstkTaskNode.h"
-#include "imstkTaskGraph.h"
-#include "imstkCollisionDetectionAlgorithm.h"
-#include "imstkMouseDeviceClient.h"
-
-#include "PbdRigidBaryPointToPointConstraint.h"
-
-// If two-way coupling is used haptic forces can be felt when the tool
-// hits the tissue
-//#define TWOWAY_COUPLING
-
-// Whether to use FEM or volume+distance constraints
-#define USE_FEM
-
-#ifdef TWOWAY_COUPLING
-#include "imstkPbdRigidObjectCollision.h"
-#else
-#include "imstkPbdObjectCollision.h"
-#endif
 
 #ifdef iMSTK_USE_OPENHAPTICS
 #include "imstkHapticDeviceManager.h"
@@ -85,81 +65,6 @@
 #endif
 
 using namespace imstk;
-
-class PbdRigidObjectGrasping : public PbdObjectGrasping
-{
-protected:
-    std::shared_ptr<RigidObject2> m_rbdObj = nullptr;
-    std::shared_ptr<PbdObject> m_pbdObj = nullptr;
-
-public:
-    PbdRigidObjectGrasping(
-        std::shared_ptr<PbdObject> obj1,
-        std::shared_ptr<RigidObject2> obj2) :
-        PbdObjectGrasping(obj1), m_rbdObj(obj2)
-    {
-        m_pbdObj = obj1;
-
-        m_taskGraph->addNode(m_pickingNode);
-        m_taskGraph->addNode(obj2->getRigidBodyModel2()->getSolveNode());
-    }
-    ~PbdRigidObjectGrasping() override = default;
-
-    const std::string getTypeName() const override { return "PbdRigidObjectGrasping"; }
-
-    void updatePicking()
-    {
-        PbdObjectGrasping::updatePicking();
-
-        // LOG(INFO) << "Before PBDRBD constraints";
-        for (int i = 0; i < m_constraints.size(); i++)
-        {
-            auto constraint = std::dynamic_pointer_cast<PbdRigidBaryPointToPointConstraint>(m_constraints[i]);
-
-            constraint->compute(m_rbdObj->getRigidBodyModel2()->getConfig()->m_dt);
-            m_rbdObj->getRigidBodyModel2()->addConstraint(constraint);
-        }
-    }
-
-    void addConstraint(
-        const std::vector<VertexMassPair>& ptsA,
-        const std::vector<double>& weightsA,
-        const std::vector<VertexMassPair>& ptsB,
-        const std::vector<double>& weightsB,
-        double stiffnessA, double stiffnessB)
-        override
-    {
-        // Create constraint
-        auto constraint = std::make_shared<PbdRigidBaryPointToPointConstraint>(m_rbdObj->getRigidBody());
-        constraint->initConstraint(
-            ptsA,
-            weightsA,
-            ptsB,
-            weightsB,
-            stiffnessA,
-            stiffnessB);
-        // Add to constraints
-        m_constraints.push_back(constraint);
-    }
-
-    void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override
-    {
-        LOG(INFO) << "Inside initGraphEdges";
-
-        PbdObjectGrasping::initGraphEdges(source, sink);
-
-        std::shared_ptr<PbdObject> pbdObj = m_pbdObj;
-
-        std::shared_ptr<PbdModel> pbdModel = pbdObj->getPbdModel();
-        std::shared_ptr<RigidBodyModel2> rbdModel = m_rbdObj->getRigidBodyModel2();
-
-
-        m_taskGraph->addEdge(m_pickingNode, rbdModel->getSolveNode());
-        m_taskGraph->addEdge(rbdModel->getSolveNode(), m_taskGraph->getSink());
-
-        LOG(INFO) << "Leaving initGraphEdges";
-    }
-};
 
 ///
 /// \brief Creates a tetraheral grid
@@ -173,8 +78,8 @@ makeTetGrid(const Vec3d& size, const Vec3i& dim, const Vec3d& center)
     imstkNew<TetrahedralMesh> prismMesh;
 
     imstkNew<VecDataArray<double, 3>> verticesPtr(dim[0] * dim[1] * dim[2]);
-    VecDataArray<double, 3>& vertices = *verticesPtr.get();
-    const Vec3d                       dx = size.cwiseQuotient((dim - Vec3i(1, 1, 1)).cast<double>());
+    VecDataArray<double, 3>&          vertices = *verticesPtr.get();
+    const Vec3d                       dx       = size.cwiseQuotient((dim - Vec3i(1, 1, 1)).cast<double>());
     for (int z = 0; z < dim[2]; z++)
     {
         for (int y = 0; y < dim[1]; y++)
@@ -188,7 +93,7 @@ makeTetGrid(const Vec3d& size, const Vec3i& dim, const Vec3d& center)
 
     // Add connectivity data
     imstkNew<VecDataArray<int, 4>> indicesPtr;
-    VecDataArray<int, 4>& indices = *indicesPtr.get();
+    VecDataArray<int, 4>&          indices = *indicesPtr.get();
     for (int z = 0; z < dim[2] - 1; z++)
     {
         for (int y = 0; y < dim[1] - 1; y++)
@@ -229,7 +134,7 @@ makeTetGrid(const Vec3d& size, const Vec3i& dim, const Vec3d& center)
     }
 
     imstkNew<VecDataArray<float, 2>> uvCoordsPtr(dim[0] * dim[1] * dim[2]);
-    VecDataArray<float, 2>& uvCoords = *uvCoordsPtr.get();
+    VecDataArray<float, 2>&          uvCoords = *uvCoordsPtr.get();
     for (int z = 0; z < dim[2]; z++)
     {
         for (int y = 0; y < dim[1]; y++)
@@ -256,19 +161,18 @@ makeTetGrid(const Vec3d& size, const Vec3i& dim, const Vec3d& center)
     return prismMesh;
 }
 
-
 static std::shared_ptr<PbdObject>
 makePbdObjSurface(const std::string& name,
-    const Vec3d& size,
-    const Vec3i& dim,
-    const Vec3d& center,
-    const int numIter)
+                  const Vec3d&       size,
+                  const Vec3i&       dim,
+                  const Vec3d&       center,
+                  const int          numIter)
 {
     imstkNew<PbdObject> prismObj(name);
 
     // Setup the Geometry
     std::shared_ptr<TetrahedralMesh> prismMesh = makeTetGrid(size, dim, center);
-    std::shared_ptr<SurfaceMesh>     surfMesh = prismMesh->extractSurfaceMesh();
+    std::shared_ptr<SurfaceMesh>     surfMesh  = prismMesh->extractSurfaceMesh();
 
     // Setup the Parameters
     imstkNew<PbdModelConfig> pbdParams;
@@ -277,10 +181,10 @@ makePbdObjSurface(const std::string& name,
     pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Dihedral, 1.0);
     pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 1.0);
 
-    pbdParams->m_doPartitioning = true;
+    pbdParams->m_doPartitioning   = true;
     pbdParams->m_uniformMassValue = 0.05;
-    pbdParams->m_gravity = Vec3d(0.0, 0.0, 0.0);
-    pbdParams->m_dt = 0.005;
+    pbdParams->m_gravity    = Vec3d(0.0, 0.0, 0.0);
+    pbdParams->m_dt         = 0.005;
     pbdParams->m_iterations = numIter;
     pbdParams->m_viscousDampingCoeff = 0.003;
 
@@ -289,10 +193,10 @@ makePbdObjSurface(const std::string& name,
     {
         auto position = surfMesh->getVertexPosition(vert_id);
 
-        if (position(1) == -2.0) {
+        if (position(1) == -2.0)
+        {
             pbdParams->m_fixedNodeIds.push_back(vert_id);
         }
-
     }
 
     // Setup the Model
@@ -310,7 +214,6 @@ makePbdObjSurface(const std::string& name,
     visualModel->setRenderMaterial(material);
     prismObj->addVisualModel(visualModel);
 
-
     // Setup the Object
     prismObj->setPhysicsGeometry(surfMesh);
     prismObj->setCollidingGeometry(surfMesh);
@@ -325,11 +228,10 @@ makeCapsuleToolObj()
     // Set up rigid body model
     std::shared_ptr<RigidBodyModel2> rbdModel = std::make_shared<RigidBodyModel2>();
     rbdModel->getConfig()->m_gravity = Vec3d::Zero();
-    rbdModel->getConfig()->m_maxNumIterations = 8;
-    rbdModel->getConfig()->m_velocityDamping = 1.0;
+    rbdModel->getConfig()->m_maxNumIterations       = 8;
+    rbdModel->getConfig()->m_velocityDamping        = 1.0;
     rbdModel->getConfig()->m_angularVelocityDamping = 1.0;
-    rbdModel->getConfig()->m_maxNumConstraints = 40;
-
+    rbdModel->getConfig()->m_maxNumConstraints      = 40;
 
     auto toolGeometry = std::make_shared<Capsule>();
     toolGeometry->setRadius(0.5);
@@ -352,7 +254,6 @@ makeCapsuleToolObj()
 
     return toolObj;
 }
-
 
 ///
 /// \brief This example demonstrates collision interaction with a 3d pbd
@@ -380,14 +281,13 @@ main()
     std::shared_ptr<RigidObject2> toolObj = makeCapsuleToolObj();
     scene->addSceneObject(toolObj);
 
-    auto rbdGhost = std::make_shared<SceneObject>("ghost");
+    auto rbdGhost     = std::make_shared<SceneObject>("ghost");
     auto ghostCapsule = std::make_shared<Capsule>();
     ghostCapsule->setRadius(0.5);
     ghostCapsule->setLength(1);
     ghostCapsule->setPosition(Vec3d(0.0, 0.0, 0.0));
     ghostCapsule->setOrientation(Quatd(0.707, 0.0, 0.0, 0.707));
     rbdGhost->setVisualGeometry(ghostCapsule);
-
 
     std::shared_ptr<RenderMaterial> ghostMat =
         std::make_shared<RenderMaterial>(*toolObj->getVisualModel(0)->getRenderMaterial());
@@ -403,10 +303,6 @@ main()
     // Create new picking with constraints
     auto toolPicking = std::make_shared<PbdRigidObjectGrasping>(PbdObj, toolObj);
     scene->addInteraction(toolPicking);
-
-
-    // auto toolPicking = std::make_shared<PbdObjectGrasping>(PbdObj);
-    // scene->addInteraction(toolPicking);
 
     // Light
     imstkNew<DirectionalLight> light;
@@ -487,7 +383,7 @@ main()
                 const Vec3d worldPos = Vec3d(mousePos[0] - 0.5, mousePos[1] - 0.5, 0.0) * 10.0;
 
                 const Vec3d fS = (worldPos - toolObj->getRigidBody()->getPosition()) * 100000.0; // Spring force
-                const Vec3d fD = -toolObj->getRigidBody()->getVelocity() * 100.0;              // Spring damping
+                const Vec3d fD = -toolObj->getRigidBody()->getVelocity() * 100.0;                // Spring damping
 
                 (*toolObj->getRigidBody()->m_force) += (fS + fD);
 
@@ -509,8 +405,6 @@ main()
         connect<Event>(viewer->getMouseDevice(), &MouseDeviceClient::mouseButtonRelease,
             [&](Event*)
             {
-                // When click, grab all verticese associated with the triangle 
-                // faces in contact and force motion with tool. 
                 toolPicking->endGrasp();
             });
 #endif
@@ -525,11 +419,11 @@ main()
         keyControl->setModuleDriver(driver);
         viewer->addControl(keyControl);
 
-         connect<Event>(sceneManager, &SceneManager::postUpdate, [&](Event*)
-             {
-                 // Simulate the cube in real time
-                 PbdObj->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
-                 toolObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
+        connect<Event>(sceneManager, &SceneManager::postUpdate, [&](Event*)
+            {
+                // Simulate the cube in real time
+                PbdObj->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
+                toolObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
              });
 
         driver->start();

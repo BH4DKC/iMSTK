@@ -19,42 +19,34 @@
 
 =========================================================================*/
 
-#include "imstkPbdBaryPointToPointConstraint.h"
-#include "imstkRbdConstraint.h"
-#include "PbdRigidBaryPointToPointConstraint.h"
-
+#include "imstkPbdRigidBaryPointToPointConstraint.h"
 
 namespace imstk
 {
-
-
 PbdRigidBaryPointToPointConstraint::PbdRigidBaryPointToPointConstraint(std::shared_ptr<RigidBody> obj1) :
-    PbdBaryPointToPointConstraint(), // (point on capsue, point on mesh)
-    RbdConstraint( // Pass in obj1, nullpt and say side A
+    PbdBaryPointToPointConstraint(),
+    RbdConstraint(
         obj1,
         nullptr,
         RbdConstraint::Side::A)
-    {
-    }
-
-
-// PbdRigidBaryPointToPointConstraint::~PbdRigidBaryPointToPointConstraint(){};
+{
+}
 
 ///
-/// \brief compute value and gradient of constraint function
+/// \brief compute value and gradient of constraint function and weight it
+/// by half to force the motion to the half way point between two bodies
 ///
 /// \param[inout] c constraint value
-/// \param[inout] dcdx constraint gradient for A
-/// Call for RBD, push point on mesh to the fixed point
-/// \param[inout] dcdx constraint gradient for B
+/// \param[inout] dcdxA constraint gradient for A
+/// \param[inout] dcdxB constraint gradient for B
 bool
 PbdRigidBaryPointToPointConstraint::computeValueAndGradient(
-    double& c,
+    double&             c,
     std::vector<Vec3d>& dcdxA,
     std::vector<Vec3d>& dcdxB) const
 {
-    // Compute the difference between the interpolant points (points in the two cells)
-    Vec3d diff = 0.5*computeInterpolantDifference();
+    // Compute the middle position between the point on the rigid body and the PBD object
+    Vec3d diff = 0.5 * computeInterpolantDifference();
 
     c = diff.norm();
 
@@ -77,14 +69,13 @@ PbdRigidBaryPointToPointConstraint::computeValueAndGradient(
     return true;
 }
 
-
-void 
+void
 PbdRigidBaryPointToPointConstraint::compute(double dt)
 {
     J = Eigen::Matrix<double, 3, 4>::Zero();
 
-    // Compute the difference between the interpolant points (points in the two cells)
-    Vec3d diff = 0.5*computeInterpolantDifference();
+    // Compute the middle position between the point on the rigid body and the PBD object
+    Vec3d diff = 0.5 * computeInterpolantDifference();
 
     J(0, 0) = -diff[0]; J(0, 1) = 0.0;
     J(1, 0) = -diff[1]; J(1, 1) = 0.0;
@@ -93,6 +84,4 @@ PbdRigidBaryPointToPointConstraint::compute(double dt)
     // B stabilization term
     vu = diff.norm() * m_beta / dt;
 }
-
-
 } // namespace imstk
