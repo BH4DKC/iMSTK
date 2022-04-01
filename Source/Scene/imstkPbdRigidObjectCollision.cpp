@@ -115,6 +115,18 @@ PbdRigidObjectCollision::getFriction() const
     return std::dynamic_pointer_cast<PbdCollisionHandling>(getCollisionHandlingA())->getFriction();
 }
 
+void PbdRigidObjectCollision::setPbdCollisionSolverIterationCount(size_t val)
+{
+    auto solver = std::dynamic_pointer_cast<PbdCollisionHandling>(getCollisionHandlingA())->getCollisionSolver();
+    std::dynamic_pointer_cast<PbdCollisionSolver>(solver)->setCollisionIterations(val);
+}
+
+size_t PbdRigidObjectCollision::getPbdCollisionSolverIterationCount() const
+{
+    auto solver = std::dynamic_pointer_cast<PbdCollisionHandling>(getCollisionHandlingA())->getCollisionSolver();
+    return std::dynamic_pointer_cast<PbdCollisionSolver>(solver)->getCollisionIterations();
+}
+
 void
 PbdRigidObjectCollision::initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink)
 {

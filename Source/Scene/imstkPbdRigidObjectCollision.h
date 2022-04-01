@@ -54,6 +54,13 @@ public:
     const double getFriction() const;
 
     ///
+    /// \brief Set/Get the iteration count of the enclosed PBD models collision solver
+    ///@{
+    void setPbdCollisionSolverIterationCount(size_t val);
+    size_t getPbdCollisionSolverIterationCount() const;
+    ///@}
+
+    ///
     /// \brief Setup connectivity of task graph
     ///
     void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override;
