@@ -235,9 +235,17 @@ Scene::addSceneObject(std::shared_ptr<SceneObject> newSceneObject)
 
     if (this->getSceneObject(name) != nullptr)
     {
-        LOG(WARNING) << "Can not add object: '" << name
-                     << "' is already registered in this scene.";
-        return;
+        int i = 1;
+        auto newName = name;
+        
+        while (getSceneObject(newName) != nullptr)
+        {
+            newName = name + "_" + std::to_string(++i);
+        }
+        newSceneObject->setName(newName);
+        name = newName;
+        LOG(WARNING) << "Object with the name " << name << " is already in the scene "
+            << "renamed to " << newName;
     }
 
     m_sceneObjects.insert(newSceneObject);
@@ -307,7 +315,7 @@ Scene::addLight(const std::string& name, std::shared_ptr<Light> newLight)
 {
     if (m_lightsMap.find(name) != m_lightsMap.cend())
     {
-        LOG(WARNING) << "Can not add light: '" << name
+        LOG(WARNING) << "Cannot add light: '" << name
                      << "' is already registered in this scene.";
         return;
     }
