@@ -80,15 +80,16 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
 
     // Setup the material
     auto material = std::make_shared<RenderMaterial>();
-    material->setDisplayMode(RenderMaterial::DisplayMode::Surface);
-    material->setShadingModel(RenderMaterial::ShadingModel::PBR);
-    material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshDiffuse.jpg",
-            Texture::Type::Diffuse));
-    material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshNormal.jpg",
-            Texture::Type::Normal));
-    material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshORM.jpg",
-            Texture::Type::ORM));
-    material->setNormalStrength(0.3);
+    material->setDisplayMode(RenderMaterial::DisplayMode::Wireframe);
+    // material->setDisplayMode(RenderMaterial::DisplayMode::Surface);
+    // material->setShadingModel(RenderMaterial::ShadingModel::PBR);
+    // material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshDiffuse.jpg",
+    //         Texture::Type::Diffuse));
+    // material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshNormal.jpg",
+    //         Texture::Type::Normal));
+    // material->addTexture(std::make_shared<Texture>(iMSTK_DATA_ROOT "/textures/fleshORM.jpg",
+    //         Texture::Type::ORM));
+    // material->setNormalStrength(0.3);
 
     // Add a visual model to render the surface of the tet mesh
     auto visualModel = std::make_shared<VisualModel>();
@@ -116,14 +117,14 @@ main()
     // Setup logger (write to file and stdout)
     Logger::startLogger();
 
-    input.meshFileName = iMSTK_DATA_ROOT "Tissue/tissue_hole.vtk";
+    input.meshFileName = iMSTK_DATA_ROOT "Tissues/tissue_hole.vtk";
 
     // Construct the scene
     auto scene = std::make_shared<Scene>("DynamicSuture");
     
-    scene->getActiveCamera()->setPosition(0.001, 0.05, 0.15);
+    scene->getActiveCamera()->setPosition(-5.0, 0.05, 8.3);
     scene->getActiveCamera()->setFocalPoint(0.0, 0.0, 0.0);
-    scene->getActiveCamera()->setViewUp(0.0, 0.96, -0.28);
+    scene->getActiveCamera()->setViewUp(0.85, 0.0, 0.5);
 
     // Load a tetrahedral mesh
     std::shared_ptr<TetrahedralMesh> tetMesh = MeshIO::read<TetrahedralMesh>(input.meshFileName);
