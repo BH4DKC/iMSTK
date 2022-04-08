@@ -1,0 +1,13 @@
+# Target labels
+ VegaFEM
+# Source files and their labels
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VegaFEM
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VegaFEM.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VegaFEM-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-update.rule

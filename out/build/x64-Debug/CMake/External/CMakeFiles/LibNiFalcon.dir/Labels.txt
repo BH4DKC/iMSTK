@@ -1,0 +1,21 @@
+# Target labels
+ LibNiFalcon
+# Source files and their labels
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/LibNiFalcon
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/LibNiFalcon.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/LibNiFalcon-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-update.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/FTD2XX-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-update.rule

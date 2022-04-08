@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://gitlab.kitware.com/iMSTK/imstk-data/-/archive/e47eee983a4476af2556b8125c7762c10b5c19d5/imstk-data-e47eee983a4476af2556b8125c7762c10b5c19d5.zip'
+tag=''

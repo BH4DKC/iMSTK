@@ -1,0 +1,358 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTK"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTK.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTK-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-forceconfigure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/iMSTK-prefix/src/iMSTK-stamp/iMSTK-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Eigen3-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/FTD2XX-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/GTest-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/LibNiFalcon-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Libusb-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/OpenVR-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/SFML-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/TBB-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VegaFEM-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/g3log-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTKData-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Eigen3/stamp/Eigen3-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/FTD2XX/stamp/FTD2XX-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/LibNiFalcon/stamp/LibNiFalcon-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Libusb/stamp/Libusb-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/SFML/stamp/SFML-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/TBB/stamp/TBB-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VegaFEM/stamp/VegaFEM-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"iMSTK"
+		],
+		"name" : "iMSTK"
+	}
+}

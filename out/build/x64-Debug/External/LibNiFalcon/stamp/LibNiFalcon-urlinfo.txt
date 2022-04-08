@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://gitlab.kitware.com/iMSTK/libnifalcon/-/archive/libusb1-windows/libnifalcon-libusb1-windows.zip'
+tag='MD5=6d5d68c92837388bfcd27f99a48b921d'

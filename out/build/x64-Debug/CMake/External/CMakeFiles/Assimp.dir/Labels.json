@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"Assimp"
+		],
+		"name" : "Assimp"
+	}
+}

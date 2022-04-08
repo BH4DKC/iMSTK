@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTKData"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTKData.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/iMSTKData-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/iMSTKData/stamp/iMSTKData-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"iMSTKData"
+		],
+		"name" : "iMSTKData"
+	}
+}

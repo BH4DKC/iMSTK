@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://github.com/oneapi-src/oneTBB/archive/46fb877ef1618d9de9a9ba10cee107592b7cdb2d.zip'
+tag='MD5=1a0d5676ab568c8b9de57c7ecc082505'

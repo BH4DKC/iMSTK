@@ -1,0 +1,67 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-update.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/OpenVR-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"VTK"
+		],
+		"name" : "VTK"
+	}
+}

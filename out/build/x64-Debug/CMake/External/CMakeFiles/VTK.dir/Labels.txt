@@ -1,0 +1,21 @@
+# Target labels
+ VTK
+# Source files and their labels
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/VTK-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/VTK/stamp/VTK-update.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/OpenVR-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/OpenVR/stamp/OpenVR-update.rule

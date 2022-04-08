@@ -1,0 +1,13 @@
+# Target labels
+ g3log
+# Source files and their labels
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/g3log
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/g3log.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/g3log-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/g3log/stamp/g3log-update.rule

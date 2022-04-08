@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/GTest"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/GTest.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/GTest-complete.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-build.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-configure.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-download.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-install.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-patch.rule"
+		},
+		{
+			"file" : "C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/GTest/stamp/GTest-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"GTest"
+		],
+		"name" : "GTest"
+	}
+}

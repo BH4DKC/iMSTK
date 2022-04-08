@@ -1,0 +1,13 @@
+# Target labels
+ Assimp
+# Source files and their labels
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/CMake/External/CMakeFiles/Assimp-complete.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-build.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-configure.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-download.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-install.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-mkdir.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-patch.rule
+C:/Users/jacob.moore/Desktop/iMSTK/iMSTK/out/build/x64-Debug/External/Assimp/stamp/Assimp-update.rule

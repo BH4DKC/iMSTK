@@ -1,0 +1,3 @@
+repository='https://gitlab.kitware.com/vtk/vtk.git'
+module=''
+tag='origin'

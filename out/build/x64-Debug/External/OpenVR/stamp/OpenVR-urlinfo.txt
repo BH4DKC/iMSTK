@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://gitlab.kitware.com/iMSTK/openvr/-/archive/v1.12.5/openvr-v1.12.5.tar.gz'
+tag='MD5=42c4d1c4a194860aaa4e793b009b99c0'

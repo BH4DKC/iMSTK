@@ -1,0 +1,3 @@
+repository='https://gitlab.kitware.com/iMSTK/assimp.git'
+module=''
+tag='origin'

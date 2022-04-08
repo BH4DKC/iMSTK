@@ -1,0 +1,3 @@
+repository='external project URL'
+module='https://gitlab.kitware.com/iMSTK/VegaFEM-CMake/-/archive/b10672cf1493349087a1982c8b5bf775a5f4e415/VegaFEM-CMake-b10672cf1493349087a1982c8b5bf775a5f4e415.zip'
+tag='MD5=d945353d89dab31b2691851a17926b60'
