@@ -84,6 +84,8 @@ PbdPointTriangleConstraint::computeValueAndGradient(double&             c,
     dcdxB[1] = v * n;
     dcdxB[2] = w * n;
 
+    std::cout << "C = " << l << std::endl;
+
     c = l;
 
     return true;
