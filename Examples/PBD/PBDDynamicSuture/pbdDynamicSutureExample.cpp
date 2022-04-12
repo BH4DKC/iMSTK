@@ -24,7 +24,9 @@
 #include "imstkCapsule.h"
 #include "imstkCollisionDetectionAlgorithm.h"
 #include "imstkCollisionHandling.h"
+#include "imstkDebugGeometryObject.h"
 #include "imstkDirectionalLight.h"
+#include "imstkIsometricMap.h"
 #include "imstkKeyboardDeviceClient.h"
 #include "imstkKeyboardSceneControl.h"
 #include "imstkLineMesh.h"
@@ -128,143 +130,186 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     return pbdObject;
 }
 
-// Capsule to test controllers
-static std::shared_ptr<RigidObject2>
-makeCapsuleToolObj()
+// // Capsule to test controllers
+// static std::shared_ptr<RigidObject2>
+// makeCapsuleToolObj()
+// {
+//     // Set up rigid body model
+//     std::shared_ptr<RigidBodyModel2> rbdModel = std::make_shared<RigidBodyModel2>();
+//     rbdModel->getConfig()->m_gravity = Vec3d::Zero();
+//     rbdModel->getConfig()->m_maxNumIterations       = 8;
+//     rbdModel->getConfig()->m_velocityDamping        = 1.0;
+//     rbdModel->getConfig()->m_angularVelocityDamping = 1.0;
+//     rbdModel->getConfig()->m_maxNumConstraints      = 40;
+
+//     auto toolGeometry = std::make_shared<Capsule>();
+//     toolGeometry->setRadius(0.5);
+//     toolGeometry->setLength(1);
+//     toolGeometry->setPosition(Vec3d(0.0, 0.0, 0.0));
+//     toolGeometry->setOrientation(Quatd(0.707, 0.0, 0.0, 0.707));
+
+//     std::shared_ptr<RigidObject2> toolObj = std::make_shared<RigidObject2>("Tool");
+
+//     // Create the object
+//     toolObj->setVisualGeometry(toolGeometry);
+//     toolObj->setPhysicsGeometry(toolGeometry);
+//     toolObj->setCollidingGeometry(toolGeometry);
+//     toolObj->setDynamicalModel(rbdModel);
+//     toolObj->getRigidBody()->m_mass = 1.0;
+//     toolObj->getRigidBody()->m_intertiaTensor = Mat3d::Identity() * 1.0;
+//     toolObj->getRigidBody()->m_initPos = Vec3d(0.0, 1.0, 2.0);
+
+//     toolObj->getVisualModel(0)->getRenderMaterial()->setOpacity(0.5);
+
+//     return toolObj;
+// }
+
+// // Needle for suturing
+// static std::shared_ptr<SceneObject>
+// makeToolObj(std::string name)
+// {
+//     auto surfMesh =
+//         MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Clamps/Gregory Suture Clamp/gregory_suture_clamp.obj");
+
+//     auto toolObj = std::make_shared<SceneObject>(name);
+//     toolObj->setVisualGeometry(surfMesh);
+    
+//     auto renderMaterial = std::make_shared<RenderMaterial>();
+//     renderMaterial->setColor(Color::LightGray);
+//     renderMaterial->setShadingModel(RenderMaterial::ShadingModel::PBR);
+//     renderMaterial->setRoughness(0.5);
+//     renderMaterial->setMetalness(1.0);
+//     toolObj->getVisualModel(0)->setRenderMaterial(renderMaterial);
+
+//     return toolObj;
+// }
+
+// Syringe geometry
+static std::shared_ptr<NeedleObject>
+makeToolObj()
 {
-    // Set up rigid body model
+
+    auto toolGeometry = std::make_shared<LineMesh>();
+    auto verticesPtr = std::make_shared<VecDataArray<double, 3>>(2);
+    (*verticesPtr)[0] = Vec3d(0.0, -0.05, 0.0);
+    (*verticesPtr)[1] = Vec3d(0.0, 0.05, 0.0);
+
+    auto indicesPtr = std::make_shared<VecDataArray<int, 2>>(1);
+    (*indicesPtr)[0] = Vec2i(0, 1);
+    toolGeometry->initialize(verticesPtr, indicesPtr);
+
+    auto syringeMesh = MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Syringes/Disposable_Syringe.stl");
+    syringeMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2, Geometry::TransformType::ApplyToData);
+    syringeMesh->translate(Vec3d(0.0, 4.4, 0.0), Geometry::TransformType::ApplyToData);
+    syringeMesh->scale(0.0055, Geometry::TransformType::ApplyToData);
+    syringeMesh->translate(Vec3d(0.0, 0.1, 0.0));
+
+    auto toolObj = std::make_shared<NeedleObject>("NeedleRbdTool");
+    toolObj->setVisualGeometry(syringeMesh);
+    toolObj->setCollidingGeometry(toolGeometry);
+    toolObj->setPhysicsGeometry(toolGeometry);
+    toolObj->setPhysicsToVisualMap(std::make_shared<IsometricMap>(toolGeometry, syringeMesh));
+    toolObj->getVisualModel(0)->getRenderMaterial()->setColor(Color(0.9, 0.9, 0.9));
+    toolObj->getVisualModel(0)->getRenderMaterial()->setShadingModel(RenderMaterial::ShadingModel::PBR);
+    toolObj->getVisualModel(0)->getRenderMaterial()->setRoughness(0.5);
+    toolObj->getVisualModel(0)->getRenderMaterial()->setMetalness(1.0);
+    toolObj->getVisualModel(0)->getRenderMaterial()->setIsDynamicMesh(false);
+
     std::shared_ptr<RigidBodyModel2> rbdModel = std::make_shared<RigidBodyModel2>();
     rbdModel->getConfig()->m_gravity = Vec3d::Zero();
-    rbdModel->getConfig()->m_maxNumIterations       = 8;
-    rbdModel->getConfig()->m_velocityDamping        = 1.0;
-    rbdModel->getConfig()->m_angularVelocityDamping = 1.0;
-    rbdModel->getConfig()->m_maxNumConstraints      = 40;
-
-    auto toolGeometry = std::make_shared<Capsule>();
-    toolGeometry->setRadius(0.5);
-    toolGeometry->setLength(1);
-    toolGeometry->setPosition(Vec3d(0.0, 0.0, 0.0));
-    toolGeometry->setOrientation(Quatd(0.707, 0.0, 0.0, 0.707));
-
-    std::shared_ptr<RigidObject2> toolObj = std::make_shared<RigidObject2>("Tool");
-
-    // Create the object
-    toolObj->setVisualGeometry(toolGeometry);
-    toolObj->setPhysicsGeometry(toolGeometry);
-    toolObj->setCollidingGeometry(toolGeometry);
+    rbdModel->getConfig()->m_maxNumIterations = 5;
     toolObj->setDynamicalModel(rbdModel);
+
     toolObj->getRigidBody()->m_mass = 1.0;
-    toolObj->getRigidBody()->m_intertiaTensor = Mat3d::Identity() * 1.0;
-    toolObj->getRigidBody()->m_initPos = Vec3d(0.0, 1.0, 2.0);
-
-    toolObj->getVisualModel(0)->getRenderMaterial()->setOpacity(0.5);
+    toolObj->getRigidBody()->m_intertiaTensor = Mat3d::Identity() * 10000.0;
+    toolObj->getRigidBody()->m_initPos = Vec3d(0.0, 0.1, 0.0);
 
     return toolObj;
 }
 
-// Needle for suturing
-static std::shared_ptr<SceneObject>
-makeToolObj(std::string name)
-{
-    auto surfMesh =
-        MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Clamps/Gregory Suture Clamp/gregory_suture_clamp.obj");
+// ///
+// /// \brief Create pbd string geometry
+// ///
+// static std::shared_ptr<LineMesh>
+// makeStringGeometry(const Vec3d& pos, const Vec3d& dx, const int numVerts)
+// {
+//     // Create the geometry
+//     auto stringGeometry = std::make_shared<LineMesh>();
 
-    auto toolObj = std::make_shared<SceneObject>(name);
-    toolObj->setVisualGeometry(surfMesh);
-    
-    auto renderMaterial = std::make_shared<RenderMaterial>();
-    renderMaterial->setColor(Color::LightGray);
-    renderMaterial->setShadingModel(RenderMaterial::ShadingModel::PBR);
-    renderMaterial->setRoughness(0.5);
-    renderMaterial->setMetalness(1.0);
-    toolObj->getVisualModel(0)->setRenderMaterial(renderMaterial);
+//     auto verticesPtr = std::make_shared<VecDataArray<double, 3>>(numVerts);
+//     VecDataArray<double, 3>&          vertices = *verticesPtr.get();
+//     for (int i = 0; i < numVerts; i++)
+//     {
+//         vertices[i] = pos + dx * i;
+//     }
 
-    return toolObj;
-}
+//     // Add connectivity data
+//     auto segmentsPtr = std::make_shared<VecDataArray<int, 2>>();
+//     VecDataArray<int, 2>&          segments = *segmentsPtr.get();
+//     for (int i = 0; i < numVerts - 1; i++)
+//     {
+//         segments.push_back(Vec2i(i, i + 1));
+//     }
 
-///
-/// \brief Create pbd string geometry
-///
-static std::shared_ptr<LineMesh>
-makeStringGeometry(const Vec3d& pos, const Vec3d& dx, const int numVerts)
-{
-    // Create the geometry
-    auto stringGeometry = std::make_shared<LineMesh>();
+//     stringGeometry->initialize(verticesPtr, segmentsPtr);
+//     return stringGeometry;
+// }
 
-    auto verticesPtr = std::make_shared<VecDataArray<double, 3>>(numVerts);
-    VecDataArray<double, 3>&          vertices = *verticesPtr.get();
-    for (int i = 0; i < numVerts; i++)
-    {
-        vertices[i] = pos + dx * i;
-    }
+// ///
+// /// \brief Create pbd string object
+// ///
+// static std::shared_ptr<PbdObject>
+// makePbdString(
+//     const std::string& name,
+//     const Vec3d& pos, const Vec3d& dir, const int numVerts,
+//     const double stringLength)
+// {
+//     auto stringObj = std::make_shared<PbdObject>(name);
 
-    // Add connectivity data
-    auto segmentsPtr = std::make_shared<VecDataArray<int, 2>>();
-    VecDataArray<int, 2>&          segments = *segmentsPtr.get();
-    for (int i = 0; i < numVerts - 1; i++)
-    {
-        segments.push_back(Vec2i(i, i + 1));
-    }
+//     // Setup the Geometry
+//     const double              dx = stringLength / numVerts;
+//     std::shared_ptr<LineMesh> stringMesh = makeStringGeometry(pos, dir * dx, numVerts);
 
-    stringGeometry->initialize(verticesPtr, segmentsPtr);
-    return stringGeometry;
-}
+//     // Setup the Parameters
+//     auto pbdParams = std::make_shared<PbdModelConfig>();
+//     pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 100.0);
+//     pbdParams->enableBendConstraint(100000.0, 1);
+//     pbdParams->enableBendConstraint(100000.0, 2);
+//     pbdParams->m_fixedNodeIds     = { 0, 1 };
+//     pbdParams->m_uniformMassValue = 0.002 / numVerts; // grams
+//     pbdParams->m_gravity = Vec3d(0.0, -9.8, 0.0);
+//     pbdParams->m_dt      = 0.0005;                    // Overwritten for real time
 
-///
-/// \brief Create pbd string object
-///
-static std::shared_ptr<PbdObject>
-makePbdString(
-    const std::string& name,
-    const Vec3d& pos, const Vec3d& dir, const int numVerts,
-    const double stringLength)
-{
-    auto stringObj = std::make_shared<PbdObject>(name);
+//     // Requires large amounts of iterations the longer, a different
+//     // solver would help
+//     pbdParams->m_iterations = 100;
+//     pbdParams->m_viscousDampingCoeff = 0.01;
 
-    // Setup the Geometry
-    const double              dx = stringLength / numVerts;
-    std::shared_ptr<LineMesh> stringMesh = makeStringGeometry(pos, dir * dx, numVerts);
+//     // Setup the Model
+//     auto pbdModel = std::make_shared<PbdModel>();
+//     pbdModel->setModelGeometry(stringMesh);
+//     pbdModel->configure(pbdParams);
 
-    // Setup the Parameters
-    auto pbdParams = std::make_shared<PbdModelConfig>();
-    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 100.0);
-    pbdParams->enableBendConstraint(100000.0, 1);
-    pbdParams->enableBendConstraint(100000.0, 2);
-    pbdParams->m_fixedNodeIds     = { 0, 1 };
-    pbdParams->m_uniformMassValue = 0.002 / numVerts; // grams
-    pbdParams->m_gravity = Vec3d(0.0, -9.8, 0.0);
-    pbdParams->m_dt      = 0.0005;                    // Overwritten for real time
+//     // Setup the VisualModel
+//     auto material = std::make_shared<RenderMaterial>();
+//     material->setBackFaceCulling(false);
+//     material->setColor(Color::Red);
+//     material->setLineWidth(2.0);
+//     material->setPointSize(6.0);
+//     material->setDisplayMode(RenderMaterial::DisplayMode::Wireframe);
 
-    // Requires large amounts of iterations the longer, a different
-    // solver would help
-    pbdParams->m_iterations = 100;
-    pbdParams->m_viscousDampingCoeff = 0.01;
+//     auto visualModel = std::make_shared<VisualModel>();
+//     visualModel->setGeometry(stringMesh);
+//     visualModel->setRenderMaterial(material);
 
-    // Setup the Model
-    auto pbdModel = std::make_shared<PbdModel>();
-    pbdModel->setModelGeometry(stringMesh);
-    pbdModel->configure(pbdParams);
+//     // Setup the Object
+//     stringObj->addVisualModel(visualModel);
+//     stringObj->setPhysicsGeometry(stringMesh);
+//     stringObj->setCollidingGeometry(stringMesh);
+//     stringObj->setDynamicalModel(pbdModel);
 
-    // Setup the VisualModel
-    auto material = std::make_shared<RenderMaterial>();
-    material->setBackFaceCulling(false);
-    material->setColor(Color::Red);
-    material->setLineWidth(2.0);
-    material->setPointSize(6.0);
-    material->setDisplayMode(RenderMaterial::DisplayMode::Wireframe);
-
-    auto visualModel = std::make_shared<VisualModel>();
-    visualModel->setGeometry(stringMesh);
-    visualModel->setRenderMaterial(material);
-
-    // Setup the Object
-    stringObj->addVisualModel(visualModel);
-    stringObj->setPhysicsGeometry(stringMesh);
-    stringObj->setCollidingGeometry(stringMesh);
-    stringObj->setDynamicalModel(pbdModel);
-
-    return stringObj;
-}
+//     return stringObj;
+// }
 
 
 ///
@@ -294,39 +339,76 @@ main()
     scene->addSceneObject(tissueHole);
 
     // Test Capsule
-    std::shared_ptr<RigidObject2> toolObj = makeCapsuleToolObj();
+    // std::shared_ptr<RigidObject2> toolObj = makeCapsuleToolObj();
+    // scene->addSceneObject(toolObj);
+
+// Curved Needle
+    // // Create the arc needle
+    // auto needleObj = std::make_shared<NeedleObject>();
+    // needleObj->setForceThreshold(2.0);
+    // scene->addSceneObject(needleObj);
+
+    // // Create the suture pbd-based string
+    // const double               stringLength      = 0.2;
+    // const int                  stringVertexCount = 30;
+    // std::shared_ptr<PbdObject> sutureThreadObj   =
+    //     makePbdString("SutureThread", Vec3d(0.0, 0.0, 0.018), Vec3d(0.0, 0.0, 1.0),
+    //         stringVertexCount, stringLength);
+    // scene->addSceneObject(sutureThreadObj);
+
+    // // Create clamps that follow the needle around
+    // std::shared_ptr<SceneObject> clampsObj = makeToolObj("Clamps");
+    // scene->addSceneObject(clampsObj);
+
+    // // Create ghost clamps to show real position of hand under virtual coupling
+    // std::shared_ptr<SceneObject> ghostClampsObj = makeToolObj("GhostClamps");
+    // ghostClampsObj->getVisualModel(0)->getRenderMaterial()->setColor(Color::Orange);
+    // scene->addSceneObject(ghostClampsObj);
+
+    // // Add point based collision between the tissue & suture thread
+    // auto interaction = std::make_shared<PbdObjectCollision>(sutureThreadObj, tissueHole, "ImplicitGeometryToPointSetCD");
+    // interaction->setFriction(0.0);
+    // scene->addInteraction(interaction);
+
+    // // Add needle constraining behaviour between the tissue & arc needle
+    // auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
+    // scene->addInteraction(needleInteraction);
+
+// Injector
+
+
+    // Setup a tool for the user to move
+    std::shared_ptr<NeedleObject> toolObj = makeToolObj();
+    toolObj->setForceThreshold(15.0);
     scene->addSceneObject(toolObj);
 
-    // Create the arc needle
-    auto needleObj = std::make_shared<NeedleObject>();
-    needleObj->setForceThreshold(2.0);
-    scene->addSceneObject(needleObj);
+    // Setup a debug ghost tool for virtual coupling
+    auto ghostToolObj = std::make_shared<SceneObject>("ghostTool");
+    {
+        auto toolMesh = std::dynamic_pointer_cast<SurfaceMesh>(toolObj->getVisualGeometry());
 
-    // Create the suture pbd-based string
-    const double               stringLength      = 0.2;
-    const int                  stringVertexCount = 30;
-    std::shared_ptr<PbdObject> sutureThreadObj   =
-        makePbdString("SutureThread", Vec3d(0.0, 0.0, 0.018), Vec3d(0.0, 0.0, 1.0),
-            stringVertexCount, stringLength);
-    scene->addSceneObject(sutureThreadObj);
+        auto toolGhostMesh = std::make_shared<SurfaceMesh>();
+        toolGhostMesh->initialize(
+            std::make_shared<VecDataArray<double, 3>>(*toolMesh->getVertexPositions(Geometry::DataType::PreTransform)),
+            std::make_shared<VecDataArray<int, 3>>(*toolMesh->getTriangleIndices()));
+        ghostToolObj->setVisualGeometry(toolGhostMesh);
+        ghostToolObj->getVisualModel(0)->getRenderMaterial()->setColor(Color::Orange);
+        ghostToolObj->getVisualModel(0)->getRenderMaterial()->setLineWidth(5.0);
+        ghostToolObj->getVisualModel(0)->getRenderMaterial()->setOpacity(0.3);
+        ghostToolObj->getVisualModel(0)->getRenderMaterial()->setIsDynamicMesh(false);
+    }
+    scene->addSceneObject(ghostToolObj);
 
-    // Create clamps that follow the needle around
-    std::shared_ptr<SceneObject> clampsObj = makeToolObj("Clamps");
-    scene->addSceneObject(clampsObj);
+    // Setup a debug polygon soup for debug contact points
+    auto debugGeomObj = std::make_shared<DebugGeometryObject>();
+    debugGeomObj->setLineWidth(0.1);
+    scene->addSceneObject(debugGeomObj);
 
-    // Create ghost clamps to show real position of hand under virtual coupling
-    std::shared_ptr<SceneObject> ghostClampsObj = makeToolObj("GhostClamps");
-    ghostClampsObj->getVisualModel(0)->getRenderMaterial()->setColor(Color::Orange);
-    scene->addSceneObject(ghostClampsObj);
-
-    // Add point based collision between the tissue & suture thread
-    auto interaction = std::make_shared<PbdObjectCollision>(sutureThreadObj, tissueHole, "ImplicitGeometryToPointSetCD");
-    interaction->setFriction(0.0);
+    // This adds both contact and puncture functionality
+    auto interaction = std::make_shared<NeedleInteraction>(tissueHole, toolObj);
     scene->addInteraction(interaction);
 
-    // Add needle constraining behaviour between the tissue & arc needle
-    auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
-    scene->addInteraction(needleInteraction);
+
 
     /// \ IP address of the server.
     // const std::string serverIP = "localhost";
@@ -364,6 +446,8 @@ main()
     light->setFocalPoint(Vec3d(0.0, -1.0, -1.0));
     light->setIntensity(1.0);
     scene->addLight("light", light);
+
+    scene->getConfig()->writeTaskGraph = true;
     
 
     // Run the simulation
@@ -416,7 +500,7 @@ main()
                 deviceClient->setOrientation(deviceClient->getOrientation() * delta);
             });
 #endif
-        auto controller = std::make_shared<RigidObjectController>(needleObj, deviceClient);
+        auto controller = std::make_shared<RigidObjectController>(toolObj, deviceClient);
         controller->setTranslationOffset(offset);
         controller->setTranslationScaling(translationScaling);
         controller->setLinearKs(1000.0);
@@ -431,41 +515,41 @@ main()
         connect<Event>(sceneManager, &SceneManager::preUpdate,
             [&](Event*)
             {
-                needleObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
-                sutureThreadObj->getPbdModel()->getConfig()->m_dt  = sceneManager->getDt();
+                toolObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
+                // sutureThreadObj->getPbdModel()->getConfig()->m_dt  = sceneManager->getDt();
             });
         // Constrain the first two vertices of the string to the needle
-        connect<Event>(sceneManager, &SceneManager::postUpdate,
-            [&](Event*)
-            {
-                auto needleLineMesh = std::dynamic_pointer_cast<LineMesh>(needleObj->getPhysicsGeometry());
-                auto sutureLineMesh = std::dynamic_pointer_cast<LineMesh>(sutureThreadObj->getPhysicsGeometry());
-                (*sutureLineMesh->getVertexPositions())[1] = (*needleLineMesh->getVertexPositions())[0];
-                (*sutureLineMesh->getVertexPositions())[0] = (*needleLineMesh->getVertexPositions())[1];
-            });
-        // Transform the clamps relative to the needle
-        const Vec3d clampOffset = Vec3d(-0.009, 0.01, 0.001);
-        connect<Event>(sceneManager, &SceneManager::postUpdate,
-            [&](Event*)
-            {
-                clampsObj->getVisualGeometry()->setTransform(
-                    needleObj->getVisualGeometry()->getTransform() *
-                    mat4dTranslate(clampOffset) *
-                    mat4dRotation(Rotd(PI, Vec3d(0.0, 1.0, 0.0))));
-                clampsObj->getVisualGeometry()->postModified();
-            });
-        // Transform the ghost tool clamps to show the real tool location
-        connect<Event>(sceneManager, &SceneManager::postUpdate,
-            [&](Event*)
-            {
-                ghostClampsObj->getVisualGeometry()->setTransform(
-                    mat4dTranslate(controller->getPosition()) * mat4dRotation(controller->getOrientation()) *
-                    mat4dTranslate(clampOffset) *
-                    mat4dRotation(Rotd(PI, Vec3d(0.0, 1.0, 0.0))));
-                ghostClampsObj->getVisualGeometry()->updatePostTransformData();
-                ghostClampsObj->getVisualGeometry()->postModified();
-                ghostClampsObj->getVisualModel(0)->getRenderMaterial()->setOpacity(std::min(1.0, controller->getDeviceForce().norm() / 5.0));
-            });
+        // connect<Event>(sceneManager, &SceneManager::postUpdate,
+        //     [&](Event*)
+        //     {
+        //         auto needleLineMesh = std::dynamic_pointer_cast<LineMesh>(toolObj->getPhysicsGeometry());
+        //         auto sutureLineMesh = std::dynamic_pointer_cast<LineMesh>(sutureThreadObj->getPhysicsGeometry());
+        //         (*sutureLineMesh->getVertexPositions())[1] = (*needleLineMesh->getVertexPositions())[0];
+        //         (*sutureLineMesh->getVertexPositions())[0] = (*needleLineMesh->getVertexPositions())[1];
+        //     });
+        // // Transform the clamps relative to the needle
+        // const Vec3d clampOffset = Vec3d(-0.009, 0.01, 0.001);
+        // connect<Event>(sceneManager, &SceneManager::postUpdate,
+        //     [&](Event*)
+        //     {
+        //         clampsObj->getVisualGeometry()->setTransform(
+        //             toolObj->getVisualGeometry()->getTransform() *
+        //             mat4dTranslate(clampOffset) *
+        //             mat4dRotation(Rotd(PI, Vec3d(0.0, 1.0, 0.0))));
+        //         clampsObj->getVisualGeometry()->postModified();
+        //     });
+        // // Transform the ghost tool clamps to show the real tool location
+        // connect<Event>(sceneManager, &SceneManager::postUpdate,
+        //     [&](Event*)
+        //     {
+        //         ghostClampsObj->getVisualGeometry()->setTransform(
+        //             mat4dTranslate(controller->getPosition()) * mat4dRotation(controller->getOrientation()) *
+        //             mat4dTranslate(clampOffset) *
+        //             mat4dRotation(Rotd(PI, Vec3d(0.0, 1.0, 0.0))));
+        //         ghostClampsObj->getVisualGeometry()->updatePostTransformData();
+        //         ghostClampsObj->getVisualGeometry()->postModified();
+        //         ghostClampsObj->getVisualModel(0)->getRenderMaterial()->setOpacity(std::min(1.0, controller->getDeviceForce().norm() / 5.0));
+        //     });
 
         // Add mouse and keyboard controls to the viewer
         {

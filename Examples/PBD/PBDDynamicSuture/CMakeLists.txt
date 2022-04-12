@@ -23,13 +23,15 @@ project(Example-PBDDynamicSuture)
 #-----------------------------------------------------------------------------
 imstk_add_executable(${PROJECT_NAME}
     pbdDynamicSutureExample.cpp
+    EmbeddingConstraint.h
+    EmbeddingConstraint.cpp
+    NeedleEmbeddedCH.h
+    NeedleEmbeddedCH.cpp
     NeedleInteraction.h
     NeedleInteraction.cpp
     NeedleObject.h
-    NeedleObject.cpp
-    NeedleRigidBodyCH.h
-    NeedleRigidBodyCH.cpp
-    RbdPointToArcConstraint.h)
+    NeedlePbdCH.h
+    NeedleRigidBodyCH.h)
 
 
 
