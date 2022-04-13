@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "imstkMacros.h"
 #include "imstkRigidObject2.h"
+#include "imstkMacros.h"
 
 using namespace imstk;
 
@@ -37,13 +37,33 @@ public:
     };
 
 public:
-    NeedleObject(const std::string& name) : RigidObject2(name) { }
+    NeedleObject();
     virtual ~NeedleObject() = default;
 
     IMSTK_TYPE_NAME(NeedleObject)
 
 public:
-    void setCollisionState(const CollisionState state) { m_collisionState = state; }
+    // *INDENT-OFF*
+    SIGNAL(NeedleObject, inserted);
+    SIGNAL(NeedleObject, removed);
+    // *INDENT-ON*
+
+public:
+    void setCollisionState(const CollisionState state)
+    {
+        // If current state is inserted and previous was not inserted
+        if (m_collisionState == CollisionState::INSERTED && state != CollisionState::INSERTED)
+        {
+            this->postEvent(Event(removed()));
+        }
+        // If current state not inserted and previous inserted
+        else if (m_collisionState != CollisionState::INSERTED && state == CollisionState::INSERTED)
+        {
+            this->postEvent(Event(inserted()));
+        }
+        m_collisionState = state;
+    }
+
     CollisionState getCollisionState() const { return m_collisionState; }
 
     ///
@@ -52,15 +72,35 @@ public:
     void setForceThreshold(const double forceThreshold) { m_forceThreshold = forceThreshold; }
     double getForceThreshold() const { return m_forceThreshold; }
 
-    ///
-    /// \brief Returns the current axes of the needle (tip-tail)
-    ///
-    const Vec3d getNeedleAxes() const
+    void setArc(const Vec3d& arcCenter, const Mat3d& arcBasis,
+                double arcRadius, double beginRad, double endRad)
     {
-        return (-getCollidingGeometry()->getRotation().col(1)).normalized();
+        m_arcCenter = arcCenter;
+        m_arcBasis  = arcBasis;
+        m_beginRad  = beginRad;
+        m_endRad    = endRad;
+        m_arcRadius = arcRadius;
     }
+
+    ///
+    /// \brief Get the basis post transformation of the rigid body
+    ///
+    const Mat3d getArcBasis();
+    ///
+    /// \brief Get the arc center post transformation of the rigid body
+    ///
+    const Vec3d getArcCenter();
+    const double getBeginRad() const { return m_beginRad; }
+    const double getEndRad() const { return m_endRad; }
+    const double getArcRadius() const { return m_arcRadius; }
 
 protected:
     CollisionState m_collisionState = CollisionState::REMOVED;
-    double m_forceThreshold = 10.0;
+    double m_forceThreshold = 5.0;
+
+    Mat3d  m_arcBasis  = Mat3d::Identity();
+    Vec3d  m_arcCenter = Vec3d::Zero();
+    double m_arcRadius = 1.0;
+    double m_beginRad  = 0.0;
+    double m_endRad    = PI * 2.0;
 };
