@@ -296,8 +296,7 @@ main()
     ghostToolObj->getVisualModel(0)->getRenderMaterial()->setColor(Color::Orange);
     scene->addSceneObject(ghostToolObj);
 
-
-    auto surfMesh = tetMesh->extractSurfaceMesh();
+    scene->getConfig()->writeTaskGraph = true;
 
     // Add point based collision between the tissue & suture thread
     // Warning: adding collision causes taskgraph error
@@ -305,7 +304,6 @@ main()
         tissueHole, 
         sutureThreadObj,
         "TetraToLineMeshCD");
-    interaction->setFriction(0.0);
     scene->addInteraction(interaction);
 
     // WARNING: Must be modified, shouldnt currently work
@@ -316,7 +314,7 @@ main()
     // Add interaction between needle and tissue block 
 
 
-    scene->getConfig()->writeTaskGraph = true;
+    // scene->getConfig()->writeTaskGraph = true;
 
 
     // scene->getConfig()->writeTaskGraph = true;
@@ -415,6 +413,7 @@ main()
         }
 
         
+        // scene->getConfig()->writeTaskGraph = true;
 
         driver->start();
     }
