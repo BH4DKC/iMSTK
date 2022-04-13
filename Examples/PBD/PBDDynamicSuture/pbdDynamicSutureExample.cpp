@@ -296,18 +296,27 @@ main()
     ghostToolObj->getVisualModel(0)->getRenderMaterial()->setColor(Color::Orange);
     scene->addSceneObject(ghostToolObj);
 
+
+    auto surfMesh = tetMesh->extractSurfaceMesh();
+
     // Add point based collision between the tissue & suture thread
-    // auto interaction = std::make_shared<PbdObjectCollision>(sutureThreadObj, tissueHole, "MeshToMeshBruteForceCD");
-    // interaction->setFriction(0.0);
-    // scene->addInteraction(interaction);
+    // Warning: adding collision causes taskgraph error
+    auto interaction = std::make_shared<PbdObjectCollision>(
+        tissueHole, 
+        sutureThreadObj,
+        "TetraToLineMeshCD");
+    interaction->setFriction(0.0);
+    scene->addInteraction(interaction);
 
     // WARNING: Must be modified, shouldnt currently work
     // Add needle constraining behaviour between the tissue & arc needle
     // auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
     // scene->addInteraction(needleInteraction);
     
+    // Add interaction between needle and tissue block 
 
 
+    scene->getConfig()->writeTaskGraph = true;
 
 
     // scene->getConfig()->writeTaskGraph = true;
@@ -405,7 +414,7 @@ main()
         viewer->addControl(keyControl);
         }
 
-        scene->getConfig()->writeTaskGraph = true;
+        
 
         driver->start();
     }
