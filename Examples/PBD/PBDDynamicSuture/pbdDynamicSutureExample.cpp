@@ -78,7 +78,7 @@ std::shared_ptr<PbdObject>
 createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
 {
 
-	std::shared_ptr<SurfaceMesh> surfMesh = tetMesh->extractSurfaceMesh();
+	std::shared_ptr<SurfaceMesh> boundMesh = tetMesh->extractSurfaceMesh();
 
 	auto pbdObject = std::make_shared<PbdObject>("meshHole");
 	auto pbdParams = std::make_shared<PbdModelConfig>();
@@ -93,7 +93,7 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
 	pbdParams->m_viscousDampingCoeff = 0.01;
 
 	// Fix the borders
-	for (int vert_id = 0; vert_id < surfMesh->getNumVertices(); vert_id++)
+	for (int vert_id = 0; vert_id < boundMesh->getNumVertices(); vert_id++)
 	{
 		auto position = tetMesh->getVertexPosition(vert_id);
 		if (std::fabs(1.40984-std::fabs(position(1))) <= 1E-4)
@@ -103,10 +103,10 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
 	}
 
 	tetMesh->scale(0.02, Geometry::TransformType::ApplyToData);
-
 	tetMesh->rotate(Vec3d(0.0, 0.0, 1.0), -PI_2, Geometry::TransformType::ApplyToData);
 	tetMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2/6.0, Geometry::TransformType::ApplyToData);
 
+	std::shared_ptr<SurfaceMesh> surfMesh = tetMesh->extractSurfaceMesh();
 
 	// Setup the Model
 	auto pbdModel = std::make_shared<PbdModel>();
@@ -140,7 +140,6 @@ makeClampObj(std::string name)
 		MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Clamps/Gregory Suture Clamp/gregory_suture_clamp.obj");
 
 	surfMesh->scale(0.2, Geometry::TransformType::ApplyToData);
-
 
 	auto toolObj = std::make_shared<SceneObject>(name);
 	toolObj->setVisualGeometry(surfMesh);
@@ -191,13 +190,9 @@ main()
 	scene->addSceneObject(needleObj);
 
 	// Add needle constraining behaviour between the tissue & arc needle
-	// auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
-	// auto CD = needleInteraction->getCollisionDetection();
-	//CD->set
+	auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
+	scene->addInteraction(needleInteraction);
 
-	
-		
-	// scene->addInteraction(needleInteraction);
 
 
 
