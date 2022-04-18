@@ -26,7 +26,9 @@ imstk_add_executable(${PROJECT_NAME}
     NeedleObject.h
     NeedleObject.cpp
     NeedleInteraction.h
-    NeedleInteraction.cpp)
+    NeedleInteraction.cpp
+    NeedleRigidBodyCH.h
+    NeedleRigidBodyCH.cpp)
 
 
 

@@ -21,31 +21,37 @@
 
 #pragma once
 
+#include "imstkRigidBodyCH.h"
 #include "imstkMacros.h"
-#include "imstkPbdObjectCollision.h"
 
 using namespace imstk;
 
-class NeedleEmbeddedCH;
-class NeedleObject;
-
-namespace imstk
-{
-class PbdObject;
-} 
-
-///
-/// \class NeedleInteraction
-///
-/// \brief Defines interaction between NeedleObject and PbdObject
-///
-class NeedleInteraction : public PbdObjectCollision
+class NeedleRigidBodyCH : public RigidBodyCH
 {
 public:
-    NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
-                      std::shared_ptr<NeedleObject> needleObj);
-    ~NeedleInteraction() override = default;
+    NeedleRigidBodyCH() = default;
+    ~NeedleRigidBodyCH() override = default;
 
-    IMSTK_TYPE_NAME(NeedleInteraction)
+    IMSTK_TYPE_NAME(NeedleRigidBodyCH)
 
+protected:
+    ///
+    /// \brief Handle the collision/contact data
+    ///
+    virtual void handle(
+        const std::vector<CollisionElement>& elementsA,
+        const std::vector<CollisionElement>& elementsB) override;
+
+    ///
+    /// \brief Add constraint for the rigid body given contact
+    ///
+    void addConstraint(
+        std::shared_ptr<RigidObject2> rbdObj,
+        const Vec3d& contactPt, const Vec3d& contactNormal,
+        const double contactDepth) override;
+
+protected:
+    Vec3d m_initContactPt   = Vec3d::Zero();
+    Vec3d m_initAxes        = Vec3d::Zero();
+    Quatd m_initOrientation = Quatd::Identity();
 };

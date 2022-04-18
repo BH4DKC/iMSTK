@@ -66,13 +66,6 @@
 
 using namespace imstk;
 
-struct Input
-{
-	std::string meshFileName;
-};
-
-Input input;
-
 std::shared_ptr<SurfaceMesh>
 createTriangle()
 {
@@ -90,16 +83,13 @@ createTriangle()
         std::make_shared<VecDataArray<int, 3>>(triangleIndices));
 
     return triangleMesh;
-
-
 }
+
 
 // Create tissue object to stitch
 static std::shared_ptr<PbdObject> 
 createPbdTriangle()
 {
-
-
 	std::shared_ptr<SurfaceMesh> triMesh = createTriangle();
 
 	auto pbdObject = std::make_shared<PbdObject>("pbdTriangle");
@@ -139,10 +129,6 @@ createPbdTriangle()
 }
 
 
-
-
-
-
 ///
 /// \brief This example demonstrates suturing of a hole in a tissue
 ///
@@ -151,8 +137,6 @@ main()
 {
 	// Setup logger (write to file and stdout)
 	Logger::startLogger();
-
-	// input.meshFileName = iMSTK_DATA_ROOT "Tissues/tissue_hole.vtk";
 
 	// Construct the scene
 	auto scene = std::make_shared<Scene>("DynamicSuture");
@@ -174,7 +158,10 @@ main()
 
 	// Create arced needle
 	auto needleObj = std::make_shared<NeedleObject>();
+	needleObj->setForceThreshold(0.0001);
 	scene->addSceneObject(needleObj);
+	
+
 
 	// Add needle constraining behaviour between the tissue & arc needle
 	auto needleInteraction = std::make_shared<NeedleInteraction>(pbdTriangle, needleObj);
