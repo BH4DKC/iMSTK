@@ -177,8 +177,8 @@ main()
 	scene->addSceneObject(needleObj);
 
 	// Add needle constraining behaviour between the tissue & arc needle
-	// auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
-	// scene->addInteraction(needleInteraction);
+	auto needleInteraction = std::make_shared<NeedleInteraction>(pbdTriangle, needleObj);
+	scene->addInteraction(needleInteraction);
 
 
 	// Run the simulation
