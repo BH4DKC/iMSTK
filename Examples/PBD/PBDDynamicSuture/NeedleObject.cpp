@@ -37,12 +37,9 @@ NeedleObject::NeedleObject() : RigidObject2("Needle")
     auto sutureMesh     = MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Needles/c6_suture.stl");
     auto sutureLineMesh = MeshIO::read<LineMesh>(iMSTK_DATA_ROOT "/Surgical Instruments/Needles/c6_suture_hull.vtk");
 
-    /*sutureMesh->scale(5.0, Geometry::TransformType::ApplyToData);
-    sutureMesh->scale(5.0, Geometry::TransformType::ApplyToData);*/
-
-
     const Mat4d rot = mat4dRotation(Rotd(-PI_2, Vec3d(0.0, 1.0, 0.0))) *
                       mat4dRotation(Rotd(-0.6, Vec3d(1.0, 0.0, 0.0)));
+    
     sutureMesh->transform(rot, Geometry::TransformType::ApplyToData);
     sutureLineMesh->transform(rot, Geometry::TransformType::ApplyToData);
 

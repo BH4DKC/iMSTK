@@ -32,7 +32,7 @@ class NeedleObject;
 namespace imstk
 {
 class PbdObject;
-} 
+} // namespace imstk
 
 ///
 /// \class NeedleInteraction
@@ -47,5 +47,4 @@ public:
     ~NeedleInteraction() override = default;
 
     IMSTK_TYPE_NAME(NeedleInteraction)
-
 };

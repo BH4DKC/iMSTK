@@ -21,37 +21,42 @@
 
 #pragma once
 
-#include "imstkRigidBodyCH.h"
 #include "imstkMacros.h"
+#include "imstkPbdCollisionHandling.h"
+
+#include "NeedleObject.h"
 
 using namespace imstk;
 
-class NeedleRigidBodyCH : public RigidBodyCH
+///
+/// \brief Surface collision disabled upon puncture
+///
+class NeedlePbdCH : public PbdCollisionHandling
 {
 public:
-    NeedleRigidBodyCH() = default;
-    ~NeedleRigidBodyCH() override = default;
+    NeedlePbdCH() = default;
+    ~NeedlePbdCH() override = default;
 
-    IMSTK_TYPE_NAME(NeedleRigidBodyCH)
-
-protected:
-    ///
-    /// \brief Handle the collision/contact data
-    ///
-    virtual void handle(
-        const std::vector<CollisionElement>& elementsA,
-        const std::vector<CollisionElement>& elementsB) override;
-
-    ///
-    /// \brief Add constraint for the rigid body given contact
-    ///
-    void addConstraint(
-        std::shared_ptr<RigidObject2> rbdObj,
-        const Vec3d& contactPt, const Vec3d& contactNormal,
-        const double contactDepth) override;
+    IMSTK_TYPE_NAME(NeedlePbdCH)
 
 protected:
-    Vec3d m_initContactPt   = Vec3d::Zero();
-    Vec3d m_initAxes        = Vec3d::Zero();
-    Quatd m_initOrientation = Quatd::Identity();
+    ///
+    /// \brief Add a vertex-triangle constraint
+    ///
+    void addVTConstraint(
+        VertexMassPair ptA,
+        VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
+        double stiffnessA, double stiffnessB) override
+    {
+
+        LOG(WARNING) << "Inside addVTConstraint";
+        
+        auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
+        //if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
+        //{
+            PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB);
+
+        //}
+    }
+
 };

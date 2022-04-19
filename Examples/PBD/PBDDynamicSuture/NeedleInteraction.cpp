@@ -24,31 +24,29 @@
 #include "imstkPbdObject.h"
 #include "imstkCollisionDetectionAlgorithm.h"
 // #include "NeedleEmbeddedCH.h"
-// #include "NeedlePbdCH.h"
-#include "NeedleRigidBodyCH.h"
+#include "NeedlePbdCH.h"
+
 
 #include "NeedleObject.h"
 
 using namespace imstk;
 
 NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
-                                     std::shared_ptr<NeedleObject> needleObj) 
-                                    : PbdObjectCollision(tissueObj, needleObj)
+                                     std::shared_ptr<NeedleObject> needleObj)
+    : PbdObjectCollision(tissueObj, needleObj)
 {
-
     if (std::dynamic_pointer_cast<LineMesh>(needleObj->getCollidingGeometry()) == nullptr)
     {
         LOG(WARNING) << "NeedleInteraction only works with LineMesh collision geometry on NeedleObject";
     }
 
-
-    // Add collision handler for the RBD side
-    auto needleRbdCH = std::make_shared<NeedleRigidBodyCH>();
-    needleRbdCH->setInputRigidObjectA(needleObj);
-    needleRbdCH->setInputCollidingObjectB(tissueObj);
-    needleRbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
-    needleRbdCH->setBeta(0.001);
-    setCollisionHandlingB(needleRbdCH);
+    // Add collision handler for the PBD reaction
+    auto needlePbdCH = std::make_shared<NeedlePbdCH>();
+    needlePbdCH->setInputObjectA(tissueObj);
+    needlePbdCH->setInputObjectB(needleObj);
+    needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
+    //needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
+    setCollisionHandlingA(needlePbdCH);
 
     // Add collision handler for the PBD side
 
