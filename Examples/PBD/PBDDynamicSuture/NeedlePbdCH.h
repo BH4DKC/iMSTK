@@ -26,8 +26,6 @@
 
 #include "NeedleObject.h"
 
-
-
 using namespace imstk;
 
 ///
@@ -42,6 +40,16 @@ public:
     IMSTK_TYPE_NAME(NeedlePbdCH)
 
 protected:
+
+    //void handle(
+    //    const std::vector<CollisionElement>& elementsA,
+    //    const std::vector<CollisionElement>& elementsB) override
+    //{
+    //    PbdCollisionHandling::handle(elementsA, elementsB);
+
+    //    // Do embedding update here
+    //}
+
     ///
     /// \brief Add a vertex-triangle constraint
     ///
@@ -50,27 +58,11 @@ protected:
         VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
         double stiffnessA, double stiffnessB) override
     {
-        
-        
+
         auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
-
-        if (needleObj->getCollisionState() == NeedleObject::CollisionState::REMOVED)
+        //if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
         {
-            needleObj->setCollisionState(NeedleObject::CollisionState::TOUCHING);
-        }
-
-        if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
-        {
-            auto point = ptA.vertex;
-
-            LOG(WARNING) << "TOUCHING at "<<point[0];
-
-
             PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB);
         }
     }
-
-public:
-    std::vector<Vec3d> m_debugEmbeddingPoints; ///> Used for debug visualization
-
 };

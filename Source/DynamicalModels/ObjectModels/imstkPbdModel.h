@@ -92,15 +92,15 @@ struct PbdModelConfig
         void addPbdConstraintFunctor(std::shared_ptr<PbdConstraintFunctor> functor) { m_functors[ConstraintGenType::Custom].push_back(functor); }
 
     public:
-        double m_uniformMassValue    = 1.0;       ///> Mass properties, not used if per vertex masses are given in geometry attributes
-        double m_viscousDampingCoeff = 0.01;      ///> Viscous damping coefficient [0, 1]
-        double m_contactStiffness    = 1.0;       ///> Stiffness for contact
-        unsigned int m_iterations    = 10;        ///> Internal constraints pbd solver iterations
-        double m_dt = 0.0;                        ///> Time step size
-        bool m_doPartitioning = true;             ///> Does graph coloring to solve in parallel
+        double m_uniformMassValue    = 1.0;       ///< Mass properties, not used if per vertex masses are given in geometry attributes
+        double m_viscousDampingCoeff = 0.01;      ///< Viscous damping coefficient [0, 1]
+        double m_contactStiffness    = 1.0;       ///< Stiffness for contact
+        unsigned int m_iterations    = 10;        ///< Internal constraints pbd solver iterations
+        double m_dt = 0.0;                        ///< Time step size
+        bool m_doPartitioning = true;             ///< Does graph coloring to solve in parallel
 
-        std::vector<std::size_t> m_fixedNodeIds;  ///> Nodal/vertex IDs of the nodes that are fixed
-        Vec3d m_gravity = Vec3d(0.0, -9.81, 0.0); ///> Gravity acceleration
+        std::vector<std::size_t> m_fixedNodeIds;  ///< Nodal/vertex IDs of the nodes that are fixed
+        Vec3d m_gravity = Vec3d(0.0, -9.81, 0.0); ///< Gravity acceleration
 
         std::shared_ptr<PbdFemConstraintConfig> m_femParams =
             std::make_shared<PbdFemConstraintConfig>(PbdFemConstraintConfig
@@ -122,7 +122,22 @@ struct PbdModelConfig
 ///
 /// \class PbdModel
 ///
-/// \brief This class implements position based dynamics mathematical model
+/// \brief This class implements the position based dynamics model. The
+/// PbdModel is a constraint based model that iteratively solves constraints
+/// to simulate the dynamics of a body. PbdModel supports SurfaceMesh,
+/// LineMesh, or TetrahedralMesh. PointSet is also supported for PBD fluids.
+///
+/// One of the distinct properties of the PbdModel is that it is first order.
+/// This means it simulates dynamics by modifying positions directly. Velocities
+/// of the model are computed after positions are solved. Velocities from the
+/// previous iteration are applied at the start of the update.
+///
+/// The PbdModel only takes care of internal body simulation. Collisions
+/// are solved in separate systems afterwards to ensure non-penetration.
+///
+/// References:
+/// Matthias Muller, Bruno Heidelberger, Marcus Hennix, and John Ratcliff. 2007. Position based dynamics. J. Vis. Comun. Image Represent. 18, 2 (April 2007), 109-118.
+/// Miles Macklin, Matthias Muller, and Nuttapong Chentanez 1. XPBD: position-based simulation of compliant constrained dynamics. In Proc. of Motion in Games. 49-54
 ///
 class PbdModel : public DynamicalModel<PbdState>
 {
@@ -138,7 +153,11 @@ public:
     ///
     /// \brief Get the simulation parameters
     ///
-    std::shared_ptr<PbdModelConfig> getConfig() const { assert(m_config); return m_config; }
+    std::shared_ptr<PbdModelConfig> getConfig() const
+    {
+        CHECK(m_config != nullptr) << "Cannot PbdModel::getConfig, config is nullptr";
+        return m_config;
+    }
 
     ///
     /// \brief Add constraints related to a set of vertices.
@@ -147,7 +166,7 @@ public:
     ///
     void addConstraints(std::shared_ptr<std::unordered_set<size_t>> vertices);
 
-    virtual void setTimeStep(const double timeStep) override { m_config->m_dt = timeStep; }
+    void setTimeStep(const double timeStep) override { m_config->m_dt = timeStep; }
     double getTimeStep() const override { return m_config->m_dt; }
 
     ///
@@ -227,17 +246,17 @@ protected:
     ///
     void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override;
 
-    size_t m_partitionThreshold = 16;                                                 ///> Threshold for constraint partitioning
+    size_t m_partitionThreshold = 16;                                                 ///< Threshold for constraint partitioning
 
-    std::shared_ptr<PbdSolver> m_pbdSolver       = nullptr;                           ///> PBD solver
-    std::shared_ptr<PointSet>  m_mesh            = nullptr;                           ///> PointSet on which the pbd model operates on
-    std::shared_ptr<DataArray<double>> m_mass    = nullptr;                           ///> Mass of nodes
-    std::shared_ptr<DataArray<double>> m_invMass = nullptr;                           ///> Inverse of mass of nodes
-    std::shared_ptr<std::unordered_map<size_t, double>> m_fixedNodeInvMass = nullptr; ///> Map for archiving fixed nodes' mass.
+    std::shared_ptr<PbdSolver> m_pbdSolver       = nullptr;                           ///< PBD solver
+    std::shared_ptr<PointSet>  m_mesh            = nullptr;                           ///< PointSet on which the pbd model operates on
+    std::shared_ptr<DataArray<double>> m_mass    = nullptr;                           ///< Mass of nodes
+    std::shared_ptr<DataArray<double>> m_invMass = nullptr;                           ///< Inverse of mass of nodes
+    std::shared_ptr<std::unordered_map<size_t, double>> m_fixedNodeInvMass = nullptr; ///< Map for archiving fixed nodes' mass.
 
-    std::shared_ptr<PbdModelConfig> m_config = nullptr;                               ///> Model parameters, must be set before simulation
+    std::shared_ptr<PbdModelConfig> m_config = nullptr;                               ///< Model parameters, must be set before simulation
 
-    std::shared_ptr<PbdConstraintContainer> m_constraints;                            ///> The set of constraints to update/use
+    std::shared_ptr<PbdConstraintContainer> m_constraints;                            ///< The set of constraints to update/use
 
     // Computational Nodes
     std::shared_ptr<TaskNode> m_integrationPositionNode = nullptr;

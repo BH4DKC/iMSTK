@@ -44,7 +44,7 @@ class TaskNode;
 class SceneObject : public SceneEntity
 {
 public:
-    SceneObject(const std::string& name);
+    SceneObject(const std::string& name = "unnamed");
     ~SceneObject() override = default;
 
     IMSTK_TYPE_NAME(SceneObject)
@@ -146,9 +146,9 @@ protected:
     ///
     virtual void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink);
 
-    std::string m_name;                                       ///> Custom name of the scene object
-    std::vector<std::shared_ptr<VisualModel>> m_visualModels; ///> Visual objects for rendering
-    std::shared_ptr<TaskGraph> m_taskGraph = nullptr;         ///> Computational Graph
+    std::string m_name;                                       ///< Custom name of the scene object
+    std::vector<std::shared_ptr<VisualModel>> m_visualModels; ///< Visual objects for rendering
+    std::shared_ptr<TaskGraph> m_taskGraph = nullptr;         ///< Computational Graph
 
 private:
     // Dissallow reassignment of these in subclasses

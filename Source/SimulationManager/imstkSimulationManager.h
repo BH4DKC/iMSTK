@@ -73,7 +73,12 @@ public:
     /// \brief Add a module to run
     /// \param The module to run
     ///
-    void addModule(std::shared_ptr<Module> module);
+    void addModule(std::shared_ptr<Module> module) override;
+
+    ///
+    /// \brief Remove all modules
+    ///
+    void clearModules() override;
 
     ///
     /// \brief Sets the target fixed timestep (may violate), seconds
@@ -115,9 +120,9 @@ protected:
 
     std::unordered_map<Module*, bool> m_running;
 
-    std::vector<std::shared_ptr<Module>> m_syncModules;      ///> Modules called once per update
-    std::vector<std::shared_ptr<Module>> m_asyncModules;     ///> Modules that run on completely other threads without restraint
-    std::vector<std::shared_ptr<Module>> m_adaptiveModules;  ///> Modules that update adpatively to keep up with real time
+    std::vector<std::shared_ptr<Module>> m_syncModules;      ///< Modules called once per update
+    std::vector<std::shared_ptr<Module>> m_asyncModules;     ///< Modules that run on completely other threads without restraint
+    std::vector<std::shared_ptr<Module>> m_adaptiveModules;  ///< Modules that update adpatively to keep up with real time
 
     ThreadingType m_threadType = ThreadingType::STL;
     double m_desiredDt = 0.003; // Desired timestep

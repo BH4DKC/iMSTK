@@ -57,6 +57,7 @@
 #include "NeedleInteraction.h"
 #include "NeedleObject.h"
 #include "NeedlePbdCH.h"
+
 // #include "NeedleEmbeddedCH.h"
 
 #ifdef iMSTK_USE_OPENHAPTICS
@@ -111,6 +112,10 @@ createPbdTriangle()
     // Setup the material
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);
+<<<<<<< HEAD
+=======
+    material->setBackFaceCulling(false);
+>>>>>>> 356e414163597101dafc4ae36adfc5f9dadd5d82
 
     // Add a visual model to render the surface of the tet mesh
     auto visualModel = std::make_shared<VisualModel>();
@@ -153,7 +158,7 @@ main()
 
     // Create arced needle
     auto needleObj = std::make_shared<NeedleObject>();
-    needleObj->setForceThreshold(0.1);
+    needleObj->setForceThreshold(0.0001);
     scene->addSceneObject(needleObj);
 
     // Add needle constraining behaviour between the tissue & arc needle
@@ -174,7 +179,6 @@ main()
     auto sphereObj = std::make_shared<SceneObject>("SphereObj");
     sphereObj->addVisualModel(sphereModel);
     scene->addSceneObject(sphereObj);
-
 
     scene->getConfig()->writeTaskGraph = true;
 
@@ -218,16 +222,8 @@ main()
             [&](Event*)
             {
                 needleObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
-                pbdTriangle->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
+                pbdTriangle->getPbdModel()->getConfig()->m_dt      = sceneManager->getDt();
             });
-
-        //connect<Event>(sceneManager, &SceneManager::postUpdate, [&](Event*)
-        //    {
-
-
-
-
-        //    });
 
         // Add mouse and keyboard controls to the viewer
         {
