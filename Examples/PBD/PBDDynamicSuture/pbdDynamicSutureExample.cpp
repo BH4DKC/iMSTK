@@ -47,6 +47,7 @@
 #include "imstkSceneManager.h"
 #include "imstkSimulationManager.h"
 #include "imstkSurfaceMesh.h"
+#include "imstkSphere.h"
 #include "imstkTetrahedralMesh.h"
 #include "imstkVisualModel.h"
 #include "imstkVRPNDeviceClient.h"
@@ -55,6 +56,7 @@
 
 #include "NeedleInteraction.h"
 #include "NeedleObject.h"
+#include "NeedlePbdCH.h"
 // #include "NeedleEmbeddedCH.h"
 
 #ifdef iMSTK_USE_OPENHAPTICS
@@ -158,12 +160,23 @@ main()
     auto needleInteraction = std::make_shared<NeedleInteraction>(pbdTriangle, needleObj);
     scene->addInteraction(needleInteraction);
 
-    scene->getConfig()->writeTaskGraph = true;
-
     // Setup a debug polygon soup for debug contact points
-    auto debugGeomObj = std::make_shared<DebugGeometryObject>();
-    debugGeomObj->setLineWidth(0.1);
-    scene->addSceneObject(debugGeomObj);
+    //auto debugGeomObj = std::make_shared<DebugGeometryObject>();
+    //debugGeomObj->setPointSize(0.05);
+    //scene->addSceneObject(debugGeomObj);
+
+    auto sphere = std::make_shared<Sphere>();
+    sphere->setRadius(0.002);
+
+    auto sphereModel = std::make_shared<VisualModel>();
+    sphereModel->setGeometry(sphere);
+
+    auto sphereObj = std::make_shared<SceneObject>("SphereObj");
+    sphereObj->addVisualModel(sphereModel);
+    scene->addSceneObject(sphereObj);
+
+
+    scene->getConfig()->writeTaskGraph = true;
 
     // Run the simulation
     {
@@ -210,26 +223,10 @@ main()
 
         //connect<Event>(sceneManager, &SceneManager::postUpdate, [&](Event*)
         //    {
-        //        // Keep the tool moving in real time
 
-        //        // Copy debug geometry
-        //        auto needleEmbeddedCH = std::dynamic_pointer_cast<NeedleEmbeddedCH>(interaction->getEmbeddingCH());
-        //        const std::vector<Vec3d>& debugEmbeddingPts = needleEmbeddedCH->m_debugEmbeddingPoints;
-        //        const std::vector<Vec3i>& debugEmbeddingTris = needleEmbeddedCH->m_debugEmbeddedTriangles;
-        //        debugGeomObj->clear();
-        //        for (size_t i = 0; i < debugEmbeddingPts.size(); i++)
-        //        {
-        //            debugGeomObj->addPoint(debugEmbeddingPts[i]);
-        //        }
-        //        auto verticesPtr = std::dynamic_pointer_cast<TetrahedralMesh>(tissueObj->getPhysicsGeometry())->getVertexPositions();
-        //        VecDataArray<double, 3>& vertices = *verticesPtr;
-        //        for (size_t i = 0; i < debugEmbeddingTris.size(); i++)
-        //        {
-        //            debugGeomObj->addTriangle(
-        //                vertices[debugEmbeddingTris[i][0]],
-        //                vertices[debugEmbeddingTris[i][1]],
-        //                vertices[debugEmbeddingTris[i][2]]);
-        //        }
+
+
+
         //    });
 
         // Add mouse and keyboard controls to the viewer

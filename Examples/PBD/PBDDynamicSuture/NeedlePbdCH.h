@@ -27,6 +27,7 @@
 #include "NeedleObject.h"
 
 
+
 using namespace imstk;
 
 ///
@@ -60,11 +61,16 @@ protected:
 
         if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
         {
-            LOG(WARNING) << "TOUCHING";
+            auto point = ptA.vertex;
+
+            LOG(WARNING) << "TOUCHING at "<<point[0];
 
 
             PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB);
         }
     }
+
+public:
+    std::vector<Vec3d> m_debugEmbeddingPoints; ///> Used for debug visualization
 
 };

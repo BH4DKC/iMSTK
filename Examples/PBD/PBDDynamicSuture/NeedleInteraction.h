@@ -47,4 +47,9 @@ public:
     ~NeedleInteraction() override = default;
 
     IMSTK_TYPE_NAME(NeedleInteraction)
+
+    ///
+    /// \brief Setup connectivity of task graph
+    ///
+    // void initGraphEdges(std::shared_ptr<TaskNode> source, std::shared_ptr<TaskNode> sink) override;
 };
