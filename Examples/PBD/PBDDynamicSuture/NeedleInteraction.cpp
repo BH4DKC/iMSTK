@@ -26,7 +26,6 @@
 // #include "NeedleEmbeddedCH.h"
 #include "NeedlePbdCH.h"
 
-
 #include "NeedleObject.h"
 
 using namespace imstk;
@@ -46,9 +45,7 @@ NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
     needlePbdCH->setInputObjectB(needleObj);
     needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
     //needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
-    setCollisionHandlingA(needlePbdCH);
+    setCollisionHandlingAB(needlePbdCH);
 
     // Add collision handler for the PBD side
-
-
 }

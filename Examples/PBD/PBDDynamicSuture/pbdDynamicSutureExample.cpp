@@ -109,6 +109,7 @@ createPbdTriangle()
     // Setup the material
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);
+    material->setBackFaceCulling(false);
 
     // Add a visual model to render the surface of the tet mesh
     auto visualModel = std::make_shared<VisualModel>();
@@ -200,7 +201,7 @@ main()
             [&](Event*)
             {
                 needleObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
-                pbdTriangle->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
+                pbdTriangle->getPbdModel()->getConfig()->m_dt      = sceneManager->getDt();
             });
 
         // Add mouse and keyboard controls to the viewer
