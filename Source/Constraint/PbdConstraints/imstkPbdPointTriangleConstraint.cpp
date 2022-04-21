@@ -28,6 +28,8 @@ PbdPointTriangleConstraint::initConstraint(VertexMassPair ptA,
                                            VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
                                            double stiffnessA, double stiffnessB)
 {
+
+    LOG(WARNING) << "Inside initConstraint";
     m_bodiesFirst[0] = ptA;
 
     m_bodiesSecond[0] = ptB1;
@@ -43,6 +45,9 @@ PbdPointTriangleConstraint::computeValueAndGradient(double&             c,
                                                     std::vector<Vec3d>& dcdxA,
                                                     std::vector<Vec3d>& dcdxB) const
 {
+
+    LOG(WARNING) << "Inside computevalue and gradient";
+
     const Vec3d& x0 = *m_bodiesFirst[0].vertex;
     const Vec3d& x1 = *m_bodiesSecond[0].vertex;
     const Vec3d& x2 = *m_bodiesSecond[1].vertex;
@@ -79,7 +84,7 @@ PbdPointTriangleConstraint::computeValueAndGradient(double&             c,
     dcdxB[1] = v * n;
     dcdxB[2] = w * n;
 
-    std::cout << "C = " << l << std::endl;
+    LOG(WARNING) << "C = " << l;
 
     c = l;
 

@@ -45,10 +45,7 @@ NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
     needlePbdCH->setInputObjectA(tissueObj);
     needlePbdCH->setInputObjectB(needleObj);
     needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
-    //needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
+    // needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
     setCollisionHandlingA(needlePbdCH);
-
-    // Add collision handler for the PBD side
-
 
 }

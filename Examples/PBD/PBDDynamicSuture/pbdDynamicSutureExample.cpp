@@ -151,7 +151,7 @@ main()
 
     // Create arced needle
     auto needleObj = std::make_shared<NeedleObject>();
-    needleObj->setForceThreshold(0.0001);
+    needleObj->setForceThreshold(0.1);
     scene->addSceneObject(needleObj);
 
     // Add needle constraining behaviour between the tissue & arc needle
@@ -159,6 +159,11 @@ main()
     scene->addInteraction(needleInteraction);
 
     scene->getConfig()->writeTaskGraph = true;
+
+    // Setup a debug polygon soup for debug contact points
+    auto debugGeomObj = std::make_shared<DebugGeometryObject>();
+    debugGeomObj->setLineWidth(0.1);
+    scene->addSceneObject(debugGeomObj);
 
     // Run the simulation
     {
@@ -202,6 +207,30 @@ main()
                 needleObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
                 pbdTriangle->getPbdModel()->getConfig()->m_dt = sceneManager->getDt();
             });
+
+        //connect<Event>(sceneManager, &SceneManager::postUpdate, [&](Event*)
+        //    {
+        //        // Keep the tool moving in real time
+
+        //        // Copy debug geometry
+        //        auto needleEmbeddedCH = std::dynamic_pointer_cast<NeedleEmbeddedCH>(interaction->getEmbeddingCH());
+        //        const std::vector<Vec3d>& debugEmbeddingPts = needleEmbeddedCH->m_debugEmbeddingPoints;
+        //        const std::vector<Vec3i>& debugEmbeddingTris = needleEmbeddedCH->m_debugEmbeddedTriangles;
+        //        debugGeomObj->clear();
+        //        for (size_t i = 0; i < debugEmbeddingPts.size(); i++)
+        //        {
+        //            debugGeomObj->addPoint(debugEmbeddingPts[i]);
+        //        }
+        //        auto verticesPtr = std::dynamic_pointer_cast<TetrahedralMesh>(tissueObj->getPhysicsGeometry())->getVertexPositions();
+        //        VecDataArray<double, 3>& vertices = *verticesPtr;
+        //        for (size_t i = 0; i < debugEmbeddingTris.size(); i++)
+        //        {
+        //            debugGeomObj->addTriangle(
+        //                vertices[debugEmbeddingTris[i][0]],
+        //                vertices[debugEmbeddingTris[i][1]],
+        //                vertices[debugEmbeddingTris[i][2]]);
+        //        }
+        //    });
 
         // Add mouse and keyboard controls to the viewer
         {

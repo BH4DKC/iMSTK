@@ -524,6 +524,9 @@ PbdCollisionHandling::addVTConstraint(
     VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
     double stiffnessA, double stiffnessB)
 {
+
+    LOG(WARNING) << "Creating constraint and adding to pool";
+    
     PbdPointTriangleConstraint* constraint = new PbdPointTriangleConstraint();
     constraint->initConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB);
     m_VTConstraintPool.push_back(constraint);
