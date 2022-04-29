@@ -25,6 +25,8 @@
 #include "imstkPbdCollisionHandling.h"
 
 #include "NeedleObject.h"
+#include "PbdPointToArcConstraint.h"
+#include "imstkRbdConstraint.h"
 
 using namespace imstk;
 
@@ -39,16 +41,56 @@ public:
 
     IMSTK_TYPE_NAME(NeedlePbdCH)
 
+    static Vec3d debugPt;
+
+
 protected:
+  
+    Vec3d m_collisionPt;
+    Vec3d m_initContactPt = Vec3d::Zero();
+    Vec3d m_initAxes = Vec3d::Zero();
+    Quatd m_initOrientation = Quatd::Identity();
 
-    //void handle(
-    //    const std::vector<CollisionElement>& elementsA,
-    //    const std::vector<CollisionElement>& elementsB) override
-    //{
-    //    PbdCollisionHandling::handle(elementsA, elementsB);
+    // The handle is called every timestep
+    void handle(
+        const std::vector<CollisionElement>& elementsA,
+        const std::vector<CollisionElement>& elementsB) override
+    {
+        // Do it the normal way
+        PbdCollisionHandling::handle(elementsA, elementsB); // (PBD Object, Needle Object)
 
-    //    // Do embedding update here
-    //}
+  
+        auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
+        NeedleObject::CollisionState state = needleObj->getCollisionState();
+
+        // If the collision elements exists, check state
+        if (elementsB.size() != 0){
+
+            //moveToState(X)
+            //handleState(X)
+
+            if (state == NeedleObject::CollisionState::INSERTED)
+            {
+                LOG(INFO) << "Inside!";
+                
+                const Mat3d& arcBasis = needleObj->getArcBasis();
+                const Vec3d& arcCenter = needleObj->getArcCenter();
+                const double arcRadius = needleObj->getArcRadius();
+                const double arcBeginRad = needleObj->getBeginRad();
+                const double arcEndRad = needleObj->getEndRad();
+
+                // Constrain along the axes, whilst allowing "pushing" of the contact point
+                auto pointToArcConstraint = std::make_shared<PbdPointToArcConstraint>(
+                    needleObj->getRigidBody(),
+                    arcCenter,
+                    arcBeginRad,
+                    arcEndRad,
+                    arcRadius,
+                    arcBasis,
+                    m_collisionPt); // needs to be contact point
+            }
+        }
+    }
 
     ///
     /// \brief Add a vertex-triangle constraint
@@ -58,11 +100,44 @@ protected:
         VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
         double stiffnessA, double stiffnessB) override
     {
+        debugPt = *ptA.vertex;
+        m_collisionPt = *ptA.vertex;
 
         auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
-        //if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
+
+        // If removed and we are here, we must now be touching
+        if (needleObj->getCollisionState() == NeedleObject::CollisionState::REMOVED)
         {
-            PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB);
+            needleObj->setCollisionState(NeedleObject::CollisionState::TOUCHING);
+        }
+
+        // If touching we may test for insertion
+
+        // Where can I get this contact normal?  Is it saved somewhere, or do I need to calculate it?
+        // const Vec3d n = contactNormal.normalized();
+        if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
+        {
+            // Get all inwards force
+            // const double fN = std::max(-contactNormal.dot(needleObj->getRigidBody()->getForce()), 0.0);
+            const double fN = 6.0;
+            // If the normal force exceeds threshold the needle may insert
+            if (fN > needleObj->getForceThreshold())
+            {
+                LOG(INFO) << "Puncture!";
+                needleObj->setCollisionState(NeedleObject::CollisionState::INSERTED);
+
+                //// Record the initial contact point
+                //m_initOrientation = Quatd(needleObj->getCollidingGeometry()->getRotation());
+                //
+                //// This needs to be the barycentric point on the triangle in contact
+                //// m_initContactPt = contactPt;
+            }
+        }
+
+        if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
+        {
+            PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB); 
         }
     }
+
 };

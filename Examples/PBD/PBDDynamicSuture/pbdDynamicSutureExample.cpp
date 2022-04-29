@@ -68,6 +68,8 @@
 
 using namespace imstk;
 
+Vec3d NeedlePbdCH::debugPt;
+
 std::shared_ptr<SurfaceMesh>
 createTriangle()
 {
@@ -112,10 +114,8 @@ createPbdTriangle()
     // Setup the material
     auto material = std::make_shared<RenderMaterial>();
     material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);
-<<<<<<< HEAD
-=======
     material->setBackFaceCulling(false);
->>>>>>> 356e414163597101dafc4ae36adfc5f9dadd5d82
+
 
     // Add a visual model to render the surface of the tet mesh
     auto visualModel = std::make_shared<VisualModel>();
@@ -164,11 +164,6 @@ main()
     // Add needle constraining behaviour between the tissue & arc needle
     auto needleInteraction = std::make_shared<NeedleInteraction>(pbdTriangle, needleObj);
     scene->addInteraction(needleInteraction);
-
-    // Setup a debug polygon soup for debug contact points
-    //auto debugGeomObj = std::make_shared<DebugGeometryObject>();
-    //debugGeomObj->setPointSize(0.05);
-    //scene->addSceneObject(debugGeomObj);
 
     auto sphere = std::make_shared<Sphere>();
     sphere->setRadius(0.002);
@@ -223,6 +218,13 @@ main()
             {
                 needleObj->getRigidBodyModel2()->getConfig()->m_dt = sceneManager->getDt();
                 pbdTriangle->getPbdModel()->getConfig()->m_dt      = sceneManager->getDt();
+            });
+
+        // Move the sphere to the contact point
+        connect<Event>(sceneManager, &SceneManager::preUpdate,
+            [&](Event*)
+            {
+                sphere->setPosition(NeedlePbdCH::debugPt);
             });
 
         // Add mouse and keyboard controls to the viewer
