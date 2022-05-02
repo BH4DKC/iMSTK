@@ -27,6 +27,12 @@
 #include "NeedleObject.h"
 #include "PbdPointToArcConstraint.h"
 #include "imstkRbdConstraint.h"
+#include "imstkSurfaceMesh.h"
+#include "imstkLineMesh.h"
+
+#include <iostream>
+#include <math.h>  
+
 
 using namespace imstk;
 
@@ -47,21 +53,39 @@ public:
 protected:
   
     Vec3d m_collisionPt;
-    Vec3d m_initContactPt = Vec3d::Zero();
+    Vec3d m_contactPt = Vec3d::Zero();
     Vec3d m_initAxes = Vec3d::Zero();
     Quatd m_initOrientation = Quatd::Identity();
+
+    Vec3d m_needleDirection = Vec3d::Zero();
+    Vec3d m_barycentricPoint = Vec3d::Zero();
+
 
     // The handle is called every timestep
     void handle(
         const std::vector<CollisionElement>& elementsA,
         const std::vector<CollisionElement>& elementsB) override
     {
+
         // Do it the normal way
         PbdCollisionHandling::handle(elementsA, elementsB); // (PBD Object, Needle Object)
 
-  
+
+        // Setup pbd object
+        auto pbdObj = std::dynamic_pointer_cast<PbdObject>(getInputObjectA());
+        auto meshGeom = std::dynamic_pointer_cast<SurfaceMesh>(pbdObj->getCollidingGeometry());
+
+
+        // Setup needle and get collision state
         auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
+        auto needleMesh = std::dynamic_pointer_cast<LineMesh>(needleObj->getCollidingGeometry());
         NeedleObject::CollisionState state = needleObj->getCollisionState();
+
+        std::shared_ptr<VecDataArray<double, 3>> needleVerticesPtr = needleMesh->getVertexPositions();
+        VecDataArray<double, 3>& needleVertices = *needleVerticesPtr;
+
+        m_needleDirection = (needleVertices[0] - needleVertices[1]).normalized();
+        //std::cout << m_needleDirection[0] << std::endl;
 
         // If the collision elements exists, check state
         if (elementsB.size() != 0){
@@ -79,15 +103,15 @@ protected:
                 const double arcBeginRad = needleObj->getBeginRad();
                 const double arcEndRad = needleObj->getEndRad();
 
-                // Constrain along the axes, whilst allowing "pushing" of the contact point
-                auto pointToArcConstraint = std::make_shared<PbdPointToArcConstraint>(
-                    needleObj->getRigidBody(),
-                    arcCenter,
-                    arcBeginRad,
-                    arcEndRad,
-                    arcRadius,
-                    arcBasis,
-                    m_collisionPt); // needs to be contact point
+                //// Constrain along the axes, whilst allowing "pushing" of the contact point
+                //auto pointToArcConstraint = std::make_shared<PbdPointToArcConstraint>(
+                //    needleObj->getRigidBody(),
+                //    arcCenter,
+                //    arcBeginRad,
+                //    arcEndRad,
+                //    arcRadius,
+                //    arcBasis,
+                //    m_collisionPt); // needs to be contact point
             }
         }
     }
@@ -101,7 +125,14 @@ protected:
         double stiffnessA, double stiffnessB) override
     {
         debugPt = *ptA.vertex;
+
+        // This is actually the point on the tip of the needle, not on the triangle, 
+        // it needs to be associated with the triangle
         m_collisionPt = *ptA.vertex;
+
+       
+
+        // std::cout << m_barycentricPoint[0] << std::endl;
 
         auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
 
@@ -109,28 +140,54 @@ protected:
         if (needleObj->getCollisionState() == NeedleObject::CollisionState::REMOVED)
         {
             needleObj->setCollisionState(NeedleObject::CollisionState::TOUCHING);
+
+            // Calculate the barycentric coordinates
+            Vec3d p = *ptA.vertex;
+            Vec3d a = *ptB1.vertex;
+            Vec3d b = *ptB2.vertex;
+            Vec3d c = *ptB3.vertex;
+
+            m_barycentricPoint = baryCentric(p, a, b, c);
         }
 
         // If touching we may test for insertion
+        // Calculate the surface normal using the set of verticese associated with the triangle
+        // Calculate a vector using the first two points of the line mesh needle
+        // Normalize both and use dot product to project onto each other, if close to 1 asume its inserted
+        // Possibly add constact time or pseudo force calculation to know if penetration occurs
+        
+        Vec3d surfNormal = Vec3d::Zero();
 
-        // Where can I get this contact normal?  Is it saved somewhere, or do I need to calculate it?
-        // const Vec3d n = contactNormal.normalized();
+
+        // Assuming traingle has points a,b,c
+        // NOTE: How do I access this data? I need to get it from the collision data somehow
+        Vec3d ab; 
+        Vec3d ac;
+
+        // Calculate surface normal
+        surfNormal = (ab.cross(ac)).normalized();
+
+        // Get vector pointing in direction of needle
+        
+        // Use absolute value to ignore direction issues
+        auto dotProduct = fabs(m_needleDirection.dot(surfNormal));
+
+        // Arbitrary threshold
+        double threshold = 0.8;
+
         if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
         {
-            // Get all inwards force
-            // const double fN = std::max(-contactNormal.dot(needleObj->getRigidBody()->getForce()), 0.0);
-            const double fN = 6.0;
-            // If the normal force exceeds threshold the needle may insert
-            if (fN > needleObj->getForceThreshold())
+
+            // If the needle is close to perpindicular to the face if may insert
+            // Note: This is a short term solution
+            if (dotProduct > threshold)
             {
                 LOG(INFO) << "Puncture!";
                 needleObj->setCollisionState(NeedleObject::CollisionState::INSERTED);
 
-                //// Record the initial contact point
-                //m_initOrientation = Quatd(needleObj->getCollidingGeometry()->getRotation());
-                //
-                //// This needs to be the barycentric point on the triangle in contact
-                //// m_initContactPt = contactPt;
+                // Record the initial contact point
+                // NOTE: This needs to be the barycentric point on the triangle in contact
+                // m_contactPt = contactPt;
             }
         }
 
@@ -139,5 +196,4 @@ protected:
             PbdCollisionHandling::addVTConstraint(ptA, ptB1, ptB2, ptB3, stiffnessA, stiffnessB); 
         }
     }
-
 };

@@ -40,20 +40,6 @@ public:
     // Needle
     std::shared_ptr<RigidBody> m_needle = nullptr;
 
- /*   void initConstraint(VertexMassPair ptA,
-            VertexMassPair ptB1, VertexMassPair ptB2, VertexMassPair ptB3,
-            double stiffnessA, double stiffnessB)
-    {
-        m_bodiesFirst[0] = ptA;
-
-        m_bodiesSecond[0] = ptB1;
-        m_bodiesSecond[1] = ptB2;
-        m_bodiesSecond[2] = ptB3;
-
-        m_stiffnessA = stiffnessA;
-        m_stiffnessB = stiffnessB;
-    }*/
-
 
     ///
     /// \param the Rigid body needle
@@ -74,7 +60,7 @@ public:
         const Mat3d arcBasis,
         const Vec3d contactPoint) :  PbdCollisionConstraint(1, 3), 
         m_arcCenter(arcCenter), m_arcBasis(arcBasis), m_arcCircleRadius(arcCircleRadius), m_beginRadian(beginRadian),
-        m_endRadian(endRadian), m_pbdPoint(contactPoint)
+        m_endRadian(endRadian), m_contactPoint(contactPoint)
     {
 
     }
@@ -90,7 +76,7 @@ public:
         std::vector<Vec3d>& dcdxB) const override
     {
         // Compute the direction and closest point to the arc from the Point
-        const Vec3d circleDiff = m_pbdPoint - m_arcCenter;
+        const Vec3d circleDiff = m_contactPoint - m_arcCenter;
         const Vec3d dir = circleDiff.normalized();
 
         // m_arcBasis Should be orthonormal, this should project onto the axes
@@ -106,14 +92,16 @@ public:
             (cos(clampedRad) * m_arcBasis.col(0) + sin(clampedRad) * m_arcBasis.col(2)) * m_arcCircleRadius +
                                 m_arcCenter;
 
-        Vec3d diff = m_pbdPoint - closestPt;
+        Vec3d diff = m_contactPoint - closestPt;
         diff = diff.normalized(); // gradient dcdx
         c = diff.norm();
         
+        // Weight by berycentric coordinates?
         dcdxB[0] = diff;
         dcdxB[1] = diff;
         dcdxB[2] = diff;
 
+        // Dont adjust position of needle, force mesh to follow needle
         dcdxA[0] = 0.0 * diff;
 
         return true;
@@ -125,6 +113,6 @@ private:
     double m_arcCircleRadius = 0.0;
     double m_beginRadian     = 0.0;
     double m_endRadian       = 0.0;
-    Vec3d m_pbdPoint = Vec3d::Zero();
+    Vec3d m_contactPoint = Vec3d::Zero();
 
 };

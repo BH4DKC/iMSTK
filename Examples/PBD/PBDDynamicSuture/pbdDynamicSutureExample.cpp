@@ -123,6 +123,13 @@ createPbdTriangle()
     visualModel->setRenderMaterial(material);
     pbdObject->addVisualModel(visualModel);
 
+    // Add a visual model to render the normals of the surface
+    auto normalsVisualModel = std::make_shared<VisualModel>();
+    normalsVisualModel->setGeometry(triMesh);
+    normalsVisualModel->getRenderMaterial()->setDisplayMode(RenderMaterial::DisplayMode::SurfaceNormals);
+    normalsVisualModel->getRenderMaterial()->setPointSize(0.025);
+    pbdObject->addVisualModel(normalsVisualModel);
+
     // Setup the Object
     pbdObject->setPhysicsGeometry(triMesh);
     pbdObject->setCollidingGeometry(triMesh);
