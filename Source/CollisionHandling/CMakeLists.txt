@@ -25,3 +25,10 @@ imstk_add_library( CollisionHandling
     SceneEntities
     Controllers
     )
+
+#-----------------------------------------------------------------------------
+# Testing
+#-----------------------------------------------------------------------------
+if( ${PROJECT_NAME}_BUILD_TESTING )
+  add_subdirectory(VisualTesting)
+endif()

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "imstkVisualTestingUtils.h"
+#include "imstkVisualTest.h"
 
 namespace imstk
 {

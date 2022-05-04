@@ -40,7 +40,7 @@
 #include "imstkTestingUtils.h"
 #include "imstkTetrahedralMesh.h"
 #include "imstkVisualModel.h"
-#include "imstkVisualTestingUtils.h"
+#include "imstkVisualTest.h"
 
 using namespace imstk;
 

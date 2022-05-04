@@ -19,7 +19,7 @@
 
 =========================================================================*/
 
-#include "imstkVisualTestingUtils.h"
+#include "imstkVisualTest.h"
 #include "imstkKeyboardDeviceClient.h"
 #include "imstkKeyboardSceneControl.h"
 #include "imstkLogger.h"

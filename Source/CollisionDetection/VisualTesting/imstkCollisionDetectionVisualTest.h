@@ -19,7 +19,7 @@
 
 =========================================================================*/
 
-#include "imstkVisualTestingUtils.h"
+#include "imstkVisualTest.h"
 
 namespace imstk
 {
