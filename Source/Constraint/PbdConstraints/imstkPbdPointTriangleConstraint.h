@@ -29,7 +29,7 @@ namespace imstk
 /// \class PbdPointTriangleConstraint
 ///
 /// \brief The PbdPointTriangleConstraint moves a point to a triangle, and the triangle
-/// to the point. Give zero mass to make one-sided/immovable
+/// to the point. Give zero mass to make one-sided/immovable. Ignores tangential motion.
 ///
 class PbdPointTriangleConstraint : public PbdCollisionConstraint
 {

@@ -44,9 +44,11 @@ NeedleObject::NeedleObject() : RigidObject2("Needle")
     sutureLineMesh->transform(rot, Geometry::TransformType::ApplyToData);
 
     setVisualGeometry(sutureMesh);
+    /// setVisualGeometry(sutureLineMesh);
     setCollidingGeometry(sutureLineMesh);
     setPhysicsGeometry(sutureLineMesh);
     setPhysicsToVisualMap(std::make_shared<IsometricMap>(sutureLineMesh, sutureMesh));
+    
     getVisualModel(0)->getRenderMaterial()->setColor(Color(0.9, 0.9, 0.9));
     getVisualModel(0)->getRenderMaterial()->setShadingModel(RenderMaterial::ShadingModel::PBR);
     getVisualModel(0)->getRenderMaterial()->setRoughness(0.5);

@@ -36,6 +36,12 @@ public:
         INSERTED
     };
 
+    enum class PrevCollisionState
+    {
+        REMOVED,
+        INSERTED
+    };
+
 public:
     NeedleObject();
     virtual ~NeedleObject() = default;
@@ -64,7 +70,23 @@ public:
         m_collisionState = state;
     }
 
+    void setPrevCollisionState(const PrevCollisionState state)
+    {
+        // If current state is inserted and previous was not inserted
+        if (m_prevCollisionState == PrevCollisionState::INSERTED && state != PrevCollisionState::INSERTED)
+        {
+            this->postEvent(Event(removed()));
+        }
+        // If current state not inserted and previous inserted
+        else if (m_prevCollisionState != PrevCollisionState::INSERTED && state == PrevCollisionState::INSERTED)
+        {
+            this->postEvent(Event(inserted()));
+        }
+        m_prevCollisionState = state;
+    }
+
     CollisionState getCollisionState() const { return m_collisionState; }
+    PrevCollisionState getPrevCollisionState() const { return m_prevCollisionState; }
 
     ///
     /// \brief Set the force threshold for the needle
@@ -96,6 +118,8 @@ public:
 
 protected:
     CollisionState m_collisionState = CollisionState::REMOVED;
+    PrevCollisionState m_prevCollisionState = PrevCollisionState::REMOVED;
+    
     double m_forceThreshold = 5.0;
 
     Mat3d  m_arcBasis  = Mat3d::Identity();

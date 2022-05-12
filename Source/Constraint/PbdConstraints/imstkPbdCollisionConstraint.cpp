@@ -75,7 +75,7 @@ PbdCollisionConstraint::solvePosition()
     {
         if (m_bodiesSecond[i].invMass > 0.0)
         {
-            (*m_bodiesSecond[i].vertex) +=
+             (*m_bodiesSecond[i].vertex) +=
                 m_bodiesSecond[i].invMass * lambda * m_dcdxB[i] * m_stiffnessB;
         }
     }

@@ -97,7 +97,7 @@ makeTissueObj(const std::string& name,
     // Setup the Geometry
     std::shared_ptr<TetrahedralMesh> tissueMesh = GeometryUtils::toTetGrid(center, size, dim);
     std::shared_ptr<SurfaceMesh>     surfMesh   = tissueMesh->extractSurfaceMesh();
-    setSphereTexCoords(surfMesh, 6.0);
+    setSphereTexCoords(surfMesh, 1.0);
 
     // Setup the Parameters
     imstkNew<PbdModelConfig> pbdParams;
@@ -143,11 +143,14 @@ makeTissueObj(const std::string& name,
     material->addTexture(std::make_shared<Texture>(ormTex, Texture::Type::ORM));
     material->setNormalStrength(0.3);
 
+
     // Add a visual model to render the surface of the tet mesh
     imstkNew<VisualModel> visualModel;
     visualModel->setGeometry(surfMesh);
     visualModel->setRenderMaterial(material);
     clothObj->addVisualModel(visualModel);
+
+    MeshIO::write(surfMesh, "test.vtk");
 
     // Add a visual model to render the normals of the surface
     /*imstkNew<VisualModel> normalsVisualModel(surfMesh);

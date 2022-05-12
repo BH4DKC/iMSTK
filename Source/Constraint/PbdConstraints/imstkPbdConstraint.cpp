@@ -33,7 +33,7 @@ PbdConstraint::projectConstraint(const DataArray<double>& invMasses, const doubl
     {
         return;
     }
-
+     
     double dcMidc = 0.0;
     double lambda = 0.0;
     double alpha;
