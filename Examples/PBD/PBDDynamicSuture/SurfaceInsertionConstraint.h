@@ -28,12 +28,12 @@
 using namespace imstk;
 
 ///
-/// \class PbdPointToArcConstraint
+/// \class SurfaceInsertionConstraint
 ///
 /// \brief Constrains an point on a surface mesh to a rigid body arc needle
 /// 
 ///
-class PbdPointToArcConstraint : public PbdCollisionConstraint
+class SurfaceInsertionConstraint : public PbdCollisionConstraint
 {
 
 
@@ -57,12 +57,12 @@ public:
     /// \param the Rigid body needle
     /// \param  
     ///
-    PbdPointToArcConstraint() :  PbdCollisionConstraint(1, 3)
+    SurfaceInsertionConstraint() :  PbdCollisionConstraint(1, 3)
     {
 
     }
 
-    ~PbdPointToArcConstraint() override = default;
+    ~SurfaceInsertionConstraint() override = default;
 
 public:
 
@@ -110,7 +110,7 @@ public:
         Vec3d diff = m_contactPt - m_insertionPoint;
         // Vec3d diff = m_insertionPoint - m_contactPt;
         // diff = diff.normalized(); // gradient dcdx
-        c = diff.norm();
+        c = 1.0*diff.norm();
 
         diff = diff.normalized(); // gradient dcdx
         // Weight by berycentric coordinates?

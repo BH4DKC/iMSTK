@@ -21,24 +21,35 @@
 
 #pragma once
 
+#include "imstkCollisionUtils.h"
+#include "imstkLineMesh.h"
 #include "imstkMacros.h"
 #include "imstkPbdCollisionHandling.h"
-
-#include "NeedleObject.h"
-#include "PbdPointToArcConstraint.h"
 #include "imstkPbdPointTriangleConstraint.h"
+#include "imstkPointwiseMap.h"
 #include "imstkRbdConstraint.h"
 #include "imstkSurfaceMesh.h"
-#include "imstkPointwiseMap.h"
 #include "imstkTetrahedralMesh.h"
-#include "imstkLineMesh.h"
-#include "imstkCollisionUtils.h"
+
+#include "NeedleObject.h"
+#include "SurfaceInsertionConstraint.h"
+
+
 
 #include <iostream>
 #include <math.h>  
+#include <stdio.h>
 
 
 using namespace imstk;
+
+//struct InsertionData
+//{
+//    
+//};
+//
+//InsertionData iData;
+
 
 ///
 /// \brief Surface collision disabled upon puncture
@@ -54,8 +65,36 @@ public:
     static Vec3d debugPt;
     static Vec3d debugPt2;
 
+    static int counter;
+
+    std::vector<Vec3d> m_penetrationPts;
+
+    void init() {
+
+        std::cout << "Inside init" << std::endl;
+        // Setup pbd object
+        auto pbdObj = std::dynamic_pointer_cast<PbdObject>(getInputObjectA());
+
+        // Get surface mesh
+        auto surfMesh = std::dynamic_pointer_cast<SurfaceMesh>(pbdObj->getCollidingGeometry());
+
+        // Initialize collision state
+
+        // Create storage for puncture points
+        m_isPunctured.resize(surfMesh->getNumTriangles());
+        
+        // Initialize to false
+        //for (int triangleId = 0; triangleId < surfMesh->getNumTriangles(); triangleId++) {
+        //    m_isPunctured[triangleId] = false;
+        //}
+
+        // Create storage for penetration points
+        m_penetrationPts.resize(surfMesh->getNumTriangles());
+
+    }
+
 protected:
-  
+
     Vec3d m_collisionPt = Vec3d::Zero();
     Vec3d m_contactPt = Vec3d::Zero();
     Vec3d m_initAxes = Vec3d::Zero();
@@ -64,6 +103,20 @@ protected:
     Vec3d m_needleDirection = Vec3d::Zero();
     Vec3d m_barycentricPoint = Vec3d::Zero();
 
+    
+    std::vector<bool> m_isPunctured;
+
+    std::vector<Vec3d> m_insertionPoints; // puncture point on triangle
+    std::vector<Vec3d> m_intersectionPoints; // Current intersection point
+    std::vector<int> m_triIndices;
+    std::vector<std::shared_ptr<SurfaceInsertionConstraint>> pointTriangleConstraints;
+
+    // std::vector<SurfaceInsertionConstraint> pointTriangleConstraints;
+    
+    // Lazy approach, use std::tuple (check standard) with std::tie (break up struct into component parts with single statement)
+
+   
+
 
     // The handle is called every timestep (update step)
     void handle(
@@ -71,42 +124,36 @@ protected:
         const std::vector<CollisionElement>& elementsB) override
     {
 
+        printf("Count = %d \n", counter++);
+
         // Setup needle and get collision state
         auto needleObj = std::dynamic_pointer_cast<NeedleObject>(getInputObjectB());
         auto needleMesh = std::dynamic_pointer_cast<LineMesh>(needleObj->getCollidingGeometry());
-        NeedleObject::CollisionState state = needleObj->getCollisionState();
-
-        // Do it the normal way
-        PbdCollisionHandling::handle(elementsA, elementsB); // (PBD Object, Needle Object)
-
-        //if (elementsB.size() != 0) needleObj->setCollisionState(NeedleObject::CollisionState::REMOVED);
-        //if (state == NeedleObject::CollisionState::REMOVED) {
-        //    PbdCollisionHandling::handle(elementsA, elementsB); // (PBD Object, Needle Object)
-        //}
-        // NOTE: Add check for mapping
+        
 
         // Setup pbd object
         auto pbdObj = std::dynamic_pointer_cast<PbdObject>(getInputObjectA());
         auto meshGeom = std::dynamic_pointer_cast<TetrahedralMesh>(pbdObj->getPhysicsGeometry());
 
+        // Get surface mesh
+        auto surfMesh = std::dynamic_pointer_cast<SurfaceMesh>(pbdObj->getCollidingGeometry());
+
+        // Get vertex positions
         std::shared_ptr<VecDataArray<double, 3>> meshVerticesPtr = meshGeom->getVertexPositions();
         VecDataArray<double, 3>& meshVertices = *meshVerticesPtr;
 
         // For something to be a PbdObject it must have a pointset, it must also have invMasses defined
         std::shared_ptr<PointSet> pointSetA = std::dynamic_pointer_cast<PointSet>(pbdObj->getPhysicsGeometry());
-        
         const std::shared_ptr<DataArray<double>> invMassesAPtr = std::dynamic_pointer_cast<DataArray<double>>(pointSetA->getVertexAttribute("InvMass"));
         const DataArray<double>& invMasses = *invMassesAPtr;
-        
+
         // Warning, might return null ptr if type is wrong, cant deref nullpts, voodoo happens
         // auto invMasses = *std::dynamic_pointer_cast<DataArray<double>>(pointSetA->getVertexAttribute("InvMass"));
         // Do check on invMasses
 
+        // Get velocities
         std::shared_ptr<VecDataArray<double, 3>> velocitiesAPtr = std::dynamic_pointer_cast<VecDataArray<double, 3>>(pointSetA->getVertexAttribute("Velocities"));
         VecDataArray<double, 3>& meshVelocity = *velocitiesAPtr;
-
-
-        
 
         // Get rigid object needle
         auto needleRigid = std::dynamic_pointer_cast<RigidBody>(getInputObjectB());
@@ -118,71 +165,86 @@ protected:
         VecDataArray<double, 3>& needleVertices = *needleVerticesPtr;
 
         m_needleDirection = (needleVertices[35] - needleVertices[34]).normalized();
+
+        auto one2one = std::static_pointer_cast<PointwiseMap>(pbdObj->getPhysicsToCollidingMap());
+
+        Vec3d insertionVector;
         
-        // If the collision elements exists, check state
-        if (elementsB.size() != 0){
-
-            if (state == NeedleObject::CollisionState::INSERTED)
-            {
-
-                const Mat3d& arcBasis = needleObj->getArcBasis();
-                const Vec3d& arcCenter = needleObj->getArcCenter();
-                const double arcRadius = needleObj->getArcRadius();
-                const double arcBeginRad = needleObj->getBeginRad();
-                const double arcEndRad = needleObj->getEndRad();
-
-                const CollisionElement& contactTriangle = elementsA[0];
-
-                // Add CHECK statement for type
-                // Need grasping if block
 
 
-                // CollisionElement is a union, must check types
-                auto cellId = contactTriangle.m_element.m_CellIndexElement;
+        // Do it the normal way if not inserted
+        if (elementsB.size() == 0) needleObj->setCollisionState(NeedleObject::CollisionState::REMOVED);
+        
+        NeedleObject::CollisionState state = needleObj->getCollisionState();
+        
+        if (state == NeedleObject::CollisionState::REMOVED) {
+            PbdCollisionHandling::handle(elementsA, elementsB); // (PBD Object, Needle Object)
 
-                // Need one to one map
-                auto one2one = std::static_pointer_cast<PointwiseMap>(pbdObj->getPhysicsToCollidingMap());
+            // WARNING: PATCH, needs to be reworked
+            /*for (int triangleId = 0; triangleId < surfMesh->getNumTriangles(); triangleId++) {
+                m_isPunctured[triangleId] = false;
+            }*/
+        }
 
-                Vec3i triIds;
-                triIds[0] = one2one->getParentVertexId(cellId.ids[0]);
-                triIds[1] = one2one->getParentVertexId(cellId.ids[1]);
-                triIds[2] = one2one->getParentVertexId(cellId.ids[2]);
+        // If inserted, find intersections and constrain to insertion points
+        if (state == NeedleObject::CollisionState::INSERTED) {
+            
+            int numIntersections = 0;
+            
+            for (int segmentId = 0; segmentId < needleMesh->getNumLines(); segmentId++) {
 
-               /* triIds[0] = cellId.ids[0];
-                triIds[1] = cellId.ids[1];
-                triIds[2] = cellId.ids[2];*/
+                Vec2i nodeIds = needleMesh->getLineIndices(segmentId);
+                const Vec3d p = needleVertices[nodeIds[0]];
+                const Vec3d q = needleVertices[nodeIds[1]];
 
+                // Loop over all triangles in the surface mesh
+                for (int triangleId = 0; triangleId < surfMesh->getNumTriangles(); triangleId++) {
 
-                Vec3d a = meshVertices[triIds[0]];
-                Vec3d b = meshVertices[triIds[1]];
-                Vec3d c = meshVertices[triIds[2]];
+                    auto surfTriIds = surfMesh->getTriangleIndices(triangleId);
 
-                auto worldCoords = m_barycentricPoint[0] * a
-                    + m_barycentricPoint[1] * b
-                    + m_barycentricPoint[2] * c;
+                    // Indices of the vertices on the physics mesh
+                    Vec3i physTriIds;
+                    physTriIds[0] = one2one->getParentVertexId(surfTriIds[0]);
+                    physTriIds[1] = one2one->getParentVertexId(surfTriIds[1]);
+                    physTriIds[2] = one2one->getParentVertexId(surfTriIds[2]);
 
-                debugPt2 = worldCoords;
+                    Vec3d a = meshVertices[physTriIds[0]];
+                    Vec3d b = meshVertices[physTriIds[1]];
+                    Vec3d c = meshVertices[physTriIds[2]];
 
-
-                // Find inserted segment
-                for (int segmentId = 0; segmentId < needleMesh->getNumLines(); segmentId++) {
-
-                    Vec2i nodeIds = needleMesh->getLineIndices(segmentId);
-
-                    const Vec3d p = needleVertices[nodeIds[0]];
-                    const Vec3d q = needleVertices[nodeIds[1]];
-
-                    Vec3d insertionVector = Vec3d::Zero();
+                    // Barycentric coordinates of interseciton point
                     Vec3d uvw = Vec3d::Zero();
+                    
+                    // Check for intersection
+                    if (CollisionUtils::testSegmentTriangle(p, q, a, b, c, uvw) == true){
+                        
+                        numIntersections++;
 
-                    // If this segment is inserted constraint the surface mesh insertion
-                    // point to track the new collision point
-                    if (CollisionUtils::testSegmentTriangle(p, q, a, b, c, uvw)) 
-                    {
-                        debugPt = uvw[0]*a  + uvw[1]*b + uvw[2]*c;
-                        Vec3d contactPt = uvw[0] * a + uvw[1] * b + uvw[2] * c;
-                        insertionVector = (p - q).normalized();
+                        
+                        // if this triangle has not been inserted before, add to list and create constraint
+                        if (m_isPunctured[triangleId] == false) {
+                            
+                            // std::cout << "New Point!" << std::endl;
+                            std::cout << "Punctured triangle: " << triangleId << std::endl;
+                            
+                            // Save first penetration point 
+                            m_penetrationPts[triangleId] = uvw;
 
+                            // Change state to inserted
+                            m_isPunctured[triangleId] = true;
+                    
+                        }
+
+                        // Show current insertion point on screen
+                        // debugPt = uvw[0] * a + uvw[1] * b + uvw[2] * c;
+
+                        // Show initial insertion point
+                        /*debugPt2 = m_penetrationPts[triangleId][0] * a
+                            + m_penetrationPts[triangleId][1] * b
+                            + m_penetrationPts[triangleId][2] * c;*/
+
+                        // Cut here
+                        /*Vec3d contactPt = uvw[0] * a + uvw[1] * b + uvw[2] * c;
                         Vec3d needleVelocity = Vec3d::Zero();
 
                         VertexMassPair vmNeedle;
@@ -196,44 +258,85 @@ protected:
                         VertexMassPair ptB2;
                         VertexMassPair ptB3;
 
-                        ptB1.vertex = &meshVertices[triIds[0]];
-                        ptB2.vertex = &meshVertices[triIds[1]];
-                        ptB3.vertex = &meshVertices[triIds[2]];
+                        ptB1.vertex = &meshVertices[physTriIds[0]];
+                        ptB2.vertex = &meshVertices[physTriIds[1]];
+                        ptB3.vertex = &meshVertices[physTriIds[2]];
 
-                        ptB1.invMass = invMasses[triIds[0]];
-                        ptB2.invMass = invMasses[triIds[1]];
-                        ptB3.invMass = invMasses[triIds[2]];
+                        ptB1.invMass = invMasses[physTriIds[0]];
+                        ptB2.invMass = invMasses[physTriIds[1]];
+                        ptB3.invMass = invMasses[physTriIds[2]];
 
-                        ptB1.velocity = &meshVelocity[triIds[0]];
-                        ptB2.velocity = &meshVelocity[triIds[1]];
-                        ptB3.velocity = &meshVelocity[triIds[2]];
+                        ptB1.velocity = &meshVelocity[physTriIds[0]];
+                        ptB2.velocity = &meshVelocity[physTriIds[1]];
+                        ptB3.velocity = &meshVelocity[physTriIds[2]];
+                        
+                        auto intersectionPt = uvw[0] * a + uvw[1] * b + uvw[2] * c;
 
                         const std::vector<VertexMassPair> bodiesSecond = { ptB1, ptB2, ptB3 };
-                        auto pointTriangleConstraint = std::make_shared<PbdPointToArcConstraint>();
-                        pointTriangleConstraint->initConstraint(
-                            needleRigid,
-                            worldCoords, // Insertion Point
-                            ptB1, ptB2, ptB3, 
-                            contactPt, 
-                            m_barycentricPoint,
-                            0.0, 1.0 // stiffness parameters
-                        );
 
-                        // TRY:  Clearing elements array if insertion is happening
+                        auto pointTriangleConstraint = std::make_shared<SurfaceInsertionConstraint>();
 
-                        pointTriangleConstraint->solvePosition();
+                        auto puncturePt = m_penetrationPts[triangleId][0] * a
+                            + m_penetrationPts[triangleId][1] * b
+                            + m_penetrationPts[triangleId][2] * c;*/
 
-                        //// BS
-                        auto correctionVec = contactPt - worldCoords;
+                        //pointTriangleConstraint->initConstraint(
+                        //    needleRigid,
+                        //    puncturePt, // Insertion Point
+                        //    ptB1, ptB2, ptB3,
+                        //    intersectionPt,
+                        //    m_penetrationPts[triangleId],
+                        //    0.0, 1.0 // stiffness parameters
+                        //);
 
-                    }
-                }
-            }
-        }
-        else {
-            needleObj->setCollisionState(NeedleObject::CollisionState::REMOVED);
-            needleObj->setPrevCollisionState(NeedleObject::PrevCollisionState::REMOVED);
+                        // pointTriangleConstraint->solvePosition();
+                        
+                    } // end intersection test
+                } // end loop over triangles
 
+            } // end loop over line segments in needle
+
+            // Possibly print out changing geometry
+
+            // redo sweep and check for unpuncture
+            for (int segmentId = 0; segmentId < needleMesh->getNumLines(); segmentId++) {
+
+                Vec2i nodeIds = needleMesh->getLineIndices(segmentId);
+                const Vec3d p = needleVertices[nodeIds[0]];
+                const Vec3d q = needleVertices[nodeIds[1]];
+
+                // Loop over all triangles in the surface mesh
+                for (int triangleId = 0; triangleId < surfMesh->getNumTriangles(); triangleId++) {
+
+                    if (m_isPunctured[triangleId] == true) {
+                        
+                        auto surfTriIds = surfMesh->getTriangleIndices(triangleId);
+
+                        // Indices of the vertices on the physics mesh
+                        Vec3i physTriIds;
+                        physTriIds[0] = one2one->getParentVertexId(surfTriIds[0]);
+                        physTriIds[1] = one2one->getParentVertexId(surfTriIds[1]);
+                        physTriIds[2] = one2one->getParentVertexId(surfTriIds[2]);
+
+                        Vec3d a = meshVertices[physTriIds[0]];
+                        Vec3d b = meshVertices[physTriIds[1]];
+                        Vec3d c = meshVertices[physTriIds[2]];
+
+                        // Barycentric coordinates of interseciton point
+                        Vec3d uvw = Vec3d::Zero();
+
+                        // Check for intersection
+                        bool test = CollisionUtils::testSegmentTriangle(p, q, a, b, c, uvw);
+
+                        if (test == false) {
+ 
+                            std::cout << "Unpunctured triangle: " << triangleId << std::endl;
+                            m_isPunctured[triangleId] = false;
+
+                        }
+                    } // end if punctured
+                } // end loop over triangles
+            } // end loop over needle segments
         }
     }
 
@@ -270,35 +373,14 @@ protected:
         surfNormal = (ac.cross(ab)).normalized();
 
         // Get vector pointing in direction of needle
-        
         // Use absolute value to ignore direction issues
         auto dotProduct = fabs(m_needleDirection.dot(surfNormal));
-
-        // std::cout << dotProduct << std::endl;
 
         // Arbitrary threshold
         double threshold = 0.9;
 
-        Vec3d worldCoords = Vec3d::Zero();
-
-        // Calculate the barycentric coordinates
-        Vec3d p = *ptA.vertex;
-        Vec3d a = *ptB1.vertex;
-        Vec3d b = *ptB2.vertex;
-        Vec3d c = *ptB3.vertex;
-
-      /*  m_barycentricPoint = baryCentric(p, a, b, c);
-
-        worldCoords = 
-            m_barycentricPoint[0] * a
-            + m_barycentricPoint[1] * b
-            + m_barycentricPoint[2] * c;*/
-
-        // debugPt = worldCoords;
-
         if (needleObj->getCollisionState() == NeedleObject::CollisionState::TOUCHING)
         {
-
             // If the needle is close to perpindicular to the face if may insert
             // Note: This is a short term solution
             if (dotProduct > threshold)
@@ -306,40 +388,10 @@ protected:
                 LOG(INFO) << "Puncture!";
                 needleObj->setCollisionState(NeedleObject::CollisionState::INSERTED);
 
-
                 if (needleObj->getPrevCollisionState() == NeedleObject::PrevCollisionState::REMOVED)
                 {
-                    // Calculate the barycentric coordinates
-                    Vec3d p = *ptA.vertex; // NOTE: Probably underneath the triangle, verify
-                    Vec3d a = *ptB1.vertex;
-                    Vec3d b = *ptB2.vertex;
-                    Vec3d c = *ptB3.vertex;
-
-                    m_barycentricPoint = baryCentric(p, a, b, c);
-
-                    std::cout << "TEST" << std::endl;
-
                     needleObj->setPrevCollisionState(NeedleObject::PrevCollisionState::INSERTED);
-                
                 }
-
-                //// Calculate the barycentric coordinates
-                //Vec3d p = *ptA.vertex;
-                //Vec3d a = *ptB1.vertex;
-                //Vec3d b = *ptB2.vertex;
-                //Vec3d c = *ptB3.vertex;
-
-                //m_barycentricPoint = baryCentric(p, a, b, c);
-
-               
-
-                // Also stored punctured triangle global cell index of the punctured triangle
-                // save vertex indices?
-
-                // Record the initial contact point
-                // NOTE: This needs to be the barycentric point on the triangle in contact
-                // m_contactPt = contactPt;
-                // m_contactPt = worldCoords;
             }
         }
 
@@ -349,3 +401,74 @@ protected:
         }
     }
 };
+
+
+/*                      Vec3d contactPt = uvw[0] * a + uvw[1] * b + uvw[2] * c;
+                        insertionVector = (p - q).normalized();
+
+                        Vec3d needleVelocity = Vec3d::Zero();
+
+                        VertexMassPair vmNeedle;
+                        vmNeedle.vertex = &contactPt;
+                        vmNeedle.invMass = 1.0;
+                        vmNeedle.velocity = &needleVelocity;
+
+                        const std::vector<VertexMassPair> bodiesFirst = { vmNeedle };
+
+                        VertexMassPair ptB1;
+                        VertexMassPair ptB2;
+                        VertexMassPair ptB3;
+
+                        ptB1.vertex = &meshVertices[physTriIds[0]];
+                        ptB2.vertex = &meshVertices[physTriIds[1]];
+                        ptB3.vertex = &meshVertices[physTriIds[2]];
+
+                        ptB1.invMass = invMasses[physTriIds[0]];
+                        ptB2.invMass = invMasses[physTriIds[1]];
+                        ptB3.invMass = invMasses[physTriIds[2]];
+
+                        ptB1.velocity = &meshVelocity[physTriIds[0]];
+                        ptB2.velocity = &meshVelocity[physTriIds[1]];
+                        ptB3.velocity = &meshVelocity[physTriIds[2]];
+
+
+                        auto worldCoords = m_penetrationPts[triangleId][0] * a
+                            + m_penetrationPts[triangleId][1] * b
+                            + m_penetrationPts[triangleId][2] * c;
+
+                        debugPt2 = worldCoords;*/
+
+
+                        // const std::vector<VertexMassPair> bodiesSecond = { ptB1, ptB2, ptB3 };
+
+                        //auto pointTriangleConstraint = std::make_shared<SurfaceInsertionConstraint>();
+
+                        //pointTriangleConstraint->initConstraint(
+                        //    needleRigid,
+                        //    worldCoords, // Insertion Point
+                        //    ptB1, ptB2, ptB3,
+                        //    contactPt,
+                        //    m_barycentricPoint,
+                        //    0.0, 1.0 // stiffness parameters
+                        //);
+
+                        // pointTriangleConstraint->solvePosition();
+
+                        //pointTriangleConstraints.push_back(pointTriangleConstraint);
+
+                        //// Consider moving this to the back, after the sweep
+
+                        //pointTriangleConstraints.back()->initConstraint(
+                        //    needleRigid,
+                        //    worldCoords, // Insertion Point
+                        //    ptB1, ptB2, ptB3, 
+                        //    contactPt, 
+                        //    m_barycentricPoint,
+                        //    0.0, 1.0 // stiffness parameters
+                        //);
+
+                        // Possibly move outside of loop
+                        // pointTriangleConstraints.back()->solvePosition();
+
+                        // Also need to test for removal.
+                        // for all triangles in inserted state, sweep over needle segments to test for removal

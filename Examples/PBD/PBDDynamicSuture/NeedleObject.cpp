@@ -43,8 +43,8 @@ NeedleObject::NeedleObject() : RigidObject2("Needle")
     sutureMesh->transform(rot, Geometry::TransformType::ApplyToData);
     sutureLineMesh->transform(rot, Geometry::TransformType::ApplyToData);
 
-    setVisualGeometry(sutureMesh);
-    /// setVisualGeometry(sutureLineMesh);
+    // setVisualGeometry(sutureMesh);
+    setVisualGeometry(sutureLineMesh);
     setCollidingGeometry(sutureLineMesh);
     setPhysicsGeometry(sutureLineMesh);
     setPhysicsToVisualMap(std::make_shared<IsometricMap>(sutureLineMesh, sutureMesh));

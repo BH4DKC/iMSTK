@@ -25,6 +25,7 @@
 #include "imstkCollisionHandling.h"
 #include "imstkDebugGeometryObject.h"
 #include "imstkDirectionalLight.h"
+#include "imstkPointLight.h"
 #include "imstkIsometricMap.h"
 #include "imstkKeyboardDeviceClient.h"
 #include "imstkKeyboardSceneControl.h"
@@ -73,7 +74,10 @@
 using namespace imstk;
 
 Vec3d NeedlePbdCH::debugPt;
+// std::vector<Vec3d> NeedlePbdCH::debugPt;
 Vec3d NeedlePbdCH::debugPt2;
+
+int NeedlePbdCH::counter = 0;
 
 struct Input
 {
@@ -125,18 +129,19 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     auto pbdObject = std::make_shared<PbdObject>("meshHole");
     auto pbdParams = std::make_shared<PbdModelConfig>();
 
-    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 10.0);
-    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Volume, 10.0);
+    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 1.0);
+    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Volume, 1.0);
     pbdParams->m_doPartitioning = false;
     pbdParams->m_uniformMassValue = 0.01;
     pbdParams->m_gravity = Vec3d(0.0, 0.0, -0.1);
     pbdParams->m_dt = 0.01;
     pbdParams->m_iterations = 5;
-    pbdParams->m_viscousDampingCoeff = 0.01;
+    pbdParams->m_viscousDampingCoeff = 0.3;
 
     // Fix the borders
     for (int vert_id = 0; vert_id < surfMesh->getNumVertices(); vert_id++)
     {
+        
         auto position = tetMesh->getVertexPosition(vert_id);
         if (std::fabs(1.40984 - std::fabs(position(1))) <= 1E-4)
         {
@@ -150,9 +155,8 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     surfMesh->rotate(Vec3d(0.0, 0.0, 1.0), -PI_2, Geometry::TransformType::ApplyToData);
     surfMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2 / 1.0, Geometry::TransformType::ApplyToData);
 
-    tetMesh->scale(0.03, Geometry::TransformType::ApplyToData);
-    surfMesh->scale(0.03, Geometry::TransformType::ApplyToData);
-
+    tetMesh->scale(0.02, Geometry::TransformType::ApplyToData);
+    surfMesh->scale(0.02, Geometry::TransformType::ApplyToData);
 
 
     setSphereTexCoords(surfMesh, 10);
@@ -167,11 +171,11 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     pbdModel->configure(pbdParams);
 
     // Setup the material
-    /*auto material = std::make_shared<RenderMaterial>();
-    material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);*/
+    auto material = std::make_shared<RenderMaterial>();
+    material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);
 
     // Setup the material
-    auto material = std::make_shared<RenderMaterial>();
+    /*auto material = std::make_shared<RenderMaterial>();
     material->setShadingModel(RenderMaterial::ShadingModel::PBR);
     auto diffuseTex = MeshIO::read<ImageData>(iMSTK_DATA_ROOT "/textures/fleshDiffuse.jpg");
     material->addTexture(std::make_shared<Texture>(diffuseTex, Texture::Type::Diffuse));
@@ -179,7 +183,7 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     material->addTexture(std::make_shared<Texture>(normalTex, Texture::Type::Normal));
     auto ormTex = MeshIO::read<ImageData>(iMSTK_DATA_ROOT "/textures/fleshORM.jpg");
     material->addTexture(std::make_shared<Texture>(ormTex, Texture::Type::ORM));
-    material->setNormalStrength(0.3);
+    material->setNormalStrength(0.3);*/
 
     // Add a visual model to render the surface of the tet mesh
     auto visualModel = std::make_shared<VisualModel>();
@@ -187,7 +191,7 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     visualModel->setRenderMaterial(material);
     pbdObject->addVisualModel(visualModel);
 
-    MeshIO::write(surfMesh, "test.vtk");
+    // MeshIO::write(surfMesh, "test.vtk");
 
     // Setup the Object
     pbdObject->setPhysicsGeometry(tetMesh);
@@ -288,9 +292,6 @@ createPbdTriangle()
 
 
 
-
-
-
 ///
 /// \brief This example demonstrates suturing of a hole in a tissue
 ///
@@ -303,8 +304,42 @@ main()
     input.meshFileName = iMSTK_DATA_ROOT "Tissues/tissue_hole.vtk";
     // input.meshFileName = iMSTK_DATA_ROOT "Tissues/tissue_hole.obj";
 
+    // add new mesh overaying physics mesh
+    auto surfaceMesh = MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "Tissues/tissue_hole_test.obj");
+
+    surfaceMesh->rotate(Vec3d(0.0, 0.0, 1.0), -PI_2, Geometry::TransformType::ApplyToData);
+    surfaceMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2 / 1.0, Geometry::TransformType::ApplyToData);
+
+    surfaceMesh->scale(0.03, Geometry::TransformType::ApplyToData);
+    
+
+    auto material2 = std::make_shared<RenderMaterial>();
+    material2->setDisplayMode(RenderMaterial::DisplayMode::Surface);
+    material2->setShadingModel(RenderMaterial::ShadingModel::PBR);
+
+    material2->setShadingModel(RenderMaterial::ShadingModel::PBR);
+    auto diffuseTex = MeshIO::read<ImageData>(iMSTK_DATA_ROOT "/textures/fleshDiffuse.jpg");
+    material2->addTexture(std::make_shared<Texture>(diffuseTex, Texture::Type::Diffuse));
+    auto normalTex = MeshIO::read<ImageData>(iMSTK_DATA_ROOT "/textures/fleshNormal.jpg");
+    material2->addTexture(std::make_shared<Texture>(normalTex, Texture::Type::Normal));
+    auto ormTex = MeshIO::read<ImageData>(iMSTK_DATA_ROOT "/textures/fleshORM.jpg");
+    material2->addTexture(std::make_shared<Texture>(ormTex, Texture::Type::ORM));
+
+    material2->setRecomputeVertexNormals(false);
+
+    auto surfaceMeshModel = std::make_shared<VisualModel>();
+    surfaceMeshModel->setGeometry(surfaceMesh);
+    surfaceMeshModel->setRenderMaterial(material2);
+
+    auto sceneMesh = std::make_shared<SceneObject>("TestMesh");
+    sceneMesh->addVisualModel(surfaceMeshModel);
+   
+
+
     // Construct the scene
     auto scene = std::make_shared<Scene>("DynamicSuture");
+
+    // scene->addSceneObject(sceneMesh);
 
     scene->getActiveCamera()->setPosition(0.0, 0.06, 0.24);
     scene->getActiveCamera()->setFocalPoint(0.0, 0.005, 0.05);
@@ -312,8 +347,18 @@ main()
 
     auto light = std::make_shared<DirectionalLight>();
     light->setFocalPoint(Vec3d(5.0, -8.0, -5.0));
+    // light->setFocalPoint(Vec3d(0.0, -20.0, -20.0));
+    // light->setDirection(Vec3d(0.0, 0.005, 0.05));
     light->setIntensity(1.0);
     scene->addLight("Light", light);
+
+
+    auto ptLight = std::make_shared<PointLight>();
+    ptLight->setPosition(0.0, 0.06, 0.24);
+    ptLight->setIntensity(2.0);
+
+    // scene->addLight("ptLight", ptLight);
+
 
     // Load a tetrahedral mesh
     std::shared_ptr<TetrahedralMesh> tetMesh = MeshIO::read<TetrahedralMesh>(input.meshFileName);
@@ -414,6 +459,7 @@ main()
             [&](Event*)
             {
                 sphere->setPosition(NeedlePbdCH::debugPt); // current intersection
+                // sphere2->setPosition(NeedlePbdCH::debugPt[1]);
                 sphere2->setPosition(NeedlePbdCH::debugPt2); // Puncture point
 
             });

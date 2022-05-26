@@ -28,7 +28,7 @@ imstk_add_executable(${PROJECT_NAME}
     NeedleInteraction.h
     NeedleInteraction.cpp
     NeedlePbdCH.h
-    PbdPointToArcConstraint.h
+    SurfaceInsertionConstraint.h
 )
 
 
