@@ -29,6 +29,7 @@ imstk_add_executable(${PROJECT_NAME}
     NeedleInteraction.cpp
     NeedlePbdCH.h
     SurfaceInsertionConstraint.h
+    ThreadInsertionConstraint.h
 )
 
 

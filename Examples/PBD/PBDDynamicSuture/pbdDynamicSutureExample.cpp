@@ -25,6 +25,7 @@
 #include "imstkCollisionHandling.h"
 #include "imstkDebugGeometryObject.h"
 #include "imstkDirectionalLight.h"
+#include "imstkGeometryUtilities.h"
 #include "imstkPointLight.h"
 #include "imstkIsometricMap.h"
 #include "imstkKeyboardDeviceClient.h"
@@ -129,8 +130,8 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     auto pbdObject = std::make_shared<PbdObject>("meshHole");
     auto pbdParams = std::make_shared<PbdModelConfig>();
 
-    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 1.0);
-    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Volume, 1.0);
+    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 10.0);
+    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Volume, 10.0);
     pbdParams->m_doPartitioning = false;
     pbdParams->m_uniformMassValue = 0.01;
     pbdParams->m_gravity = Vec3d(0.0, 0.0, -0.1);
@@ -155,8 +156,8 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
     surfMesh->rotate(Vec3d(0.0, 0.0, 1.0), -PI_2, Geometry::TransformType::ApplyToData);
     surfMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2 / 1.0, Geometry::TransformType::ApplyToData);
 
-    tetMesh->scale(0.02, Geometry::TransformType::ApplyToData);
-    surfMesh->scale(0.02, Geometry::TransformType::ApplyToData);
+    tetMesh->scale(0.015, Geometry::TransformType::ApplyToData);
+    surfMesh->scale(0.015, Geometry::TransformType::ApplyToData);
 
 
     setSphereTexCoords(surfMesh, 10);
@@ -172,7 +173,7 @@ createTissueHole(std::shared_ptr<TetrahedralMesh> tetMesh)
 
     // Setup the material
     auto material = std::make_shared<RenderMaterial>();
-    material->setDisplayMode(RenderMaterial::DisplayMode::WireframeSurface);
+    material->setDisplayMode(RenderMaterial::DisplayMode::Wireframe);
 
     // Setup the material
     /*auto material = std::make_shared<RenderMaterial>();
@@ -239,7 +240,8 @@ createTriangle()
 
     return triangleMesh;
 }
-// Create tissue object to stitch
+
+
 static std::shared_ptr<PbdObject>
 createPbdTriangle()
 {
@@ -289,7 +291,62 @@ createPbdTriangle()
     return pbdObject;
 }
 
+///
+/// \brief Create pbd string object
+///
+static std::shared_ptr<PbdObject>
+makePbdString(
+    const std::string& name,
+    const Vec3d& pos, const Vec3d& dir, const int numVerts,
+    const double stringLength)
+{
+    imstkNew<PbdObject> stringObj(name);
 
+    // Setup the Geometry
+    std::shared_ptr<LineMesh> stringMesh =
+        GeometryUtils::toLineGrid(pos, dir, stringLength, numVerts);
+
+    // Setup the Parameters
+    imstkNew<PbdModelConfig> pbdParams;
+    pbdParams->enableConstraint(PbdModelConfig::ConstraintGenType::Distance, 100.0);
+    pbdParams->enableBendConstraint(1.4, 1);
+    // pbdParams->enableBendConstraint(1.0, 2); // 100000.0
+    pbdParams->m_fixedNodeIds = { 0, 1 };
+    pbdParams->m_uniformMassValue = 0.001 / numVerts; // 0.002 / numVerts; // grams
+    pbdParams->m_gravity = Vec3d(0.0, 0.0, 0.0);
+    pbdParams->m_dt = 0.0005;                    // Overwritten for real time
+
+    // Requires large amounts of iterations the longer, a different
+    // solver would help
+    pbdParams->m_iterations = 100;
+    pbdParams->m_viscousDampingCoeff = 0.008;
+
+    // Setup the Model
+    imstkNew<PbdModel> pbdModel;
+    pbdModel->setModelGeometry(stringMesh);
+    pbdModel->configure(pbdParams);
+
+    // Setup the VisualModel
+    imstkNew<RenderMaterial> material;
+    material->setBackFaceCulling(false);
+    material->setColor(Color::Red);
+    material->setLineWidth(2.0);
+    material->setPointSize(18.0);
+    material->setDisplayMode(RenderMaterial::DisplayMode::Wireframe);
+    // material->setDisplayMode(RenderMaterial::DisplayMode::Points);
+
+    imstkNew<VisualModel> visualModel;
+    visualModel->setGeometry(stringMesh);
+    visualModel->setRenderMaterial(material);
+
+    // Setup the Object
+    stringObj->addVisualModel(visualModel);
+    stringObj->setPhysicsGeometry(stringMesh);
+    stringObj->setCollidingGeometry(stringMesh);
+    stringObj->setDynamicalModel(pbdModel);
+
+    return stringObj;
+}
 
 
 ///
@@ -341,9 +398,9 @@ main()
 
     // scene->addSceneObject(sceneMesh);
 
-    scene->getActiveCamera()->setPosition(0.0, 0.06, 0.24);
-    scene->getActiveCamera()->setFocalPoint(0.0, 0.005, 0.05);
-    scene->getActiveCamera()->setViewUp(-0.01, 1.0, -0.3);
+    scene->getActiveCamera()->setPosition(0.0, 0.04, 0.09);
+    scene->getActiveCamera()->setFocalPoint(0.0, 0.02, 0.05);
+    scene->getActiveCamera()->setViewUp(0.001, 1.0, -0.4);
 
     auto light = std::make_shared<DirectionalLight>();
     light->setFocalPoint(Vec3d(5.0, -8.0, -5.0));
@@ -358,6 +415,7 @@ main()
     ptLight->setIntensity(2.0);
 
     // scene->addLight("ptLight", ptLight);
+
 
 
     // Load a tetrahedral mesh
@@ -378,12 +436,26 @@ main()
     needleObj->setForceThreshold(0.0001);
     scene->addSceneObject(needleObj);
 
-    // Add needle constraining behaviour between the tissue & arc needle
-    auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj);
+    // Create the suture pbd-based string
+    const double               stringLength = 0.1;
+    const int                  stringVertexCount = 7;
+    std::shared_ptr<PbdObject> sutureThreadObj =
+        makePbdString("SutureThread", Vec3d(0.0, 0.0, 0.018), Vec3d(0.0, 0.0, 1.0),
+            stringVertexCount, stringLength);
+    scene->addSceneObject(sutureThreadObj);
+
+    // Add needle constraining behaviour between the tissue & arc needle/thread
+    auto needleInteraction = std::make_shared<NeedleInteraction>(tissueHole, needleObj, sutureThreadObj);
     scene->addInteraction(needleInteraction);
 
+    // Add point based collision between the tissue & suture thread
+    //auto interaction = std::make_shared<PbdObjectCollision>(sutureThreadObj, tissueHole, "MeshToMeshBruteForceCD");
+    //interaction->setFriction(0.0);
+    //scene->addInteraction(interaction);
+
+    // Spheres for debugging
     auto sphere = std::make_shared<Sphere>();
-    sphere->setRadius(0.002);
+    sphere->setRadius(0.001);
 
     auto sphereModel = std::make_shared<VisualModel>();
     sphereModel->setGeometry(sphere);
@@ -395,7 +467,7 @@ main()
 
 
     auto sphere2 = std::make_shared<Sphere>();
-    sphere2->setRadius(0.002);
+    sphere2->setRadius(0.001);
 
     auto sphereModel2 = std::make_shared<VisualModel>();
     sphereModel2->setGeometry(sphere2);
@@ -462,6 +534,16 @@ main()
                 // sphere2->setPosition(NeedlePbdCH::debugPt[1]);
                 sphere2->setPosition(NeedlePbdCH::debugPt2); // Puncture point
 
+            });
+
+        // Constrain the first two vertices of the string to the needle
+        connect<Event>(sceneManager, &SceneManager::postUpdate,
+            [&](Event*)
+            {
+                auto needleLineMesh = std::dynamic_pointer_cast<LineMesh>(needleObj->getPhysicsGeometry());
+                auto sutureLineMesh = std::dynamic_pointer_cast<LineMesh>(sutureThreadObj->getPhysicsGeometry());
+                (*sutureLineMesh->getVertexPositions())[1] = (*needleLineMesh->getVertexPositions())[0];
+                (*sutureLineMesh->getVertexPositions())[0] = (*needleLineMesh->getVertexPositions())[1];
             });
 
         // Add mouse and keyboard controls to the viewer

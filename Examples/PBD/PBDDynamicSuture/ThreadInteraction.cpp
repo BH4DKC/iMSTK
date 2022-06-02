@@ -19,35 +19,36 @@
 
 =========================================================================*/
 
-#include "NeedleInteraction.h"
+#include "ThreadInteraction.h"
 #include "imstkLineMesh.h"
 #include "imstkPbdObject.h"
 #include "imstkCollisionDetectionAlgorithm.h"
-// #include "NeedleEmbeddedCH.h"
-#include "NeedlePbdCH.h"
+
 
 #include "NeedleObject.h"
 
 using namespace imstk;
 
-NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
-                                     std::shared_ptr<NeedleObject> needleObj,
+ThreadInteraction::ThreadInteraction(std::shared_ptr<PbdObject>    tissueObj,
                                      std::shared_ptr<PbdObject>    threadObj)
-    : PbdObjectCollision(tissueObj, needleObj)
+    : PbdObjectCollision(tissueObj, threadObj)
 {
-    if (std::dynamic_pointer_cast<LineMesh>(needleObj->getCollidingGeometry()) == nullptr)
+    if (std::dynamic_pointer_cast<LineMesh>(threadObj->getCollidingGeometry()) == nullptr)
     {
-        LOG(WARNING) << "NeedleInteraction only works with LineMesh collision geometry on NeedleObject";
+        LOG(WARNING) << "ThreadInteraction only works with LineMesh collision geometry";
     }
 
     // Add collision handler for the PBD reaction
-    auto needlePbdCH = std::make_shared<NeedlePbdCH>();
-    needlePbdCH->setInputObjectA(tissueObj);
-    needlePbdCH->setInputObjectB(needleObj);
-    needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
-    //needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
-    needlePbdCH->init(threadObj);
-    setCollisionHandlingAB(needlePbdCH);
+    //auto needlePbdCH = std::make_shared<NeedlePbdCH>();
+    //needlePbdCH->setInputObjectA(tissueObj);
+    //needlePbdCH->setInputObjectB(needleObj);
+    // 
+    // needlePbdCH->setThread(threadObj);
+    // 
+    //needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
+    ////needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
+    //needlePbdCH->init();
+    //setCollisionHandlingAB(needlePbdCH);
 
 
 }

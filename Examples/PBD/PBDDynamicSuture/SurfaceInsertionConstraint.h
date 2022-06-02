@@ -113,13 +113,14 @@ public:
         c = 1.0*diff.norm();
 
         diff = diff.normalized(); // gradient dcdx
-        // Weight by berycentric coordinates?
+        // Weight by berycentric coordinates
         dcdxB[0] = diff * m_barycentricPt[0];
         dcdxB[1] = diff * m_barycentricPt[1];
         dcdxB[2] = diff * m_barycentricPt[2];
 
         // Dont adjust position of needle, force mesh to follow needle
-        dcdxA[0] = 0.0 * diff;
+        // But maybe do though
+        dcdxA[0] = -1.0*diff;
 
         return true;
     }

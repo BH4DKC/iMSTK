@@ -31,21 +31,20 @@ class NeedleObject;
 
 namespace imstk
 {
-class PbdObject;
+    class PbdObject;
 } // namespace imstk
 
 ///
-/// \class NeedleInteraction
+/// \class ThreadInteraction
 ///
 /// \brief Defines interaction between NeedleObject and PbdObject
 ///
-class NeedleInteraction : public PbdObjectCollision
+class ThreadInteraction : public PbdObjectCollision
 {
 public:
-    NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
-                      std::shared_ptr<NeedleObject> needleObj,
+    ThreadInteraction(std::shared_ptr<PbdObject>    tissueObj,
                       std::shared_ptr<PbdObject>    threadObj);
-    ~NeedleInteraction() override = default;
+    ~ThreadInteraction() override = default;
 
-    IMSTK_TYPE_NAME(NeedleInteraction)
+    IMSTK_TYPE_NAME(ThreadInteraction)
 };
