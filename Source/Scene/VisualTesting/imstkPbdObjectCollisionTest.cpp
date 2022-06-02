@@ -23,6 +23,7 @@
 #include "imstkCapsule.h"
 #include "imstkCollisionDataDebugObject.h"
 #include "imstkCollisionDetectionAlgorithm.h"
+#include "imstkCylinder.h"
 #include "imstkDirectionalLight.h"
 #include "imstkGeometryUtilities.h"
 #include "imstkLineMesh.h"
@@ -373,7 +374,7 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_Crevice)
         std::make_shared<VecDataArray<int, 3>>(indices));
     m_collidingGeometry = surfMesh;
 
-    m_collisionName = "MeshToMeshBruteForceCD";
+    m_collisionName = "ClosedSurfaceMeshToMeshCD";
     m_friction      = 0.0;
     m_restitution   = 0.0;
 
@@ -385,9 +386,9 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_Crevice)
 }
 
 ///
-/// \brief Test MeshToMeshBruteForceCD with PbdObjectCollision
+/// \brief Test ClosedSurfaceMeshToMeshCD with PbdObjectCollision
 ///
-TEST_F(PbdObjectCollisionTest, PbdTissue_MeshToMeshBruteForceCD_LineMeshVsSurfMesh)
+TEST_F(PbdObjectCollisionTest, PbdTissue_ClosedSurfaceMeshToMeshCD_LineMeshVsSurfMesh)
 {
     // Setup the tissue
     m_pbdObj = makeLineThreadObj("Thread",
@@ -405,7 +406,7 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_MeshToMeshBruteForceCD_LineMeshVsSurfMe
         std::make_shared<VecDataArray<int, 3>>(indices));
     m_collidingGeometry = surfMesh;
 
-    m_collisionName = "MeshToMeshBruteForceCD";
+    m_collisionName = "ClosedSurfaceMeshToMeshCD";
     m_friction      = 0.0;
     m_restitution   = 0.0;
 
@@ -417,9 +418,9 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_MeshToMeshBruteForceCD_LineMeshVsSurfMe
 }
 
 ///
-/// \brief Test MeshToMeshBruteForceCD with PbdObjectCollision
+/// \brief Test ClosedSurfaceMeshToMeshCD with PbdObjectCollision
 ///
-TEST_F(PbdObjectCollisionTest, PbdTissue_MeshToMeshBruteForceCD_SurfMeshVsSurfMesh)
+TEST_F(PbdObjectCollisionTest, PbdTissue_ClosedSurfaceMeshToMeshCD_SurfMeshVsSurfMesh)
 {
     // Setup the tissue
     m_pbdObj = makeTriTissueObj("Tissue",
@@ -438,7 +439,7 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_MeshToMeshBruteForceCD_SurfMeshVsSurfMe
         std::make_shared<VecDataArray<int, 3>>(indices));
     m_collidingGeometry = surfMesh;
 
-    m_collisionName = "MeshToMeshBruteForceCD";
+    m_collisionName = "ClosedSurfaceMeshToMeshCD";
     m_friction      = 0.0;
     m_restitution   = 0.0;
 
@@ -663,6 +664,35 @@ TEST_F(PbdObjectCollisionTest, PbdTissue_PointSetToCapsuleCD)
     m_collidingGeometry = implicitGeom;
 
     m_collisionName = "PointSetToCapsuleCD";
+    m_friction      = 0.0;
+    m_restitution   = 0.0;
+
+    m_assertionBoundsMin = Vec3d(-1.0, -0.2, -1.0);
+    m_assertionBoundsMax = Vec3d(1.0, 1.0, 1.0);
+
+    createScene();
+    runFor(2.0);
+}
+
+///
+/// \brief Test PointSetToCylinderCD with PbdObjectCollision
+///
+TEST_F(PbdObjectCollisionTest, PbdTissue_PointSetToCylinderCD)
+{
+    // Setup the tissue
+    m_pbdObj = makeTriTissueObj("Tissue",
+        Vec2d(0.1, 0.1), Vec2i(4, 4), Vec3d::Zero(),
+        Quatd(Rotd(0.4, Vec3d(0.0, 0.0, 1.0))));
+
+    // Setup the geometry
+    auto implicitGeom = std::make_shared<Cylinder>();
+    implicitGeom->setOrientation(Quatd(Rotd(PI_2 * 0.5, Vec3d(0.0, 0.0, -1.0))));
+    implicitGeom->setPosition(0.0, -0.15, 0.0);
+    implicitGeom->setRadius(0.1);
+    implicitGeom->setLength(0.1);
+    m_collidingGeometry = implicitGeom;
+
+    m_collisionName = "PointSetToCylinderCD";
     m_friction      = 0.0;
     m_restitution   = 0.0;
 

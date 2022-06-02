@@ -8,6 +8,11 @@
 #include "imstkDataArray.h"
 #include "imstkVecDataArray.h"
 #include "imstkLogger.h"
+#ifdef iMSTK_SYNCHRONOUS_LOGGING
+#include "imstkLoggerSynchronous.h"
+#else
+#include "imstkLoggerG3.h"
+#endif
 #include "imstkModule.h"
 #include "imstkModuleDriver.h"
 #include "imstkColor.h"
@@ -118,6 +123,7 @@
 /*
  * CollisionDetection
  */
+#include "imstkClosedSurfaceMeshToMeshCD.h"
 #include "imstkCollisionData.h"
 #include "imstkCollisionDetectionAlgorithm.h"
 #include "imstkBidirectionalPlaneToSphereCD.h"
@@ -125,7 +131,6 @@
 #include "imstkCollisionUtils.h"
 #include "imstkImplicitGeometryToPointSetCCD.h"
 #include "imstkImplicitGeometryToPointSetCD.h"
-#include "imstkMeshToMeshBruteForceCD.h"
 #include "imstkPointSetToCapsuleCD.h"
 #include "imstkPointSetToOrientedBoxCD.h"
 #include "imstkPointSetToPlaneCD.h"
@@ -224,6 +229,10 @@ namespace std
   %template(VectorCollisionElement) vector<imstk::CollisionElement>;
 }
 
+%include <std_except.i>
+%include <exception.i>
+
+
 %include "shared_ptr_instantiation.i"
 %include "weak_ptr.i"
 %include "ignored.i"
@@ -231,6 +240,7 @@ namespace std
 %include "type_cast.i"
 %include "std_function.i"
 %include "callback.i"
+%include "except.i"
 
 /* rename these operators to "compute" due to lack of operator overloading */
 %rename(compute) imstk::ImplicitFunctionGradient::operator();
@@ -365,10 +375,11 @@ namespace std
 %include "../../CollisionDetection/imstkCollisionData.h"
 %include "../../CollisionDetection/imstkCollisionDetectionAlgorithm.h"
 %include "../../CollisionDetection/imstkCollisionUtils.h"
+
 %include "../../CollisionDetection/CollisionDetection/imstkBidirectionalPlaneToSphereCD.h"
+%include "../../CollisionDetection/CollisionDetection/imstkClosedSurfaceMeshToMeshCD.h"
 %include "../../CollisionDetection/CollisionDetection/imstkImplicitGeometryToPointSetCCD.h"
 %include "../../CollisionDetection/CollisionDetection/imstkImplicitGeometryToPointSetCD.h"
-%include "../../CollisionDetection/CollisionDetection/imstkMeshToMeshBruteForceCD.h"
 %include "../../CollisionDetection/CollisionDetection/imstkPointSetToCapsuleCD.h"
 %include "../../CollisionDetection/CollisionDetection/imstkPointSetToOrientedBoxCD.h"
 %include "../../CollisionDetection/CollisionDetection/imstkPointSetToPlaneCD.h"

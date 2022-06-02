@@ -58,6 +58,7 @@ PbdObjectCollision::PbdObjectCollision(std::shared_ptr<PbdObject> obj1, std::sha
             {
                 LOG(FATAL) << "Invalid handler type, must be of type PbdCollisionHandling on " <<
                     m_name << " collision solve";
+
             }
             pbdCh->getCollisionSolver()->solve();
         },
@@ -71,7 +72,11 @@ PbdObjectCollision::PbdObjectCollision(std::shared_ptr<PbdObject> obj1, std::sha
             if (pbdCh == nullptr)
             {
                 LOG(FATAL) << "Invalid handler type, must be of type PbdCollisionHandling on " <<
+<<<<<<< HEAD
                     m_name << " correct velocities";
+=======
+                m_name << " correct velocities";
+>>>>>>> origin/master
             }
             pbdCh->correctVelocities();
         },

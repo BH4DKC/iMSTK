@@ -128,10 +128,11 @@
  * CollisionDetection
  */
 %shared_ptr(imstk::CollisionDetectionAlgorithm)
+
+%shared_ptr(imstk::ClosedSurfaceMeshToMeshCD)
 %shared_ptr(imstk::BidirectionalPlaneToSphereCD)
 %shared_ptr(imstk::ImplicitGeometryToPointSetCCD)
 %shared_ptr(imstk::ImplicitGeometryToPointSetCD)
-%shared_ptr(imstk::MeshToMeshBruteForceCD)
 %shared_ptr(imstk::PointSetToCapsuleCD)
 %shared_ptr(imstk::PointSetToOrientedBoxCD)
 %shared_ptr(imstk::PointSetToSphereCD)
@@ -205,3 +206,15 @@
 %shared_ptr(imstk::HapticDeviceManager)
 %shared_ptr(imstk::VRPNDeviceClient)
 %shared_ptr(imstk::VRPNDeviceManager)
+
+#ifdef iMSTK_SYNCHRONOUS_LOGGING
+/*
+ * Logging for unity
+ */
+%shared_ptr(imstk::Logger)
+%shared_ptr(imstk::LoggerSynchronous)
+%shared_ptr(imstk::LogOutput)
+%shared_ptr(imstk::NullOutput)
+%shared_ptr(imstk::StreamOutput)
+%shared_ptr(imstk::CacheOutput)
+#endif
