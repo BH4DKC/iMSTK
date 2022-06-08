@@ -238,7 +238,7 @@ baryCentric(const Vec3d& pt, const Vec3d& p, const Vec3d& q)
     const double length = dir.norm();
     dir /= length;
     const double t = (pt - p).dot(dir) / length;
-    return Vec2d(t, 1.0 - t);
+    return Vec2d(1.0 - t, t);
 }
 
 ///

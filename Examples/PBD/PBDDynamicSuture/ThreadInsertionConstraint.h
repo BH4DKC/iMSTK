@@ -115,7 +115,7 @@ public:
 
         Vec3d diff = m_triInsertionPoint-m_threadInsertionPoint;  // gradient dcdx m_threadInsertionPoint - m_triInsertionPoint
         
-        c = 0.5*diff.norm();
+        c = 1.0*diff.norm();
 
         diff = diff.normalized(); // gradient dcdx
 

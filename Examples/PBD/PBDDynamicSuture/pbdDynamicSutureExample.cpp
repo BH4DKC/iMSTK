@@ -359,7 +359,7 @@ main()
     // input.meshFileName = iMSTK_DATA_ROOT "Tissues/tissue_hole.obj";
 
     // add new mesh overaying physics mesh
-    auto surfaceMesh = MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "Tissues/tissue_hole_test.obj");
+    /*auto surfaceMesh = MeshIO::read<SurfaceMesh>(iMSTK_DATA_ROOT "Tissues/tissue_hole_test.obj");
 
     surfaceMesh->rotate(Vec3d(0.0, 0.0, 1.0), -PI_2, Geometry::TransformType::ApplyToData);
     surfaceMesh->rotate(Vec3d(1.0, 0.0, 0.0), -PI_2 / 1.0, Geometry::TransformType::ApplyToData);
@@ -386,9 +386,8 @@ main()
     surfaceMeshModel->setRenderMaterial(material2);
 
     auto sceneMesh = std::make_shared<SceneObject>("TestMesh");
-    sceneMesh->addVisualModel(surfaceMeshModel);
+    sceneMesh->addVisualModel(surfaceMeshModel);*/
    
-
 
     // Construct the scene
     auto scene = std::make_shared<Scene>("DynamicSuture");
@@ -411,14 +410,10 @@ main()
     ptLight->setPosition(0.0, 0.06, 0.24);
     ptLight->setIntensity(2.0);
 
-    // scene->addLight("ptLight", ptLight);
-
-
 
     // Load a tetrahedral mesh
     std::shared_ptr<TetrahedralMesh> tetMesh = MeshIO::read<TetrahedralMesh>(input.meshFileName);
     CHECK(tetMesh != nullptr) << "Could not read mesh from file.";
-
 
     // Mesh with hole for suturing
     std::shared_ptr<PbdObject> tissueHole = createTissueHole(tetMesh);

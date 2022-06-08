@@ -218,9 +218,12 @@ public:
     {
         auto threadMesh = std::dynamic_pointer_cast<LineMesh>(m_threadObj->getCollidingGeometry());
 
+        // Move this thing into member variable
         std::shared_ptr<VecDataArray<double, 3>> threadVerticesPtr = threadMesh->getVertexPositions();
         VecDataArray<double, 3>& threadVertices = *threadVerticesPtr;
 
+        // A member reference can only 
+        // 
         // InverseMasses for thread
         std::shared_ptr<PointSet> pointSetA = std::dynamic_pointer_cast<PointSet>(m_threadObj->getPhysicsGeometry());
 
@@ -436,7 +439,6 @@ public:
             Vec3d threadTip = threadVertices[0];
 
             // First, find new penetration points
-
             Vec2i nodeIds = threadMesh->getLineIndices(0);
             const Vec3d p = threadVertices[nodeIds[0]];
             const Vec3d q = threadVertices[nodeIds[1]];
@@ -489,8 +491,8 @@ public:
                             newPuncture.triId = needlePData[needlePuncturePointId].triId;
                             
                             newPuncture.triVerts[0] = &meshVertices[physTriIds[0]]; // needlePData[needlePuncturePointId].triVerts[0];
-                            newPuncture.triVerts[1] = &meshVertices[physTriIds[0]]; // needlePData[needlePuncturePointId].triVerts[1];
-                            newPuncture.triVerts[2] = &meshVertices[physTriIds[0]]; // needlePData[needlePuncturePointId].triVerts[2];
+                            newPuncture.triVerts[1] = &meshVertices[physTriIds[1]]; // needlePData[needlePuncturePointId].triVerts[1];
+                            newPuncture.triVerts[2] = &meshVertices[physTriIds[2]]; // needlePData[needlePuncturePointId].triVerts[2];
 
                             newPuncture.triVertIds[0] = physTriIds[0]; //  needlePData[needlePuncturePointId].triVertIds[0];
                             newPuncture.triVertIds[1] = physTriIds[1]; // needlePData[needlePuncturePointId].triVertIds[1];
