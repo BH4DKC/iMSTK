@@ -23,9 +23,7 @@
 #include "imstkLineMesh.h"
 #include "imstkPbdObject.h"
 #include "imstkCollisionDetectionAlgorithm.h"
-// #include "NeedleEmbeddedCH.h"
 #include "NeedlePbdCH.h"
-
 #include "NeedleObject.h"
 
 using namespace imstk;
@@ -49,5 +47,12 @@ NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
     needlePbdCH->init(threadObj);
     setCollisionHandlingAB(needlePbdCH);
 
+}
+
+void NeedleInteraction::stitch() {
+
+    auto CH = std::static_pointer_cast<NeedlePbdCH>(this->getCollisionHandlingAB());
+
+    CH->Stitch();
 
 }

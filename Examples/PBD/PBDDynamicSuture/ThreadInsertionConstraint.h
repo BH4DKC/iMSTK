@@ -115,7 +115,7 @@ public:
 
         Vec3d diff = m_triInsertionPoint-m_threadInsertionPoint;  // gradient dcdx m_threadInsertionPoint - m_triInsertionPoint
         
-        c = diff.norm();
+        c = 0.5*diff.norm();
 
         diff = diff.normalized(); // gradient dcdx
 
@@ -125,9 +125,9 @@ public:
 
 
         // Move triangle to follow thread point (WARNING: Currently inactive)
-        dcdxB[0] = 0.0 * diff * m_triangleBaryPt[0];
-        dcdxB[1] = 0.0 * diff * m_triangleBaryPt[1];
-        dcdxB[2] = 0.0 * diff * m_triangleBaryPt[2];
+        dcdxB[0] = 0.0*diff * m_triangleBaryPt[0];
+        dcdxB[1] = 0.0*diff * m_triangleBaryPt[1];
+        dcdxB[2] = 0.0*diff * m_triangleBaryPt[2];
         
         return true;
     }

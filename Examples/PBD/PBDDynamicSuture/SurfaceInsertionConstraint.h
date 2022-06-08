@@ -52,7 +52,6 @@ public:
     Vec3d m_punctureVector;
     Vec3d m_contactPt;
 
-
     ///
     /// \param the Rigid body needle
     /// \param  
@@ -65,7 +64,6 @@ public:
     ~SurfaceInsertionConstraint() override = default;
 
 public:
-
 
     void initConstraint(
         std::shared_ptr<RigidBody> needle,
@@ -110,7 +108,7 @@ public:
         Vec3d diff = m_contactPt - m_insertionPoint;
         // Vec3d diff = m_insertionPoint - m_contactPt;
         // diff = diff.normalized(); // gradient dcdx
-        c = 1.0*diff.norm();
+        c = diff.norm();
 
         diff = diff.normalized(); // gradient dcdx
         // Weight by berycentric coordinates
@@ -120,7 +118,7 @@ public:
 
         // Dont adjust position of needle, force mesh to follow needle
         // But maybe do though
-        dcdxA[0] = -1.0*diff;
+        dcdxA[0] = 0.0*diff;
 
         return true;
     }

@@ -48,4 +48,6 @@ public:
     ~NeedleInteraction() override = default;
 
     IMSTK_TYPE_NAME(NeedleInteraction)
+
+    void stitch();
 };
