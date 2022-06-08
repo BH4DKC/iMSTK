@@ -423,8 +423,6 @@ public:
 
                     pointTriangleConstraint->solvePosition();
 
-                    // std::cout << "Closest x = " << closestPoint[0] << std::endl;
-
                 } // end loop over penetration points
 
             } // end scope for needle

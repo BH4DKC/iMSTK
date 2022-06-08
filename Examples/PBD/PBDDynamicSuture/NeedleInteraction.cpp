@@ -43,7 +43,6 @@ NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
     needlePbdCH->setInputObjectA(tissueObj);
     needlePbdCH->setInputObjectB(needleObj);
     needlePbdCH->setInputCollisionData(getCollisionDetection()->getCollisionData());
-    //needlePbdCH->getCollisionSolver()->setCollisionIterations(1);
     needlePbdCH->init(threadObj);
     setCollisionHandlingAB(needlePbdCH);
 
@@ -52,7 +51,5 @@ NeedleInteraction::NeedleInteraction(std::shared_ptr<PbdObject>    tissueObj,
 void NeedleInteraction::stitch() {
 
     auto CH = std::static_pointer_cast<NeedlePbdCH>(this->getCollisionHandlingAB());
-
     CH->Stitch();
-
 }
