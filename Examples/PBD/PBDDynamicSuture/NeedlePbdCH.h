@@ -45,18 +45,19 @@
 
 using namespace imstk;
 
+
+// Stores data for penetration points
 struct PenetrationData {
 
     // Triangle ID
-    int triId;
+    int triId = -1;
 
     // Triangle verticese
-    Vec3d* triVerts[3];
-    Vec3i triVertIds;
+    Vec3d* triVerts[3] = { NULL, NULL, NULL };
+    Vec3i triVertIds = { 0.0, 0.0, 0.0 };
 
     // Puncture barycentric coordinate on triangle
-    Vec3d triBaryPuncturePoint;
-
+    Vec3d triBaryPuncturePoint = { 0.0, 0.0, 0.0 };
 };
 
 
@@ -102,7 +103,6 @@ public:
     // Bool to activate stitching constraint
     bool m_stitch = false; 
 
-
     // Initialize interaction data
     void init(std::shared_ptr<PbdObject> threadObj) {
         
@@ -127,7 +127,6 @@ public:
         m_threadObj = threadObj;
     }
 
-    
     // Create stitching constraints
     void Stitch() {
 
@@ -209,8 +208,6 @@ public:
         }
     }
 
-
-
     // The handle is called every timestep (update step)
     void handle(
         const std::vector<CollisionElement>& elementsA,
@@ -222,8 +219,7 @@ public:
         std::shared_ptr<VecDataArray<double, 3>> threadVerticesPtr = threadMesh->getVertexPositions();
         VecDataArray<double, 3>& threadVertices = *threadVerticesPtr;
 
-        // A member reference can only 
-        // 
+
         // InverseMasses for thread
         std::shared_ptr<PointSet> pointSetA = std::dynamic_pointer_cast<PointSet>(m_threadObj->getPhysicsGeometry());
 
@@ -379,7 +375,7 @@ public:
                     // Check and see if the closest point is at the tips of the needle
                     // Note: Needle mesh is backwards
                     Vec3d diffTail = closestPoint - needleVertices[0];
-                    Vec3d diffTip = closestPoint - needleVertices[needleMesh->getNumVertices() - 1];
+                    Vec3d diffTip = closestPoint - needleVertices[(int)(needleMesh->getNumVertices() - 1)];
 
                     if (diffTail.norm() < 1e-8 || diffTip.norm() < 1e-8) {
 
@@ -552,7 +548,7 @@ public:
 
                 // Check and see if the closest point is at the tips of the thread
                 Vec3d diffTip = closestPoint - threadVertices[0];
-                Vec3d diffTail = closestPoint - threadVertices[threadMesh->getNumVertices() - 1];
+                Vec3d diffTail = closestPoint - threadVertices[(int)(threadMesh->getNumVertices() - 1)];
 
 
                 // Unpuncture if thread moves past last segment of the thread
